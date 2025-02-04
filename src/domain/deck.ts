@@ -21,11 +21,15 @@ export class Deck<T> {
     this._cards = this._cards.sort(() => Math.random() - 0.5);
   }
 
-  draw(): T | undefined {
-    return this._cards.pop();
+  draw(n = 1): T[] {
+    return this._cards.splice(0, n);
   }
 
   get size(): number {
     return this._cards.length;
+  }
+
+  get allCards(): T[] {
+    return this._allCards;
   }
 }
