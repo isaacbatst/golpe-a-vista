@@ -56,3 +56,20 @@ it("deve iniciar a primeira rodada com um jogador aleatório como presidente int
   expect(game).toBeDefined();
   expect(game!.interimPresident).toBeDefined();
 })
+
+it("deve comprar 2 cartas do deck de leis", () => {
+  const [error, game] = Game.create([
+    "p1",
+    "p2",
+    "p3",
+    "p4",
+    "p5",
+    "p6",
+  ]);
+  expect(error).toBeUndefined();
+  expect(game).toBeDefined();
+  
+  game!.drawLaws();
+
+  expect(game!.drawnLaws).toHaveLength(3);
+})
