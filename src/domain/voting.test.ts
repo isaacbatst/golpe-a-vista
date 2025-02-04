@@ -26,3 +26,12 @@ it("deve iniciar uma votação sobre a lei 1", () => {
     expect(vote).toBeNull();
   }
 })  
+
+it("não deve iniciar uma votação com menos de 2 jogadores", () => {
+  const [error, voting] = Voting.create("Lei 1", [
+    'p1',
+  ]);
+
+  expect(error).toBe("Mínimo de 2 jogadores para iniciar uma votação");
+  expect(voting).toBeUndefined();
+})
