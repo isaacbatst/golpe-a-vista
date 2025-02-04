@@ -42,3 +42,17 @@ it("deve distribuir jogadores aleatóriamente entre 1 radical, 3 moderados e 2 c
   expect(game!.players.filter(p => p.role === Role.MODERADO).length).toBe(3);
   expect(game!.players.filter(p => p.role === Role.CONSERVADOR).length).toBe(2);
 })
+
+it("deve iniciar a primeira rodada com um jogador aleatório como presidente interino", () => {
+  const [error, game] = Game.create([
+    "p1",
+    "p2",
+    "p3",
+    "p4",
+    "p5",
+    "p6",
+  ]);
+  expect(error).toBeUndefined();
+  expect(game).toBeDefined();
+  expect(game!.interimPresident).toBeDefined();
+})
