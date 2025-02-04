@@ -1,12 +1,12 @@
 import { Either, left, right } from "./either";
 
-export class Game {
+export class Lobby {
   private _players: string[] = [];
 
   private constructor() {}
 
-  static create(): Either<never, Game> {
-    return right(new Game());
+  static create(): Either<never, Lobby> {
+    return right(new Lobby());
   }
 
   addPlayer(player: string): Either<string, void> {
