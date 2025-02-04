@@ -12,6 +12,7 @@ export class Game {
   private _interimPresident: Player;
   private _deck: Deck<Law>;
   private _drawnLaws: Law[] = [];
+  private _lawToVote: Law | null = null;
 
   static create(players: string[]): Either<string, Game> {
     if (players.length < 6) {
@@ -44,6 +45,14 @@ export class Game {
 
   drawLaws() {
     this._drawnLaws = this._deck.draw(Game.LAWS_TO_DRAW);
+  }
+
+  chooseLaw(index: number) {
+    this._lawToVote = this._drawnLaws[index];
+  }
+
+  get lawToVote() {
+    return this._lawToVote;
   }
     
   get drawnLaws() {

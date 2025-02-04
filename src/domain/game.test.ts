@@ -71,5 +71,26 @@ it("deve comprar 2 cartas do deck de leis", () => {
   
   game!.drawLaws();
 
-  expect(game!.drawnLaws).toHaveLength(3);
+  expect(game!.drawnLaws).toHaveLength(2);
+})
+
+it("deve escolher uma das leis para votação", () => {
+  const [error, game] = Game.create([
+    "p1",
+    "p2",
+    "p3",
+    "p4",
+    "p5",
+    "p6",
+  ]);
+  expect(error).toBeUndefined();
+  expect(game).toBeDefined();
+  
+  game!.drawLaws();
+
+  const laws = game!.drawnLaws;
+  const law = laws[0];
+  game!.chooseLaw(0);
+
+  expect(game!.lawToVote).toBe(law);
 })
