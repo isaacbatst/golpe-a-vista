@@ -19,6 +19,10 @@ export class Lobby {
   }
 
   startGame(): Either<string, Game> {
+    if (this._players.length < 6) {
+      return left("Mínimo de 6 jogadores para iniciar o jogo");
+    }
+
     return Game.create(this._players);
   }
 
