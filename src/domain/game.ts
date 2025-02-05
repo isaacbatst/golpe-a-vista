@@ -51,6 +51,10 @@ export class Game {
   }
 
   startVoting(): Either<string, void> {
+    if(this._voting) {
+      return left("Votação já iniciada");
+    }
+
     if(!this._lawToVote) {
       return left("Nenhuma lei escolhida para votação");
     }

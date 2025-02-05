@@ -102,4 +102,53 @@ it("deve finalizar votação e, com maioria, salvar a lei aprovada", () => {
   expect(game!.lawToVote).toBeNull();
   expect(game!.drawnLaws).toHaveLength(0);
   expect(game!.approvedLaws).toContain(law);
+  expect(game!.votingResult).toBeNull();
+});
+
+it("deve finalizar votação e, sem maioria, descartar a lei rejeitada", () => {
+  const [error, game] = Game.create(["p1", "p2", "p3", "p4", "p5", "p6"]);
+  expect(error).toBeUndefined();
+  expect(game).toBeDefined();
+
+  game!.drawLaws();
+  game!.chooseLaw(0);
+  game!.startVoting();
+
+  const law = game!.lawToVote;
+
+  game!.vote("p1", true);
+  game!.vote("p2", true);
+  game!.vote("p3", false);
+  game!.vote("p4", false);
+  game!.vote("p5", false);
+  game!.vote("p6", false);
+
+  game!.endVoting();
+
+  expect(game!.lawToVote).toBeNull();
+  expect(game!.drawnLaws).toHaveLength(0);
+  expect(game!.approvedLaws).not.toContain(law);
+  expect(game!.votingResult).toBeNull();
+}); 
+
+it("não deve iniciar a votação se já houver uma em andamento", () => {
+  const [error, game] = Game.create(["p1", "p2", "p3", "p4", "p5", "p6"]);
+  expect(error).toBeUndefined();
+  expect(game).toBeDefined();
+
+  game!.drawLaws();
+  game!.chooseLaw(0);
+  game!.startVoting();
+
+  const [startVotingError] = game!.startVoting();
+  expect(startVotingError).toBe("Votação já iniciada");
+});
+
+it("não deve iniciar a votação sem uma lei escolhida", () => {
+  const [error, game] = Game.create(["p1", "p2", "p3", "p4", "p5", "p6"]);
+  expect(error).toBeUndefined();
+  expect(game).toBeDefined();
+
+  const [startVotingError] = game!.startVoting();
+  expect(startVotingError).toBe("Nenhuma lei escolhida para votação");
 });
