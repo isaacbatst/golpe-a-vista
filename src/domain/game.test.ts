@@ -111,6 +111,14 @@ it("deve finalizar votação e, com maioria, salvar a lei aprovada", () => {
   expect(game!.drawnLaws).toHaveLength(0);
   expect(game!.approvedLaws).toContain(law);
   expect(game!.votingResult).toBeNull();
+  expect(game!.votingHistory).toHaveLength(1);
+  expect(game!.votingHistory[0].counting).toEqual({
+    yes: 4,
+    no: 2,
+    abstention: 0,
+  });
+  expect(game!.votingHistory[0].subject).toBe(law);
+  expect(game!.votingHistory[0].result).toBe(true);
 });
 
 it("deve finalizar votação e, sem maioria, descartar a lei rejeitada", () => {

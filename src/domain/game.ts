@@ -16,6 +16,7 @@ export class Game {
   private _lawToVote: Law | null = null;
   private _voting: Voting<Law> | null = null;
   private _approvedLaws: Law[] = [];
+  private _votingHistory: Voting<Law>[] = [];
 
   static create(players: string[]): Either<string, Game> {
     const [error, lawsDeck] = Game.createLawsDeck();
@@ -96,8 +97,15 @@ export class Game {
       this._approvedLaws.push(this._voting.subject);
     }
 
+    this._votingHistory.push(this._voting);
     this._voting = null;
     return right(undefined);
+  }
+
+  get votingHistory() {
+    return [
+      ...this._votingHistory
+    ]
   }
 
   get approvedLaws() {
