@@ -1,10 +1,10 @@
 import { Either, left, right } from "./either";
 
-export class Voting {
-  private _subject: string;
+export class Voting<T> {
+  private _subject: T;
   private _votes: Map<string, boolean | null>;
 
-  private constructor(subject: string, players: string[]) {
+  private constructor(subject: T, players: string[]) {
     this._subject = subject;
 
     this._votes = new Map();
@@ -14,7 +14,7 @@ export class Voting {
     });
   }
 
-  static create(subject: string, players: string[]): Either<string, Voting> {
+  static create<T>(subject: T, players: string[]): Either<string, Voting<T>> {
     if (players.length < 2) {
       return left("Mínimo de 2 jogadores para iniciar uma votação");
     }
