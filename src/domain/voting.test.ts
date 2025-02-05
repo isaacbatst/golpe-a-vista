@@ -84,9 +84,55 @@ it("deve contar os votos", () => {
   voting!.vote('p5', true);
   voting!.vote('p6', false);
 
-  expect(voting!.result).toEqual({
+  expect(voting!.counting).toEqual({
     yes: 3,
     no: 3,
     abstention: 0,
   })
+})
+
+it("deve determinar que sim ganhou quando houver maioria de yes", () => {
+  const [error, voting] = Voting.create("Lei 1", [
+    'p1',
+    'p2',
+    'p3',
+    'p4',
+    'p5',
+    'p6',
+  ]);
+
+  expect(error).toBeUndefined();
+  expect(voting).toBeDefined();
+
+  voting!.vote('p1', true);
+  voting!.vote('p2', false);
+  voting!.vote('p3', true);
+  voting!.vote('p4', false);
+  voting!.vote('p5', true);
+  voting!.vote('p6', true);
+
+  expect(voting!.result).toBe(true);
+})
+
+it("deve determinar que não ganhou quando houver empate", () => {
+  const [error, voting] = Voting.create("Lei 1", [
+    'p1',
+    'p2',
+    'p3',
+    'p4',
+    'p5',
+    'p6',
+  ]);
+
+  expect(error).toBeUndefined();
+  expect(voting).toBeDefined();
+
+  voting!.vote('p1', true);
+  voting!.vote('p2', false);
+  voting!.vote('p3', true);
+  voting!.vote('p4', false);
+  voting!.vote('p5', true);
+  voting!.vote('p6', false);
+
+  expect(voting!.result).toBe(false);
 })

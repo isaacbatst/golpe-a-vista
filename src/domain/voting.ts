@@ -9,7 +9,7 @@ export class Voting {
 
     this._votes = new Map();
 
-    players.forEach(player => {
+    players.forEach((player) => {
       this._votes.set(player, null);
     });
   }
@@ -25,12 +25,21 @@ export class Voting {
     this._votes.set(player, vote);
   }
 
-  get result() {
+  get counting() {
     return {
-      yes: Array.from(this._votes.values()).filter(vote => vote === true).length,
-      no: Array.from(this._votes.values()).filter(vote => vote === false).length,
-      abstention: Array.from(this._votes.values()).filter(vote => vote === null).length,
+      yes: Array.from(this._votes.values()).filter((vote) => vote === true)
+        .length,
+      no: Array.from(this._votes.values()).filter((vote) => vote === false)
+        .length,
+      abstention: Array.from(this._votes.values()).filter(
+        (vote) => vote === null
+      ).length,
     };
+  }
+
+  get result() {
+    const counting = this.counting;
+    return counting.yes > counting.no + counting.abstention;
   }
 
   get subject() {
@@ -40,5 +49,4 @@ export class Voting {
   get votes() {
     return new Map(this._votes);
   }
-
 }
