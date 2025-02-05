@@ -21,6 +21,18 @@ export class Voting {
     return right(new Voting(subject, players));
   }
 
+  vote(player: string, vote: boolean) {
+    this._votes.set(player, vote);
+  }
+
+  get result() {
+    return {
+      yes: Array.from(this._votes.values()).filter(vote => vote === true).length,
+      no: Array.from(this._votes.values()).filter(vote => vote === false).length,
+      abstention: Array.from(this._votes.values()).filter(vote => vote === null).length,
+    };
+  }
+
   get subject() {
     return this._subject;
   }
@@ -28,4 +40,5 @@ export class Voting {
   get votes() {
     return new Map(this._votes);
   }
+
 }
