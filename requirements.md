@@ -12,8 +12,8 @@
 
 ## **2️⃣ Condição de Vitória**
 📌 **O jogo termina quando um time aprova 5 leis:**  
-   - ✅ **Progressistas vencem** ao aprovar **5 leis progressistas**.  
-   - ✅ **Conservadores vencem** ao aprovar **5 leis conservadoras**.  
+   - ✅ **Progressistas vencem** ao aprovar **6 leis progressistas** ou cassar **todos jogadores conservadores**.
+   - ✅ **Conservadores vencem** ao cassar o **radical** ou aprovar **6 leis conservadoras**.
 
 ---
 
@@ -35,7 +35,7 @@ Cada rodada segue a seguinte estrutura:
    - ✅ **Se a maioria aprovar →** A lei entra em vigor e seu efeito é ativado.  
    - ❌ **Se a maioria rejeitar →** Nenhuma das duas leis entra em vigor e a rodada termina.  
 
-📌 **Se duas leis consecutivas forem rejeitadas, a próxima votação será obrigatoriamente aprovada**.  
+📌 **Se duas leis consecutivas forem rejeitadas, é gerada uma crise**.  
 
 ---
 
@@ -99,7 +99,7 @@ Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas
    - 📌 **Moderado puxa crise secretamente** OU  
    - 📌 **Se o moderado não puxar, os conservadores podem puxar** (caso permitido pelas regras).  
 6. **Executa efeito da lei aprovada e da crise (se houver).**  
-7. **Se três leis conservadoras foram aprovadas, o Presidente pode cassar um jogador.**  
+7. **A partir de 4 leis conservadoras aprovadas, o Presidente deve cassar um jogador toda rodada.**  
 8. **Passa a vez para o próximo Presidente Interino.**  
 
 ---
