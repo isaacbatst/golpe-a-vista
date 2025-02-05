@@ -1,19 +1,20 @@
-# 📜 Requisitos para Implementação do Jogo
+# 🎜 Requisitos para Implementação do Jogo
 
 ## **1️⃣ Estrutura Básica do Jogo**
 ✅ **Número de Jogadores:** 6 jogadores  
 ✅ **Papéis no jogo:**  
-   - **Radicais (1x)** → Sempre querem aprovar leis progressistas.  
-   - **Moderados (3x)** → Jogam do lado dos progressistas, mas têm receio de causar crises.  
-   - **Conservadores (2x)** → Querem aprovar leis conservadoras e sabotar os progressistas.  
+   - **Radical (1x)** → Sempre quer aprovar leis progressistas e deve evitar ser cassado.  
+   - **Moderados (3x)** → Jogam do lado dos progressistas, tem receio de gerar crises.
+   - **Conservadores (2x)** → Querem aprovar leis conservadoras e cassar o radical.
+
 ✅ **Rodadas:** O jogo é dividido em rodadas cíclicas, onde cada jogador assume o papel de **Presidente Interino** uma vez antes de reiniciar a ordem.  
 
 ---
 
 ## **2️⃣ Condição de Vitória**
-📌 **O jogo termina quando um time aprova 5 leis:**  
-   - ✅ **Progressistas vencem** ao aprovar **6 leis progressistas** ou cassar **todos jogadores conservadores**.
-   - ✅ **Conservadores vencem** ao cassar o **radical** ou aprovar **6 leis conservadoras**.
+📌 **O jogo termina quando um time atinge um dos objetivos:**  
+   - ✅ **Progressistas vencem** ao aprovar **6 leis progressistas** ou cassar **todos os conservadores**. 
+   - ✅ **Conservadores vencem** ao cassar o **radical** ou aprovar **10 leis conservadoras**.  
 
 ---
 
@@ -22,20 +23,20 @@ Cada rodada segue a seguinte estrutura:
 
 1️⃣ **Definir o Presidente Interino**  
    - O **Presidente Interino** é rotacionado a cada rodada, sem repetir antes que todos tenham assumido o cargo.  
-   
+
 2️⃣ **Distribuir Leis**  
    - O Presidente recebe **duas leis aleatórias** do baralho.  
-   
+
 3️⃣ **Escolha da Lei e Debate**  
    - O Presidente escolhe **uma das leis**, sem revelá-la.  
    - Ele pode argumentar e tentar convencer os outros jogadores a aprová-la.  
 
 4️⃣ **Votação Pública**  
    - Todos os jogadores **votam publicamente** se aprovam ou rejeitam a lei.  
-   - ✅ **Se a maioria aprovar →** A lei entra em vigor e seu efeito é ativado.  
-   - ❌ **Se a maioria rejeitar →** Nenhuma das duas leis entra em vigor e a rodada termina.  
+   - ✅ **Se a maioria aprovar** → A lei entra em vigor e conta para a vitória do time correspondente.  
+   - ❌ **Se a maioria rejeitar** → Nenhuma das duas leis entra em vigor e a rodada termina.  
 
-📌 **Se duas leis consecutivas forem rejeitadas, é gerada uma crise**.  
+📌 **Se duas leis consecutivas forem rejeitadas, é gerada uma crise.**  
 
 ---
 
@@ -53,25 +54,35 @@ Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas
 📌 **Regra Extra:**  
 ✅ **Os conservadores NÃO podem ativar duas crises seguidas.**  
 
----
-
-## **5️⃣ Efeitos das Crises**
-- Sempre que uma crise for ativada, **o Presidente Interino recebe o efeito da crise em segredo**.  
-- Ele pode escolher **revelar, mentir ou blefar sobre a crise**, já que ninguém mais saberá se ela realmente ocorreu.  
-- **As crises sempre favorecem os conservadores.**  
+📌 **Efeito das Crises:**  
+✅ **A crise tem efeito apenas na próxima rodada.**  
+✅ **O próximo Presidente Interino será obrigado a escolher uma lei conservadora.**  
+✅ **Somente o Presidente Interino saberá da crise, podendo blefar ou revelar a informação.**  
 
 ---
 
-## **6️⃣ Cassação de Jogadores**
-📌 Se **três leis conservadoras forem aprovadas**, o Presidente Interino pode escolher **cassar um jogador**.  
+## **5️⃣ Cassação de Jogadores**
+📌 A cada **três leis conservadoras forem aprovadas**, ou **três crises**, é acionado o direito de cassar um jogador.  
+📌 **A cada duas cassacoes negadas, uma lei conservadora é automaticamente aprovada.**  
 📌 O jogador cassado **sai do jogo sem revelar sua identidade**.  
+📌 **A cassacão precisa ser aprovada por votação pública**.  
+
+---
+
+## **6️⃣ Mecânica do Dossiê**
+📌 **Após a votação da lei, o ex-Presidente escolhe quem receberá o Dossiê.**  
+📌 O ex-Presidente **não pode escolher a si mesmo nem um jogador que tenha recebido o Dossiê na rodada anterior**.  
+📌 O jogador escolhido recebe **informação privada** sobre as leis do Presidente atual.  
+📌 O jogador pode **falar a verdade ou mentir sobre o conteúdo do Dossiê**.  
+
+🔥 **Isso cria um jogo de confiança e manipulação, onde os jogadores precisam conquistar credibilidade para receber informações valiosas.**
 
 ---
 
 ## **7️⃣ Baralho de Leis**
 📌 As leis são divididas em **progressistas e conservadoras**.  
-📌 **Todas as leis possuem um efeito no jogo**, além de contar para a vitória do time correspondente.  
-📌 O baralho contém **8 leis progressistas, 8 conservadoras e 2 neutras**.  
+📌 **As leis não têm efeito direto, apenas contam para a vitória do time correspondente.**  
+📌 O baralho contém **10 leis progressistas e 10 conservadoras**.  
 
 ---
 
@@ -79,35 +90,20 @@ Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas
 📌 **Estrutura de Dados (JSON ou Banco de Dados)**  
 - Lista de jogadores, seus papéis e status (ativo/cassado).  
 - Contador de leis aprovadas por facção.  
-- Baralho de leis com efeitos associados.  
+- Baralho de leis.  
 - Histórico de rodadas e crises ativadas.  
-
-📌 **Regras de Exibição**  
-- O **Presidente Interino** vê suas leis e a crise (se houver).  
-- Os jogadores **veem apenas a proposta da lei e votam publicamente**.  
-- **Os jogadores não sabem** quando uma crise ocorre, exceto o Presidente e os conservadores (se a crise for ativada por eles).  
-- **Cassação de jogadores** remove um participante sem revelar sua identidade.  
 
 📌 **Fluxo de Rodada (Resumido para Implementação)**  
 1. **Seleciona Presidente Interino**  
 2. **Distribui duas leis**  
 3. **Presidente escolhe uma lei**  
 4. **Todos votam publicamente**  
-   - 📌 **Se rejeitada →** Nenhuma lei aprovada.  
-   - 📌 **Se rejeitada duas vezes seguidas →** Próxima votação obrigatoriamente aprovada.  
-5. **Se a segunda lei progressista consecutiva for aprovada, verifica ativação de crise**  
-   - 📌 **Moderado puxa crise secretamente** OU  
-   - 📌 **Se o moderado não puxar, os conservadores podem puxar** (caso permitido pelas regras).  
-6. **Executa efeito da lei aprovada e da crise (se houver).**  
-7. **A partir de 4 leis conservadoras aprovadas, o Presidente deve cassar um jogador toda rodada.**  
+5. **Verifica ativação de crise**  
+6. **Executa efeito da crise (se houver) na próxima rodada.**  
+7. **Verifica condição de cassacão e votação**  
 8. **Passa a vez para o próximo Presidente Interino.**  
 
 ---
 
-### **📌 Conclusão**
-✅ **Todas as regras organizadas na ordem ideal para implementação.**  
-✅ **Foco na lógica do jogo antes da interface.**  
-✅ **Fluxo bem definido para o desenvolvimento de cada etapa.**  
-
-⚡ **Pronto para começar a implementação ou quer revisar algo antes?** 🚀
+### **📌 Pronto para iniciar a implementação? Algum ajuste final?** 🚀
 
