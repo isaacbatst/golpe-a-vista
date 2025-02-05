@@ -17,7 +17,8 @@ it("deve iniciar a primeira rodada com um jogador aleatório como presidente int
   const [error, game] = Game.create(["p1", "p2", "p3", "p4", "p5", "p6"]);
   expect(error).toBeUndefined();
   expect(game).toBeDefined();
-  expect(game!.interimPresident).toBeDefined();
+  expect(game?.currentRound).toBe(0);
+  expect(game!.president).toBeDefined();
 });
 
 it("deve comprar 2 cartas do deck de leis", () => {
@@ -168,3 +169,21 @@ it("não deve iniciar a votação sem uma lei escolhida", () => {
   const [startVotingError] = game!.startVoting();
   expect(startVotingError).toBe("Nenhuma lei escolhida para votação");
 });
+
+it("deve iniciar a próxima rodada com o próximo jogador como presidente interino", () => {
+  const [error, game] = Game.create(["p1", "p2", "p3", "p4", "p5", "p6"]);
+  expect(error).toBeUndefined();
+  expect(game).toBeDefined();
+
+  const firstPresident = game!.president;
+
+  game!.drawLaws();
+  game!.chooseLaw(0);
+  game!.startVoting();
+  game!.endVoting();
+  
+  game!.nextRound();
+  expect(game!.currentRound).toBe(1);
+  expect(game!.president).toBeDefined();
+  expect(game!.president).not.toBe(firstPresident);
+})

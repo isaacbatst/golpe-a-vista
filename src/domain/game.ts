@@ -10,37 +10,55 @@ export class Game {
   static readonly LAWS_TO_DRAW = 2;
 
   private _players: Player[] = [];
-  private _interimPresident: Player;
   private _deck: Deck<Law>;
   private _drawnLaws: Law[] = [];
   private _lawToVote: Law | null = null;
   private _voting: Voting<Law> | null = null;
   private _approvedLaws: Law[] = [];
   private _votingHistory: Voting<Law>[] = [];
+  private _lawsToProgressiveWin: number;
+  private _lawsToConservativeWin: number;
+  private _presidentQueue: Player[];
+  private _currentRound: number = 0;
 
-  static create(players: string[]): Either<string, Game> {
+  static create(
+    players: string[],
+    lawsToProgressiveWin: number = 5,
+    lawsToConservativeWin: number = 5
+  ): Either<string, Game> {
     const [error, lawsDeck] = Game.createLawsDeck();
 
     if (!lawsDeck) {
       return left(error);
     }
 
-    return right(new Game(players, lawsDeck));
+    return right(
+      new Game(players, lawsDeck, lawsToProgressiveWin, lawsToConservativeWin)
+    );
   }
 
   private static createLawsDeck() {
-    return Deck.create(LAWS)
+    return Deck.create(LAWS);
   }
 
-  private constructor(players: string[], deck: Deck<Law>) {
-    const roles = [Role.RADICAL, Role.MODERADO, Role.MODERADO, Role.MODERADO, Role.CONSERVADOR, Role.CONSERVADOR];
-    players.forEach(playerName => {
+  private constructor(players: string[], deck: Deck<Law>, lawsToProgressiveWin: number, lawsToConservativeWin: number) {
+    const roles = [
+      Role.RADICAL,
+      Role.MODERADO,
+      Role.MODERADO,
+      Role.MODERADO,
+      Role.CONSERVADOR,
+      Role.CONSERVADOR,
+    ];
+    players.forEach((playerName) => {
       const role = Random.extractFromArray(roles);
       const player = new Player(playerName, role);
       this._players.push(player);
     });
-    this._interimPresident = Random.getFromArray(this._players);
     this._deck = deck;
+    this._lawsToProgressiveWin = lawsToProgressiveWin;
+    this._lawsToConservativeWin = lawsToConservativeWin;
+    this._presidentQueue = [...Random.sort(this._players)];
   }
 
   drawLaws() {
@@ -52,15 +70,18 @@ export class Game {
   }
 
   startVoting(): Either<string, void> {
-    if(this._voting) {
+    if (this._voting) {
       return left("Votação já iniciada");
     }
 
-    if(!this._lawToVote) {
+    if (!this._lawToVote) {
       return left("Nenhuma lei escolhida para votação");
     }
-    
-    const [error, voting] = Voting.create(this._lawToVote, this._players.map(player => player.name));
+
+    const [error, voting] = Voting.create(
+      this._lawToVote,
+      this._players.map((player) => player.name)
+    );
 
     if (!voting) {
       return left(error);
@@ -76,7 +97,7 @@ export class Game {
       return left("Votação não iniciada");
     }
 
-    if(!this._players.find(player => player.name === playerName)) {
+    if (!this._players.find((player) => player.name === playerName)) {
       return left("Jogador não encontrado");
     }
 
@@ -86,14 +107,14 @@ export class Game {
   }
 
   endVoting(): Either<string, void> {
-    if(!this._voting) {
+    if (!this._voting) {
       return left("Votação não iniciada");
     }
 
     this._drawnLaws = [];
     this._lawToVote = null;
 
-    if(this._voting.result) {
+    if (this._voting.result) {
       this._approvedLaws.push(this._voting.subject);
     }
 
@@ -102,16 +123,20 @@ export class Game {
     return right(undefined);
   }
 
+  nextRound() {
+    this._currentRound += 1;
+  }
+
+  get currentRound() {
+    return this._currentRound;
+  }
+
   get votingHistory() {
-    return [
-      ...this._votingHistory
-    ]
+    return [...this._votingHistory];
   }
 
   get approvedLaws() {
-    return [
-      ...this._approvedLaws
-    ]
+    return [...this._approvedLaws];
   }
 
   get votingResult() {
@@ -125,20 +150,16 @@ export class Game {
   get lawToVote() {
     return this._lawToVote;
   }
-    
+
   get drawnLaws() {
-    return [
-      ...this._drawnLaws
-    ]
+    return [...this._drawnLaws];
   }
 
-  get interimPresident() {
-    return this._interimPresident;
+  get president() {
+    return this._presidentQueue[this._currentRound % this._presidentQueue.length];
   }
 
   get players() {
-    return [
-      ...this._players
-    ]
+    return [...this._players];
   }
 }

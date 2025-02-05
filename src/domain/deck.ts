@@ -1,4 +1,5 @@
 import { Either, left, right } from "./either";
+import { Random } from "./random";
 
 export class Deck<T> {
   private _cards: T[];
@@ -18,7 +19,7 @@ export class Deck<T> {
   }
 
   shuffle(): void {
-    this._cards = this._cards.sort(() => Math.random() - 0.5);
+    this._cards = Random.sort(this._cards);
   }
 
   draw(n = 1): T[] {
