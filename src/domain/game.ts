@@ -110,6 +110,10 @@ export class Game {
     return this._voting?.counting ?? null;
   }
 
+  get votes() {
+    return this._voting?.votes ?? null;
+  }
+
   get lawToVote() {
     return this._lawToVote;
   }

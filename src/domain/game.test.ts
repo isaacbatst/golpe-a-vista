@@ -77,6 +77,14 @@ it("deve permitir ver o resultado da votação em andamento", () => {
     no: 3,
     abstention: 0,
   });
+  const votes = game!.votes;
+  expect(votes).not.toBeNull();
+  expect(votes!.get("p1")).toBe(true);
+  expect(votes!.get("p2")).toBe(true);
+  expect(votes!.get("p3")).toBe(true);
+  expect(votes!.get("p4")).toBe(false);
+  expect(votes!.get("p5")).toBe(false);
+  expect(votes!.get("p6")).toBe(false);
 });
 
 it("deve finalizar votação e, com maioria, salvar a lei aprovada", () => {
