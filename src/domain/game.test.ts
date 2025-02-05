@@ -1,9 +1,11 @@
 import { expect, it } from "vitest";
 import { Game } from "./game";
-import { Role } from "./role";
+import { Faction, Role } from "./role";
 
 it("deve distribuir jogadores aleatóriamente entre 1 radical, 3 moderados e 2 conservadores", () => {
-  const [error, game] = Game.create(["p1", "p2", "p3", "p4", "p5", "p6"]);
+  const [error, game] = Game.create({
+    players: ["p1", "p2", "p3", "p4", "p5", "p6"]
+  });
   expect(error).toBeUndefined();
   expect(game).toBeDefined();
   expect(game!.players.filter((p) => p.role === Role.RADICAL).length).toBe(1);
@@ -14,7 +16,9 @@ it("deve distribuir jogadores aleatóriamente entre 1 radical, 3 moderados e 2 c
 });
 
 it("deve iniciar a primeira rodada com um jogador aleatório como presidente interino", () => {
-  const [error, game] = Game.create(["p1", "p2", "p3", "p4", "p5", "p6"]);
+  const [error, game] = Game.create({
+    players: ["p1", "p2", "p3", "p4", "p5", "p6"]
+  });
   expect(error).toBeUndefined();
   expect(game).toBeDefined();
   expect(game?.currentRound).toBe(0);
@@ -22,7 +26,9 @@ it("deve iniciar a primeira rodada com um jogador aleatório como presidente int
 });
 
 it("deve comprar 2 cartas do deck de leis", () => {
-  const [error, game] = Game.create(["p1", "p2", "p3", "p4", "p5", "p6"]);
+  const [error, game] = Game.create({
+    players: ["p1", "p2", "p3", "p4", "p5", "p6"]
+  });
   expect(error).toBeUndefined();
   expect(game).toBeDefined();
 
@@ -32,7 +38,9 @@ it("deve comprar 2 cartas do deck de leis", () => {
 });
 
 it("deve escolher uma das leis para votação", () => {
-  const [error, game] = Game.create(["p1", "p2", "p3", "p4", "p5", "p6"]);
+  const [error, game] = Game.create({
+    players: ["p1", "p2", "p3", "p4", "p5", "p6"]
+  });
   expect(error).toBeUndefined();
   expect(game).toBeDefined();
 
@@ -46,7 +54,9 @@ it("deve escolher uma das leis para votação", () => {
 });
 
 it("deve iniciar uma votação", () => {
-  const [error, game] = Game.create(["p1", "p2", "p3", "p4", "p5", "p6"]);
+  const [error, game] = Game.create({
+    players: ["p1", "p2", "p3", "p4", "p5", "p6"]
+  });
   expect(error).toBeUndefined();
   expect(game).toBeDefined();
 
@@ -58,7 +68,9 @@ it("deve iniciar uma votação", () => {
 });
 
 it("deve permitir ver o resultado da votação em andamento", () => {
-  const [error, game] = Game.create(["p1", "p2", "p3", "p4", "p5", "p6"]);
+  const [error, game] = Game.create({
+    players: ["p1", "p2", "p3", "p4", "p5", "p6"]
+  });
   expect(error).toBeUndefined();
   expect(game).toBeDefined();
 
@@ -89,7 +101,9 @@ it("deve permitir ver o resultado da votação em andamento", () => {
 });
 
 it("deve finalizar votação e, com maioria, salvar a lei aprovada", () => {
-  const [error, game] = Game.create(["p1", "p2", "p3", "p4", "p5", "p6"]);
+  const [error, game] = Game.create({
+    players: ["p1", "p2", "p3", "p4", "p5", "p6"]
+  });
   expect(error).toBeUndefined();
   expect(game).toBeDefined();
 
@@ -123,7 +137,9 @@ it("deve finalizar votação e, com maioria, salvar a lei aprovada", () => {
 });
 
 it("deve finalizar votação e, sem maioria, descartar a lei rejeitada", () => {
-  const [error, game] = Game.create(["p1", "p2", "p3", "p4", "p5", "p6"]);
+  const [error, game] = Game.create({
+    players: ["p1", "p2", "p3", "p4", "p5", "p6"]
+  });
   expect(error).toBeUndefined();
   expect(game).toBeDefined();
 
@@ -149,7 +165,9 @@ it("deve finalizar votação e, sem maioria, descartar a lei rejeitada", () => {
 }); 
 
 it("não deve iniciar a votação se já houver uma em andamento", () => {
-  const [error, game] = Game.create(["p1", "p2", "p3", "p4", "p5", "p6"]);
+  const [error, game] = Game.create({
+    players: ["p1", "p2", "p3", "p4", "p5", "p6"]
+  });
   expect(error).toBeUndefined();
   expect(game).toBeDefined();
 
@@ -162,7 +180,9 @@ it("não deve iniciar a votação se já houver uma em andamento", () => {
 });
 
 it("não deve iniciar a votação sem uma lei escolhida", () => {
-  const [error, game] = Game.create(["p1", "p2", "p3", "p4", "p5", "p6"]);
+  const [error, game] = Game.create({
+    players: ["p1", "p2", "p3", "p4", "p5", "p6"]
+  });
   expect(error).toBeUndefined();
   expect(game).toBeDefined();
 
@@ -171,7 +191,9 @@ it("não deve iniciar a votação sem uma lei escolhida", () => {
 });
 
 it("deve iniciar a próxima rodada com o próximo jogador como presidente interino", () => {
-  const [error, game] = Game.create(["p1", "p2", "p3", "p4", "p5", "p6"]);
+  const [error, game] = Game.create({
+    players: ["p1", "p2", "p3", "p4", "p5", "p6"]
+  });
   expect(error).toBeUndefined();
   expect(game).toBeDefined();
 
@@ -186,4 +208,33 @@ it("deve iniciar a próxima rodada com o próximo jogador como presidente interi
   expect(game!.currentRound).toBe(1);
   expect(game!.president).toBeDefined();
   expect(game!.president).not.toBe(firstPresident);
+})
+
+it("deve declarar progressista vencedor se aprovar X leis progressistas", () => {
+  const [error, game] = Game.create({
+    players: ["p1", "p2", "p3", "p4", "p5", "p6"],
+    lawsToProgressiveWin: 1,
+    laws: [
+      {description: "Lei progressista 1", type: Faction.PROGRESSISTAS, name: "L1"},
+    ]
+  });
+  expect(error).toBeUndefined();
+  expect(game).toBeDefined();
+
+  for (let i = 0; i < 5; i++) {
+    game!.drawLaws();
+    game!.chooseLaw(0);
+    game!.startVoting();
+
+    game!.vote("p1", true);
+    game!.vote("p2", true);
+    game!.vote("p3", true);
+    game!.vote("p4", true);
+    game!.vote("p5", true);
+    game!.vote("p6", true);
+
+    game!.endVoting();
+  }
+
+  expect(game!.winner).toBe(Faction.PROGRESSISTAS);
 })

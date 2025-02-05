@@ -3,8 +3,15 @@ import { Deck } from "./deck";
 import { Either, left, right } from "./either";
 import { Player } from "./player";
 import { Random } from "./random";
-import { Role } from "./role";
+import { Faction, Role } from "./role";
 import { Voting } from "./voting";
+
+type GameParams = {
+  players: string[];
+  lawsToProgressiveWin?: number;
+  lawsToConservativeWin?: number;
+  laws?: Law[];
+};
 
 export class Game {
   static readonly LAWS_TO_DRAW = 2;
@@ -22,23 +29,23 @@ export class Game {
   private _currentRound: number = 0;
 
   static create(
-    players: string[],
-    lawsToProgressiveWin: number = 5,
-    lawsToConservativeWin: number = 5
+    props: GameParams
   ): Either<string, Game> {
-    const [error, lawsDeck] = Game.createLawsDeck();
+    const {
+      players,
+      laws,
+      lawsToProgressiveWin = 6,
+      lawsToConservativeWin = 6,
+    } = props;
 
-    if (!lawsDeck) {
+    const [error, deck] = Deck.create(laws ?? LAWS);
+    if (!deck) {
       return left(error);
     }
 
     return right(
-      new Game(players, lawsDeck, lawsToProgressiveWin, lawsToConservativeWin)
+      new Game(players, deck, lawsToProgressiveWin, lawsToConservativeWin)
     );
-  }
-
-  private static createLawsDeck() {
-    return Deck.create(LAWS);
   }
 
   private constructor(players: string[], deck: Deck<Law>, lawsToProgressiveWin: number, lawsToConservativeWin: number) {
@@ -125,6 +132,26 @@ export class Game {
 
   nextRound() {
     this._currentRound += 1;
+  }
+
+  get hasProgressiveWon() {
+    return this._approvedLaws.filter((law) => law.type === Faction.PROGRESSISTAS).length >= this._lawsToProgressiveWin;
+  }
+
+  get hasConservativeWon() {
+    return this._approvedLaws.filter((law) => law.type === Faction.GOLPISTAS).length >= this._lawsToConservativeWin;
+  }
+
+  get winner() {
+    if (this.hasProgressiveWon) {
+      return Faction.PROGRESSISTAS;
+    }
+
+    if (this.hasConservativeWon) {
+      return Faction.GOLPISTAS;
+    }
+
+    return null;
   }
 
   get currentRound() {

@@ -23,7 +23,9 @@ export class Lobby {
       return left("Mínimo de 6 jogadores para iniciar o jogo");
     }
 
-    return Game.create(this._players);
+    return Game.create({
+      players: this._players,
+    });
   }
 
   get players() {
