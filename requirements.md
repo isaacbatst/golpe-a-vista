@@ -61,8 +61,6 @@ Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas
 
 ## **5️⃣ Cassação de Jogadores**
 📌 A cada **três leis conservadoras forem aprovadas**, ou **três crises**, é acionado o direito de cassar um jogador.  
-📌 **A cassacão precisa ser aprovada por votação pública**.  
-📌 **A cada duas cassações negadas, uma lei conservadora é automaticamente aprovada.**  
 📌 O jogador cassado **sai do jogo sem revelar sua identidade**.  
 
 ---
