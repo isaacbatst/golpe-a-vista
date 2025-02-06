@@ -110,7 +110,7 @@ export class Round {
     this._vetoedLaw = this._drawnLaws[index];
   }
 
-  chooseSabotageCrisis(index: number) {
+  chooseSabotageCrisis(index: number): Either<string, void> {
     if (!this._sabotageCrisesDrawn) {
       return left("Não há crises para sabotar");
     }

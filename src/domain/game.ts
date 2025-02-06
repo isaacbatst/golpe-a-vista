@@ -102,19 +102,13 @@ export class Game {
   }
 
   nextRound() {
-    const crisis =
-      this.nextShouldHaveCrisesPerModerateFear ||
-      this.currentRound.nextShouldHaveCrisisPerRejectedLaw
-        ? this._crisesDeck.draw(1)[0]
-        : null;
-
     this._rounds.push(
       new Round({
         president: this.getPresidentFromQueue(this._rounds.length),
         lawsDeck: this._lawsDeck,
         crisesDeck: this._crisesDeck,
         rapporteur: this.currentRound.nextRapporteur,
-        crisis,
+        crisis: this.nextRoundCrisis,
       })
     );
   }
@@ -177,8 +171,24 @@ export class Game {
     return this.currentRound.sabotage();
   }
 
+  chooseSabotageCrisis(index: number) {
+    return this.currentRound.chooseSabotageCrisis(index);
+  }
+
   getPresidentFromQueue(round: number) {
     return this._presidentQueue[round % this._presidentQueue.length];
+  }
+
+  get nextRoundCrisis() {
+    if(this.currentRound.sabotageCrisis){
+      return this.currentRound.sabotageCrisis;
+    }
+
+    if(this.currentRound.nextShouldHaveCrisisPerRejectedLaw || this.nextShouldHaveCrisesPerModerateFear){
+      return this._crisesDeck.draw(1)[0];
+    }
+
+    return null;
   }
 
   get nextShouldHaveCrisesPerModerateFear() {
