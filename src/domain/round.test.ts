@@ -4,8 +4,22 @@ import { Faction, Role } from "./role";
 import { Round } from "./round";
 import { Deck } from "./deck";
 import { Law } from "../data/laws";
+import { Crisis } from "./crisis";
+import CRISES from "../data/crises";
 
-const makeDeck = (
+const makeCrisesDeck = () => {
+  const [error, deck] = Deck.create(
+    Object.values(CRISES).map(
+      (crisis) => new Crisis(crisis.titles, crisis.description, crisis.type)
+    )
+  );
+  if (!deck) {
+    throw new Error(error);
+  }
+  return deck;
+};
+
+const makeLawsDeck = (
   laws: Law[] = [
     { description: "Lei 1", type: Faction.CONSERVADORES, name: "L1" },
     { description: "Lei 2", type: Faction.CONSERVADORES, name: "L2" },
@@ -22,10 +36,10 @@ const makeDeck = (
 
 describe("Votação", () => {
   it("deve comprar 3 cartas do deck de leis", () => {
-    const deck = makeDeck();
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
-      deck,
+      lawsDeck: makeLawsDeck(),
+      crisesDeck: makeCrisesDeck(),
     });
 
     round.drawLaws();
@@ -34,11 +48,11 @@ describe("Votação", () => {
   });
 
   it("deve vetar uma das leis", () => {
-    const deck = makeDeck();
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
-      deck,
-    });
+      lawsDeck: makeLawsDeck(),
+      crisesDeck: makeCrisesDeck(),
+        });
 
     round.drawLaws();
     const laws = round.drawnLaws;
@@ -49,10 +63,10 @@ describe("Votação", () => {
   });
 
   it("não deve escolher uma das leis vetadas", () => {
-    const deck = makeDeck();
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
-      deck,
+      lawsDeck: makeLawsDeck(),
+      crisesDeck: makeCrisesDeck(),
     });
 
     round.drawLaws();
@@ -64,10 +78,10 @@ describe("Votação", () => {
   });
 
   it("deve escolher uma das leis para votação", () => {
-    const deck = makeDeck();
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
-      deck,
+      lawsDeck: makeLawsDeck(),
+      crisesDeck: makeCrisesDeck(),
     });
 
     round.drawLaws();
@@ -81,8 +95,8 @@ describe("Votação", () => {
   it("não deve iniciar votação sem escolher uma lei", () => {
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
-      deck: makeDeck(),
-    });
+      lawsDeck: makeLawsDeck(),
+      crisesDeck: makeCrisesDeck(),    });
 
     const [error] = round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
 
@@ -92,8 +106,8 @@ describe("Votação", () => {
   it("deve iniciar uma votação", () => {
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
-      deck: makeDeck(),
-    });
+      lawsDeck: makeLawsDeck(),
+      crisesDeck: makeCrisesDeck(),    });
 
     round.drawLaws();
     round.chooseLaw(0);
@@ -105,8 +119,8 @@ describe("Votação", () => {
   it("não deve iniciar votação duas vezes", () => {
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
-      deck: makeDeck(),
-    });
+      lawsDeck: makeLawsDeck(),
+      crisesDeck: makeCrisesDeck(),    });
 
     round.drawLaws();
     round.chooseLaw(0);
@@ -120,8 +134,8 @@ describe("Votação", () => {
   it("deve permitir ver dados da votação em andamento", () => {
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
-      deck: makeDeck(),
-    });
+      lawsDeck: makeLawsDeck(),
+      crisesDeck: makeCrisesDeck(),    });
 
     round.drawLaws();
     round.chooseLaw(0);
@@ -152,8 +166,8 @@ describe("Votação", () => {
   it("deve finalizar a votação", () => {
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
-      deck: makeDeck(),
-    });
+      lawsDeck: makeLawsDeck(),
+      crisesDeck: makeCrisesDeck(),    });
 
     round.drawLaws();
     round.chooseLaw(0);
@@ -174,8 +188,8 @@ describe("Votação", () => {
   it("deve finalizar votação e, sem maioria, descartar a lei rejeitada", () => {
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
-      deck: makeDeck(),
-    });
+      lawsDeck: makeLawsDeck(),
+      crisesDeck: makeCrisesDeck(),    });
 
     round.drawLaws();
     round.chooseLaw(0);
@@ -192,4 +206,101 @@ describe("Votação", () => {
 
     expect(approvedLaw).toBeNull();
   });
+});
+
+describe("Sabotagem", () => {
+  it("não deve sabotar uma lei conservadora", () => {
+    const round = new Round({
+      president: new Player("p1", Role.MODERADO),
+      lawsDeck: makeLawsDeck(),
+      crisesDeck: makeCrisesDeck(),    });
+
+    round.drawLaws();
+    round.chooseLaw(0);
+    round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
+
+    const [error] = round.sabotage();
+
+    expect(error).toBe("Não é possível sabotar uma lei conservadora");
+  });
+  
+  it("deve sabotar uma lei progressista", () => {
+    const round = new Round({
+      president: new Player("p1", Role.MODERADO),
+      lawsDeck: makeLawsDeck([
+        { description: "Lei 1", type: Faction.PROGRESSISTAS, name: "L1" },
+        { description: "Lei 2", type: Faction.PROGRESSISTAS, name: "L2" },
+        { description: "Lei 3", type: Faction.PROGRESSISTAS, name: "L3" },
+        { description: "Lei 4", type: Faction.PROGRESSISTAS, name: "L4" },
+      ]),
+      crisesDeck: makeCrisesDeck(),
+    });
+
+    round.drawLaws();
+    round.chooseLaw(0);
+    round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
+
+    const [error, crises] = round.sabotage();
+
+    expect(error).toBeUndefined();
+    expect(crises).toBeDefined();
+  })
+
+  it("deve escolher 1 crise para sabotagem", () => {
+    const round = new Round({
+      president: new Player("p1", Role.MODERADO),
+      lawsDeck: makeLawsDeck([
+        { description: "Lei 1", type: Faction.PROGRESSISTAS, name: "L1" },
+        { description: "Lei 2", type: Faction.PROGRESSISTAS, name: "L2" },
+        { description: "Lei 3", type: Faction.PROGRESSISTAS, name: "L3" },
+        { description: "Lei 4", type: Faction.PROGRESSISTAS, name: "L4" },
+      ]),
+      crisesDeck: makeCrisesDeck(),
+    });
+
+    round.drawLaws();
+    round.chooseLaw(0);
+    round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
+
+    round.sabotage();
+
+    const [error] = round.chooseSabotageCrisis(0);
+    expect(error).toBeUndefined();
+    expect(round.sabotageCrisis).not.toBeNull();
+  })
+
+  // it("deve iniciar a próxima rodada com crise se lei progressista for aprovada e conservador sabotar governo", () => {
+  //   const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+  //   const [error, game] = Game.create({
+  //     players,
+  //     laws: [
+  //       {
+  //         description: "Lei progressista 1",
+  //         type: Faction.PROGRESSISTAS,
+  //         name: "L1",
+  //       },
+  //     ],
+  //     roles: [
+  //       Role.MODERADO,
+  //       Role.MODERADO,
+  //       Role.MODERADO,
+  //       Role.MODERADO,
+  //       Role.MODERADO,
+  //       Role.CONSERVADOR,
+  //     ],
+  //   });
+  //   expect(error).toBeUndefined();
+  //   expect(game).toBeDefined();
+  //   game!.drawLaws();
+  //   game!.chooseLaw(0);
+  //   game!.startVoting();
+  //   for (const player of players) {
+  //     game!.vote(player, true);
+  //   }
+  //   game!.endVoting();
+  //   const [sabotageError] = game!.sabotage();
+  //   expect(sabotageError).toBeUndefined();
+  //   game!.nextRound();
+  //   expect(game!.currentRound!.crisis).not.toBeNull();
+  // });
 });

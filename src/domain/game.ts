@@ -95,7 +95,8 @@ export class Game {
     this._rounds.push(
       new Round({
         president: this._presidentQueue[0],
-        deck: this._lawsDeck,
+        lawsDeck: this._lawsDeck,
+        crisesDeck: this._crisesDeck,
       })
     );
   }
@@ -105,12 +106,13 @@ export class Game {
       this.nextShouldHaveCrisesPerModerateFear ||
       this.currentRound.nextShouldHaveCrisisPerRejectedLaw
         ? this._crisesDeck.draw(1)[0]
-        : undefined;
+        : null;
 
     this._rounds.push(
       new Round({
         president: this.getPresidentFromQueue(this._rounds.length),
-        deck: this._lawsDeck,
+        lawsDeck: this._lawsDeck,
+        crisesDeck: this._crisesDeck,
         rapporteur: this.currentRound.nextRapporteur,
         crisis,
       })
@@ -171,12 +173,8 @@ export class Game {
     return right();
   }
 
-  sabotage(): Either<string, void> {
-    if (this.currentRound.lawToVote?.type !== Faction.PROGRESSISTAS) {
-      return left("Não é possível sabotar uma lei conservadora");
-    }
-
-    return right();
+  sabotage() {
+    return this.currentRound.sabotage();
   }
 
   getPresidentFromQueue(round: number) {

@@ -7,8 +7,9 @@ import { Voting } from "./voting";
 
 type RoundParams = {
   president: Player;
-  deck: Deck<Law>;
-  crisis?: Crisis;
+  lawsDeck: Deck<Law>;
+  crisesDeck: Deck<Crisis>;
+  crisis?: Crisis | null;
   rapporteur?: Player | null;
 };
 
@@ -18,18 +19,22 @@ export class Round {
   public rapporteur: Player | null = null;
   public nextShouldHaveCrisisPerRejectedLaw = false;
   private _drawnLaws: Law[] = [];
+  private _crisis: Crisis | null;
   private _lawToVote: Law | null = null;
   private _voting: Voting<Law> | null = null;
-  private _crisis: Crisis | null;
-  private _deck: Deck<Law>;
+  private _crisesDeck: Deck<Crisis>;
+  private _lawsDeck: Deck<Law>;
   private _vetoedLaw: Law | null = null;
   private _nextRapporteur: Player | null = null;
+  private _sabotageCrisesDrawn: Crisis[] | null = null;
+  private _sabotageCrisis: Crisis | null = null;
   readonly president: Player;
 
   constructor(props: RoundParams) {
     this.president = props.president;
+    this._crisesDeck = props.crisesDeck
     this._crisis = props.crisis ?? null;
-    this._deck = props.deck;
+    this._lawsDeck = props.lawsDeck;
     this.rapporteur = props.rapporteur ?? null;
   }
 
@@ -38,7 +43,7 @@ export class Round {
   }
 
   drawLaws() {
-    const laws = this._deck.draw(Round.LAWS_TO_DRAW);
+    const laws = this._lawsDeck.draw(Round.LAWS_TO_DRAW);
     this._drawnLaws = laws;
     return laws;
   }
@@ -50,6 +55,17 @@ export class Round {
 
     this._lawToVote = this._drawnLaws[index];
     return right();
+  }
+
+  sabotage(): Either<string, Crisis[]> {
+    if (this._lawToVote?.type === "Conservadores") {
+      return left("Não é possível sabotar uma lei conservadora");
+    }
+
+    // get 3 crises
+    const crises = this._crisesDeck.draw(3);
+    this._sabotageCrisesDrawn = crises;
+    return right(crises);
   }
 
   startVoting(players: string[]): Either<string, void> {
@@ -92,6 +108,24 @@ export class Round {
 
   vetoLaw(index: number) {
     this._vetoedLaw = this._drawnLaws[index];
+  }
+
+  chooseSabotageCrisis(index: number) {
+    if (!this._sabotageCrisesDrawn) {
+      return left("Não há crises para sabotar");
+    }
+    this._sabotageCrisis = this._sabotageCrisesDrawn[index];
+    return right();
+  }
+
+  get sabotageCrisis() {
+    return this._sabotageCrisis;
+  }
+
+  get sabotageCrisesDrawn(): Crisis[] | null {
+    return this.sabotageCrisesDrawn 
+      ? [...this._sabotageCrisesDrawn!]
+      : null;
   }
 
   get drawnLaws() {
