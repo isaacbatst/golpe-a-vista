@@ -145,7 +145,16 @@ describe("Relator do Dossiê", () => {
 });
 
 describe("Crises", () => {
-  it("deve iniciar próxima rodada com crise caso um presidente moderado aprove a segunda lei progressista consecutiva", () => {
+  it("deve ativar crise a cada 2 leis progressistas consecutiva, se aprovada por um moderado", () => {
+    const approveLaw = (game: Game) => {
+      game.drawLaws();
+      game.chooseLaw(0);
+      game.startVoting();
+      for (const player of players) {
+        game.vote(player, true);
+      }
+      game.endVoting();
+    }
     const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
     const [error, game] = Game.create({
       players,
@@ -172,16 +181,17 @@ describe("Crises", () => {
     });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
-    for (let i = 0; i < 2; i++) {
-      game!.drawLaws();
-      game!.chooseLaw(0);
-      game!.startVoting();
-      for (const player of players) {
-        game!.vote(player, true);
-      }
-      game!.endVoting();
+
+    for (let j = 0; j < 2; j++) {
+      approveLaw(game!);
+      expect(game!.currentRound!.crisis).toBeNull();
       game!.nextRound();
     }
+    expect(game!.currentRound!.crisis).not.toBeNull();
+    game!.nextRound();
+    approveLaw(game!);
+    expect(game!.currentRound!.crisis).toBeNull();
+    game!.nextRound();
     expect(game!.currentRound!.crisis).not.toBeNull();
   });
 
