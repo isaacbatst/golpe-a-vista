@@ -128,6 +128,31 @@ const CRISES = {
       "Alguém twittou um exame toxicológico falso do Presidente. O presidente não pode votar nesta rodada pois está ocupado gravando stories para se defender. 'A verdade é relativa.'",
     type: "Pública",
   },
+  RECONTAGEM_VOTOS: {
+    titles: ["Recontagem de Votos", "Voto Impresso Já!", "Eleição Roubada"],
+    description: "Os poderosos não gostaram do resultado da última votação e decidiram recontar os votos. Se a última lei aprovada foi progressista, ela é vetada. Se foi conservadora, ela é aprovada. 'A democracia é um conceito flexível.'",
+    type: "Pública",
+  },
+  CENSURA_ESTATAL: {
+    titles: ["Censura Estatal", "Cala a Boca, Jornalista!"],
+    description: "Um decreto emergencial proibiu certas informações de serem divulgadas. O Dossiê não pode ser passado nesta rodada. 'A verdade é perigosa.'",
+    type: "Oculta",
+  },
+  PACOTE_DE_LEIS: {
+    titles: ["Pacote de Leis", "O Centrão é Que Manda", "Toma Lá, Dá Cá"],
+    description: "Se o presidente aprovar uma lei progressista, uma lei conservadora passará junto. 'A política é a arte do possível.'",
+    type: "Pública",
+  },
+  VOTO_DE_MINERVA: {
+    titles: ["Voto de Minerva", "Decisão da Presidência", "Decisão Final"],
+    description: "Em caso de empate, o presidente decide o resultado da votação. 'A decisão final é minha.'",
+    type: "Pública",
+  },
+  FRAUDE_ELEITORAL: {
+    titles: ["Fraude Eleitoral", "Urna Eletrônica Hackeada"],
+    description: "Os conservadores têm seus votos duplicados nesta rodada. 'A democracia parece melhor quando se tem dinheiro.'",
+    type: "Pública",
+  },
 } as const;
 
 export default CRISES;
