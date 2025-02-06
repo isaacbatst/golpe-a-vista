@@ -1,6 +1,6 @@
 import { Faction } from "../domain/role";
 
-export type LawType = Faction.PROGRESSISTAS | Faction.GOLPISTAS | 'neutra';
+export type LawType = Faction.PROGRESSISTAS | Faction.CONSERVADORES | 'neutra';
 
 export interface Law {
   name: string;
@@ -36,7 +36,7 @@ export const LAWS: Law[] = [
   },
   {
     name: 'Voto de Confiança',
-    type: Faction.GOLPISTAS,
+    type: Faction.CONSERVADORES,
     description: 'Se esta lei for aprovada, os jogadores devem votar secretamente na próxima rodada, pois "a estabilidade governamental está em jogo".',
   },
   {
@@ -51,47 +51,47 @@ export const LAWS: Law[] = [
   },
   {
     name: 'Privatização da Saúde: Saúde para Quem Pode Pagar',
-    type: Faction.GOLPISTAS,
+    type: Faction.CONSERVADORES,
     description: 'O próximo Presidente não poderá escolher leis progressistas, pois "o setor privado exige segurança nos investimentos".',
   },
   {
     name: 'Criminalização de Movimentos Sociais',
-    type: Faction.GOLPISTAS,
+    type: Faction.CONSERVADORES,
     description: 'Se esta lei for aprovada, o próximo Presidente será escolhido pelos conservadores, pois "novas diretrizes de ordem pública exigem liderança firme".',
   },
   {
     name: 'Crescimento Econômico Acima de Tudo',
-    type: Faction.GOLPISTAS,
+    type: Faction.CONSERVADORES,
     description: 'Se esta lei for aprovada, o próximo Presidente não poderá rejeitar uma lei, independentemente da votação, pois "o governo precisa garantir estabilidade para o mercado".',
   },
   {
     name: 'Aumento de Benefícios Empresariais',
-    type: Faction.GOLPISTAS,
+    type: Faction.CONSERVADORES,
     description: 'Se esta lei for rejeitada, os conservadores poderão ativar uma crise imediatamente, pois "o setor privado reage negativamente".',
   },
   {
     name: 'Benefícios Fiscais para Multinacionais',
-    type: Faction.GOLPISTAS,
+    type: Faction.CONSERVADORES,
     description: 'Se esta lei for aprovada, a próxima lei progressista obrigatoriamente ativará uma crise, pois "investidores reagem ao risco político".',
   },
   {
     name: 'Orçamento de Guerra: Corte de Gastos Sociais',
-    type: Faction.GOLPISTAS,
+    type: Faction.CONSERVADORES,
     description: 'Se esta lei for aprovada, o próximo moderado a assumir o cargo será forçado a ativar uma crise caso escolha uma lei progressista.',
   },
   {
     name: 'Medidas de Estabilização do Congresso',
-    type: Faction.GOLPISTAS,
+    type: Faction.CONSERVADORES,
     description: 'Se esta lei for aprovada, os moderados não poderão rejeitar leis na próxima rodada, pois "a governabilidade exige compromisso institucional".',
   },
   {
     name: 'Controle Centralizado',
-    type: Faction.GOLPISTAS,
+    type: Faction.CONSERVADORES,
     description: 'O próximo Presidente não poderá votar na próxima rodada, pois "a administração pública deve ser gerida tecnocraticamente".',
   },
   {
     name: 'Redução do Tamanho do Estado',
-    type: Faction.GOLPISTAS,
+    type: Faction.CONSERVADORES,
     description: 'Se esta lei for aprovada, o próximo Presidente sacará apenas uma lei em vez de duas, pois "a máquina pública foi enxugada".',
   },
 ];

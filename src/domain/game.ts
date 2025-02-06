@@ -171,6 +171,14 @@ export class Game {
     return right();
   }
 
+  sabotage(): Either<string, void> {
+    if (this.currentRound.lawToVote?.type !== Faction.PROGRESSISTAS) {
+      return left("Não é possível sabotar uma lei conservadora");
+    }
+
+    return right();
+  }
+
   getPresidentFromQueue(round: number) {
     return this._presidentQueue[round % this._presidentQueue.length];
   }
@@ -210,7 +218,7 @@ export class Game {
 
   get hasConservativeWon() {
     return (
-      this._approvedLaws.filter((law) => law.type === Faction.GOLPISTAS)
+      this._approvedLaws.filter((law) => law.type === Faction.CONSERVADORES)
         .length >= this._lawsToConservativeWin
     );
   }
@@ -221,7 +229,7 @@ export class Game {
     }
 
     if (this.hasConservativeWon) {
-      return Faction.GOLPISTAS;
+      return Faction.CONSERVADORES;
     }
 
     return null;

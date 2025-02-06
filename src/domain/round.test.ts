@@ -7,10 +7,10 @@ import { Law } from "../data/laws";
 
 const makeDeck = (
   laws: Law[] = [
-    { description: "Lei 1", type: Faction.GOLPISTAS, name: "L1" },
-    { description: "Lei 2", type: Faction.GOLPISTAS, name: "L2" },
-    { description: "Lei 3", type: Faction.GOLPISTAS, name: "L3" },
-    { description: "Lei 4", type: Faction.GOLPISTAS, name: "L4" },
+    { description: "Lei 1", type: Faction.CONSERVADORES, name: "L1" },
+    { description: "Lei 2", type: Faction.CONSERVADORES, name: "L2" },
+    { description: "Lei 3", type: Faction.CONSERVADORES, name: "L3" },
+    { description: "Lei 4", type: Faction.CONSERVADORES, name: "L4" },
   ]
 ) => {
   const [error, deck] = Deck.create(laws);
