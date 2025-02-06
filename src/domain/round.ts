@@ -1,33 +1,47 @@
 import { Law } from "../data/laws";
 import { Crisis } from "./crisis";
+import { Deck } from "./deck";
 import { Either, left, right } from "./either";
 import { Player } from "./player";
 import { Voting } from "./voting";
 
 type RoundParams = {
   president: Player;
+  deck: Deck<Law>;
   crisis?: Crisis;
 };
 
 export class Round {
+  private static readonly LAWS_TO_DRAW = 3;
+
   public drawnLaws: Law[] = [];
   public rapporteur: Player | null = null;
   private _lawToVote: Law | null = null;
   private _voting: Voting<Law> | null = null;
   private _crisis: Crisis | null;
+  private _deck: Deck<Law>;
+  private _vetoedLaw: Law | null = null;
   readonly president: Player;
 
   constructor(props: RoundParams) {
     this.president = props.president;
     this._crisis = props.crisis ?? null;
+    this._deck = props.deck;
   }
 
-  setDrawnLaws(laws: Law[]) {
+  drawLaws() {
+    const laws = this._deck.draw(Round.LAWS_TO_DRAW);
     this.drawnLaws = laws;
+    return laws;
   }
 
-  chooseLaw(index: number) {
+  chooseLaw(index: number): Either<string, void> {
+    if (this._vetoedLaw === this.drawnLaws[index]) {
+      return left("Essa lei foi vetada");
+    }
+
     this._lawToVote = this.drawnLaws[index];
+    return right();
   }
 
   chooseRapporteur(player: Player) {
@@ -43,10 +57,7 @@ export class Round {
       return left("Nenhuma lei escolhida para votação");
     }
 
-    const [error, voting] = Voting.create(
-      this._lawToVote,
-      players
-    );
+    const [error, voting] = Voting.create(this._lawToVote, players);
 
     if (!voting) {
       return left(error);
@@ -72,9 +83,15 @@ export class Round {
       return left("Votação não iniciada");
     }
 
-    return this._voting.result 
-      ? right(this._lawToVote)
-      : right(null);
+    return this._voting.result ? right(this._lawToVote) : right(null);
+  }
+
+  vetoLaw(index: number) {
+    this._vetoedLaw = this.drawnLaws[index];
+  }
+
+  get vetoedLaw(): Law | null {
+    return this._vetoedLaw;
   }
 
   get crisis(): Crisis | null {

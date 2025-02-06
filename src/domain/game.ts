@@ -18,7 +18,6 @@ type GameParams = {
 };
 
 export class Game {
-  private static readonly LAWS_TO_DRAW = 2;
   private static readonly ROLES_DISTRIBUTION = [
     Role.RADICAL,
     Role.MODERADO,
@@ -35,7 +34,7 @@ export class Game {
   private _lawsToConservativeWin: number;
   private _presidentQueue: Player[];
   private _rounds: Round[] = [];
-  private _roles: Role[] = [];
+  private _roles: Role[];
   private _crisesDeck: Deck<Crisis>;
 
   static create(props: GameParams): Either<string, Game> {
@@ -96,6 +95,7 @@ export class Game {
     this._rounds.push(
       new Round({
         president: this._presidentQueue[0],
+        deck: this._lawsDeck,
       })
     );
   }
@@ -112,6 +112,7 @@ export class Game {
             this._rounds.length % this._presidentQueue.length
           ],
         crisis,
+        deck: this._lawsDeck,
       })
     );
   }
@@ -139,9 +140,7 @@ export class Game {
   }
 
   drawLaws(): Law[] {
-    const laws = this._lawsDeck.draw(Game.LAWS_TO_DRAW);
-    this.currentRound.setDrawnLaws(laws);
-    return laws;
+    return this.currentRound.drawLaws();
   }
 
   chooseLaw(index: number) {
@@ -217,6 +216,9 @@ export class Game {
     }
 
     return null;
+  }
+  get roles() {
+    return [...this._roles];
   }
 
   get currentRound() {

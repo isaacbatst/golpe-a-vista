@@ -2,30 +2,75 @@ import { describe, expect, it } from "vitest";
 import { Player } from "./player";
 import { Faction, Role } from "./role";
 import { Round } from "./round";
+import { Deck } from "./deck";
+import { Law } from "../data/laws";
+
+const makeDeck = (
+  laws: Law[] = [
+    { description: "Lei 1", type: Faction.GOLPISTAS, name: "L1" },
+    { description: "Lei 2", type: Faction.GOLPISTAS, name: "L2" },
+    { description: "Lei 3", type: Faction.GOLPISTAS, name: "L3" },
+    { description: "Lei 4", type: Faction.GOLPISTAS, name: "L4" },
+  ]
+) => {
+  const [error, deck] = Deck.create(laws);
+  if (!deck) {
+    throw new Error(error);
+  }
+  return deck;
+};
 
 describe("Votação", () => {
-  it("deve comprar 2 cartas do deck de leis", () => {
+  it("deve comprar 3 cartas do deck de leis", () => {
+    const deck = makeDeck();
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
+      deck,
     });
 
-    round.setDrawnLaws([
-      { description: "Lei 1", type: Faction.GOLPISTAS, name: "L1" },
-      { description: "Lei 2", type: Faction.GOLPISTAS, name: "L2" },
-    ]);
+    round.drawLaws();
 
-    expect(round.drawnLaws).toHaveLength(2);
+    expect(round.drawnLaws).toHaveLength(3);
+  });
+
+  it("deve vetar uma das leis", () => {
+    const deck = makeDeck();
+    const round = new Round({
+      president: new Player("p1", Role.MODERADO),
+      deck,
+    });
+
+    round.drawLaws();
+    const laws = round.drawnLaws;
+    const law = laws[0];
+    round.vetoLaw(0);
+
+    expect(round.vetoedLaw).toBe(law);
+  });
+
+  it("não deve escolher uma das leis vetadas", () => {
+    const deck = makeDeck();
+    const round = new Round({
+      president: new Player("p1", Role.MODERADO),
+      deck,
+    });
+
+    round.drawLaws();
+    round.vetoLaw(0);
+
+    const [error] = round.chooseLaw(0);
+
+    expect(error).toBe("Essa lei foi vetada");
   });
 
   it("deve escolher uma das leis para votação", () => {
+    const deck = makeDeck();
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
+      deck,
     });
 
-    round.setDrawnLaws([
-      { description: "Lei 1", type: Faction.GOLPISTAS, name: "L1" },
-      { description: "Lei 2", type: Faction.GOLPISTAS, name: "L2" },
-    ]);
+    round.drawLaws();
     const laws = round.drawnLaws;
     const law = laws[0];
     round.chooseLaw(0);
@@ -36,6 +81,7 @@ describe("Votação", () => {
   it("não deve iniciar votação sem escolher uma lei", () => {
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
+      deck: makeDeck(),
     });
 
     const [error] = round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
@@ -46,12 +92,10 @@ describe("Votação", () => {
   it("deve iniciar uma votação", () => {
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
+      deck: makeDeck(),
     });
 
-    round.setDrawnLaws([
-      { description: "Lei 1", type: Faction.GOLPISTAS, name: "L1" },
-      { description: "Lei 2", type: Faction.GOLPISTAS, name: "L2" },
-    ]);
+    round.drawLaws();
     round.chooseLaw(0);
     round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
 
@@ -61,12 +105,10 @@ describe("Votação", () => {
   it("não deve iniciar votação duas vezes", () => {
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
+      deck: makeDeck(),
     });
 
-    round.setDrawnLaws([
-      { description: "Lei 1", type: Faction.GOLPISTAS, name: "L1" },
-      { description: "Lei 2", type: Faction.GOLPISTAS, name: "L2" },
-    ]);
+    round.drawLaws();
     round.chooseLaw(0);
     round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
 
@@ -78,12 +120,10 @@ describe("Votação", () => {
   it("deve permitir ver dados da votação em andamento", () => {
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
+      deck: makeDeck(),
     });
 
-    round.setDrawnLaws([
-      { description: "Lei 1", type: Faction.GOLPISTAS, name: "L1" },
-      { description: "Lei 2", type: Faction.GOLPISTAS, name: "L2" },
-    ]);
+    round.drawLaws();
     round.chooseLaw(0);
     round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
 
@@ -112,12 +152,10 @@ describe("Votação", () => {
   it("deve finalizar a votação", () => {
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
+      deck: makeDeck(),
     });
 
-    round.setDrawnLaws([
-      { description: "Lei 1", type: Faction.GOLPISTAS, name: "L1" },
-      { description: "Lei 2", type: Faction.GOLPISTAS, name: "L2" },
-    ]);
+    round.drawLaws();
     round.chooseLaw(0);
     round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
 
@@ -136,12 +174,10 @@ describe("Votação", () => {
   it("deve finalizar votação e, sem maioria, descartar a lei rejeitada", () => {
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
+      deck: makeDeck(),
     });
 
-    round.setDrawnLaws([
-      { description: "Lei 1", type: Faction.GOLPISTAS, name: "L1" },
-      { description: "Lei 2", type: Faction.GOLPISTAS, name: "L2" },
-    ]);
+    round.drawLaws();
     round.chooseLaw(0);
     round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
 
