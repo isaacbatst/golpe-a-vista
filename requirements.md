@@ -36,7 +36,7 @@ Cada rodada segue a seguinte estrutura:
    - ✅ **Se a maioria aprovar** → A lei entra em vigor e conta para a vitória do time correspondente.  
    - ❌ **Se a maioria rejeitar** → Nenhuma das duas leis entra em vigor e a rodada termina.  
 
-📌 **Se duas leis consecutivas forem rejeitadas, é gerada uma crise.**  
+📌 **Leis rejeitadas geram uma crise.**  
 
 ---
 
@@ -48,15 +48,15 @@ Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas
    - **Somente o Presidente Interino saberá que a crise aconteceu** e poderá blefar sobre sua existência.  
 
 📌 **2️⃣ Pela Sabotagem dos Conservadores**  
-   - Se **duas leis progressistas consecutivas forem aprovadas** e **nenhuma crise foi ativada pelo moderado**, os **conservadores podem ativar uma crise**.  
+   - Se **uma lei progressista for aprovada**, os **conservadores podem ativar uma crise**.  
    - **Somente os conservadores saberão da crise**, permitindo que manipulem a narrativa.  
+   - Os conservadores recebem 3 cartas de crise e escolhem uma para ativar.
 
 📌 **Regra Extra:**  
 ✅ **Os conservadores NÃO podem ativar duas crises seguidas.**  
 
 📌 **Efeito das Crises:**  
 ✅ **A crise tem efeito apenas na próxima rodada.**  
-✅ **O próximo Presidente Interino, não pode vetar uma lei conservadora se tiver outra opção.**
 ---
 
 ## **5️⃣ Cassação de Jogadores**
@@ -92,16 +92,16 @@ Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas
 - Histórico de rodadas e crises ativadas.  
 
 📌 **Fluxo de Rodada (Resumido para Implementação)**  
-1. **Ex-Presidente escolhe Relator**
-2. **Seleciona Presidente Interino**
-3. **Presidente cassa jogador, se aplicável**
-4. **Presidente recebe crise, se aplicável**
-  - **Se crise ativada, escolhe lei conservadora**
-  - **Se não hover crise, saca 3 leis do baralho e descarta uma, e escolhe uma para votação**
-5. **Todos votam publicamente**  
-6. **Se aprovada, incrementa contador de leis**
-7. **Relator recebe Dossiê**
-8. **Próxima rodada**
+1. **Seleciona Presidente Interino**
+2. **Presidente cassa jogador, se aplicável**
+3. **Presidente recebe crise, se aplicável**
+4. **Presidente recebe 3 leis, veta uma e escolhe outra para votação**
+4. **Todos votam publicamente**  
+5. **Se aprovada, incrementa contador de leis**
+6. **Relator recebe Dossiê**
+7. **O presidente escolhe o Relator da próxima rodada**
+8. **Conservadores podem sabotar, ativando crise**
+9. **Próxima rodada**
 
 ---
 
