@@ -4,7 +4,7 @@ import { Either, left, right } from "./either";
 import { Player } from "./player";
 import { Random } from "./random";
 import { Faction, Role } from "./role";
-import { Voting } from "./voting";
+import { Round } from "./round";
 
 type GameParams = {
   players: string[];
@@ -14,19 +14,14 @@ type GameParams = {
 };
 
 export class Game {
-  static readonly LAWS_TO_DRAW = 2;
-
+  private static readonly LAWS_TO_DRAW = 2;
   private _players: Player[] = [];
   private _deck: Deck<Law>;
-  private _drawnLaws: Law[] = [];
-  private _lawToVote: Law | null = null;
-  private _voting: Voting<Law> | null = null;
   private _approvedLaws: Law[] = [];
-  private _votingHistory: Voting<Law>[] = [];
   private _lawsToProgressiveWin: number;
   private _lawsToConservativeWin: number;
   private _presidentQueue: Player[];
-  private _currentRound: number = 0;
+  private _rounds: Round[] = [];
 
   static create(
     props: GameParams
@@ -66,72 +61,65 @@ export class Game {
     this._lawsToProgressiveWin = lawsToProgressiveWin;
     this._lawsToConservativeWin = lawsToConservativeWin;
     this._presidentQueue = [...Random.sort(this._players)];
-  }
-
-  drawLaws() {
-    this._drawnLaws = this._deck.draw(Game.LAWS_TO_DRAW);
-  }
-
-  chooseLaw(index: number) {
-    this._lawToVote = this._drawnLaws[index];
-  }
-
-  startVoting(): Either<string, void> {
-    if (this._voting) {
-      return left("Votação já iniciada");
-    }
-
-    if (!this._lawToVote) {
-      return left("Nenhuma lei escolhida para votação");
-    }
-
-    const [error, voting] = Voting.create(
-      this._lawToVote,
-      this._players.map((player) => player.name)
-    );
-
-    if (!voting) {
-      return left(error);
-    }
-
-    this._voting = voting;
-
-    return right(undefined);
-  }
-
-  vote(playerName: string, vote: boolean): Either<string, void> {
-    if (!this._voting) {
-      return left("Votação não iniciada");
-    }
-
-    if (!this._players.find((player) => player.name === playerName)) {
-      return left("Jogador não encontrado");
-    }
-
-    this._voting.vote(playerName, vote);
-
-    return right(undefined);
-  }
-
-  endVoting(): Either<string, void> {
-    if (!this._voting) {
-      return left("Votação não iniciada");
-    }
-
-    this._drawnLaws = [];
-    this._lawToVote = null;
-
-    if (this._voting.result) {
-      this._approvedLaws.push(this._voting.subject);
-    }
-
-    this._votingHistory.push(this._voting);
-    this._voting = null;
-    return right(undefined);
+    this._rounds.push(new Round({
+      president: this._presidentQueue[0],
+    }));
   }
 
   nextRound() {
-    this._currentRound += 1;
+    this._rounds.push(new Round({
+      president: this._presidentQueue[this._rounds.length % this._presidentQueue.length],
+    }));
+  }
+
+  drawLaws() {
+    const laws = this._deck.draw(Game.LAWS_TO_DRAW);
+    this.currentRound.setDrawnLaws(laws);
+  }
+
+  chooseLaw(index: number) {
+    this.currentRound.chooseLaw(index);
+  }
+
+  startVoting() {
+    return this.currentRound.startVoting(this._players.map((player) => player.name));
+  }
+
+  vote(playerName: string, vote: boolean) {
+    this.currentRound.vote(playerName, vote);
+  }
+
+  endVoting(): Either<string, boolean> {
+    const [error, law] = this.currentRound.endVoting();
+    if (error) {
+      return left(error);
+    }
+
+    if (law) {
+      this._approvedLaws.push(law);
+    }
+
+    return right(law !== null);
+  }
+
+
+  chooseDossierRapporteur(player: Player): Either<string, void> {
+    if(this.president === player){
+      return left("O presidente não pode ser o relator");
+    }
+
+    const lastPresident = this._presidentQueue[(this.currentRoundIndex - 1) % this._presidentQueue.length];
+    if(lastPresident === player){
+      return left("O presidente anterior não pode ser o relator");
+    }
+
+    if(this.hasBeenRapporteur(player)){
+      return left("O relator não pode ser escolhido duas vezes seguidas");
+    }
+
+    this.currentRound.chooseRapporteur(player);
+  
+    return right();
   }
 
   get hasProgressiveWon() {
@@ -155,38 +143,38 @@ export class Game {
   }
 
   get currentRound() {
-    return this._currentRound;
+    return this._rounds[this._rounds.length - 1];
+  }
+
+  get currentRoundIndex() {
+    return this._rounds.length - 1;
   }
 
   get votingHistory() {
-    return [...this._votingHistory];
+    return [...this._rounds.map((round) => round.voting)];
   }
 
   get approvedLaws() {
     return [...this._approvedLaws];
   }
 
-  get votingResult() {
-    return this._voting?.counting ?? null;
-  }
-
-  get votes() {
-    return this._voting?.votes ?? null;
-  }
-
-  get lawToVote() {
-    return this._lawToVote;
-  }
-
-  get drawnLaws() {
-    return [...this._drawnLaws];
-  }
-
   get president() {
-    return this._presidentQueue[this._currentRound % this._presidentQueue.length];
+    return this.currentRound.president;
+  }
+
+  get presidentQueue() {
+    return [...this._presidentQueue];
   }
 
   get players() {
     return [...this._players];
+  }
+
+  get rapporteur() {
+    return this.currentRound.rapporteur;
+  }
+
+  private hasBeenRapporteur(player: Player): boolean {
+    return this._rounds.some((round) => round.rapporteur === player);
   }
 }
