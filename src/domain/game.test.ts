@@ -79,7 +79,7 @@ describe("Setup e Votação", () => {
   });
 });
 
-describe("Dossiê", () => {
+describe("Relator do Dossiê", () => {
   it("não deve permitir que escolha o presidente atual como Relator do dossiê", () => {
     const [error, game] = Game.create({
       players: ["p1", "p2", "p3", "p4", "p5", "p6"],
@@ -94,17 +94,16 @@ describe("Dossiê", () => {
     );
   });
 
-  it("não deve permitir que escolha o ex-presidente como Relator do dossiê", () => {
+  it("não deve permitir que escolha o próximo presidente como Relator do dossiê", () => {
     const [, game] = Game.create({
       players: ["p1", "p2", "p3", "p4", "p5", "p6"],
     });
 
-    const exPresident = game!.president;
-    game!.nextRound();
+    const nextPresident = game!.getPresidentFromQueue(1);
     const [errorChooseDossierRapporteur] =
-      game!.chooseDossierRapporteur(exPresident);
+      game!.chooseDossierRapporteur(nextPresident);
     expect(errorChooseDossierRapporteur).toBe(
-      "O presidente anterior não pode ser o relator"
+      "O próximo presidente não pode ser o relator"
     );
   });
 
@@ -115,7 +114,7 @@ describe("Dossiê", () => {
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
     const firstRapporteur = game!.players.find(
-      (p) => p !== game!.president && p !== game?.presidentQueue[1]
+      (p) => p !== game!.president && p !== game?.getPresidentFromQueue(1)  && p !== game?.getPresidentFromQueue(2)
     );
     game!.chooseDossierRapporteur(firstRapporteur!);
     game!.nextRound();
@@ -127,25 +126,20 @@ describe("Dossiê", () => {
     );
   });
 
-  it("deve permitir que ex-presidente escolha um jogador que não o presidente atual para ser o Relator do dossiê", () => {
+  it("deve permitir que escolha um jogador que não o presidente atual nem o próximo para ser o Relator do dossiê", () => {
     const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
     const [error, game] = Game.create({
       players,
     });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
-
-    game!.drawLaws();
-    game!.chooseLaw(0);
-    game!.startVoting();
-    for (const player of players) {
-      game!.vote(player, true);
-    }
-    game!.endVoting();
-
     const president = game!.president;
-    const chosen = game!.players.find((p) => p !== president);
+    const nextPresident = game!.getPresidentFromQueue(1);
+    const chosen = game!.players.find(
+      (p) => p !== president && p !== nextPresident
+    );
     game!.chooseDossierRapporteur(chosen!);
+    game!.nextRound();
     expect(game!.rapporteur).toBe(chosen);
   });
 });

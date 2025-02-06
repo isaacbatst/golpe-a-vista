@@ -9,6 +9,7 @@ type RoundParams = {
   president: Player;
   deck: Deck<Law>;
   crisis?: Crisis;
+  rapporteur?: Player | null;
 };
 
 export class Round {
@@ -21,12 +22,18 @@ export class Round {
   private _crisis: Crisis | null;
   private _deck: Deck<Law>;
   private _vetoedLaw: Law | null = null;
+  private _nextRapporteur: Player | null = null;
   readonly president: Player;
 
   constructor(props: RoundParams) {
     this.president = props.president;
     this._crisis = props.crisis ?? null;
     this._deck = props.deck;
+    this.rapporteur = props.rapporteur ?? null;
+  }
+
+  setNextRapporteur(player: Player) {
+    this._nextRapporteur = player;
   }
 
   drawLaws() {
@@ -42,10 +49,6 @@ export class Round {
 
     this._lawToVote = this.drawnLaws[index];
     return right();
-  }
-
-  chooseRapporteur(player: Player) {
-    this.rapporteur = player;
   }
 
   startVoting(players: string[]): Either<string, void> {
@@ -116,5 +119,9 @@ export class Round {
 
   get votingResult() {
     return this._voting?.result ?? null;
+  } 
+
+  get nextRapporteur() {
+    return this._nextRapporteur;
   }
 }

@@ -41,7 +41,7 @@ export class Game {
     const {
       players,
       laws,
-      roles = Game.ROLES_DISTRIBUTION,
+      roles = [...Game.ROLES_DISTRIBUTION],
       lawsToProgressiveWin = 6,
       lawsToConservativeWin = 6,
     } = props;
@@ -107,12 +107,10 @@ export class Game {
 
     this._rounds.push(
       new Round({
-        president:
-          this._presidentQueue[
-            this._rounds.length % this._presidentQueue.length
-          ],
-        crisis,
+        president: this.getPresidentFromQueue(this._rounds.length),
         deck: this._lawsDeck,
+        rapporteur: this.currentRound.nextRapporteur,
+        crisis,
       })
     );
   }
@@ -122,18 +120,22 @@ export class Game {
     if (lastTwoLaws.length < 2) {
       return false;
     }
-    const lastTwoLawsAreProgressive =
-      lastTwoLaws.every((law) => law.type === Faction.PROGRESSISTAS);
+    const lastTwoLawsAreProgressive = lastTwoLaws.every(
+      (law) => law.type === Faction.PROGRESSISTAS
+    );
     if (!lastTwoLawsAreProgressive) {
       return false;
     }
-    if(this.president.role !== Role.MODERADO){
+    if (this.president.role !== Role.MODERADO) {
       return false;
     }
-    if(!this.currentRound.votingResult){
+    if (!this.currentRound.votingResult) {
       return false;
     }
-    if(!this.currentRound.lawToVote || this.currentRound.lawToVote.type !== Faction.PROGRESSISTAS){
+    if (
+      !this.currentRound.lawToVote ||
+      this.currentRound.lawToVote.type !== Faction.PROGRESSISTAS
+    ) {
       return false;
     }
     return true;
@@ -175,21 +177,22 @@ export class Game {
       return left("O presidente não pode ser o relator");
     }
 
-    const lastPresident =
-      this._presidentQueue[
-        (this.currentRoundIndex - 1) % this._presidentQueue.length
-      ];
-    if (lastPresident === player) {
-      return left("O presidente anterior não pode ser o relator");
+    const nextPresident = this.getPresidentFromQueue(this.currentRoundIndex + 1);
+    if (nextPresident === player) {
+      return left("O próximo presidente não pode ser o relator");
     }
 
     if (this.hasBeenRapporteur(player)) {
       return left("O relator não pode ser escolhido duas vezes seguidas");
     }
 
-    this.currentRound.chooseRapporteur(player);
+    this.currentRound.setNextRapporteur(player);
 
     return right();
+  }
+
+  getPresidentFromQueue(round: number) {
+    return this._presidentQueue[round % this._presidentQueue.length];
   }
 
   get hasProgressiveWon() {
