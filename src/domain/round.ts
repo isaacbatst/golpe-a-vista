@@ -3,6 +3,7 @@ import { Crisis } from "./crisis";
 import { Deck } from "./deck";
 import { Either, left, right } from "./either";
 import { Player } from "./player";
+import { Faction } from "./role";
 import { Voting } from "./voting";
 
 type RoundParams = {
@@ -56,13 +57,16 @@ export class Round {
     this._lawToVote = this._drawnLaws[index];
     return right();
   }
+  
+  canSabotage(): boolean {
+    return this._lawToVote?.type === Faction.PROGRESSISTAS;
+  }
 
   sabotage(): Either<string, Crisis[]> {
-    if (this._lawToVote?.type === "Conservadores") {
-      return left("Não é possível sabotar uma lei conservadora");
+    if (!this.canSabotage()) {
+      return left("Não é possível sabotar");
     }
 
-    // get 3 crises
     const crises = this._crisesDeck.draw(3);
     this._sabotageCrisesDrawn = crises;
     return right(crises);

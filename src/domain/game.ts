@@ -167,7 +167,20 @@ export class Game {
     return right();
   }
 
+  canSabotage() {
+    if (this._rounds.length < 2) {
+      return this.currentRound.canSabotage();
+    }
+
+    const previousRound = this._rounds[this._rounds.length - 2];
+    return !previousRound.sabotageCrisis;
+  }
+
   sabotage() {
+    if(!this.canSabotage()) {
+      return left("Não é possível sabotar");
+    }
+
     return this.currentRound.sabotage();
   }
 
@@ -180,11 +193,14 @@ export class Game {
   }
 
   get nextRoundCrisis() {
-    if(this.currentRound.sabotageCrisis){
+    if (this.currentRound.sabotageCrisis) {
       return this.currentRound.sabotageCrisis;
     }
 
-    if(this.currentRound.nextShouldHaveCrisisPerRejectedLaw || this.nextShouldHaveCrisesPerModerateFear){
+    if (
+      this.currentRound.nextShouldHaveCrisisPerRejectedLaw ||
+      this.nextShouldHaveCrisesPerModerateFear
+    ) {
       return this._crisesDeck.draw(1)[0];
     }
 

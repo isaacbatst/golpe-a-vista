@@ -274,4 +274,52 @@ describe("Crises", () => {
     game!.nextRound();
     expect(game!.currentRound!.crisis).not.toBeNull();
   })
+
+  it("não deve permitir sabotagens em duas rodadas consecutivas", () => {
+    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const [error, game] = Game.create({
+      players,
+      laws: [
+        {
+          description: "Lei progressista 1",
+          type: Faction.PROGRESSISTAS,
+          name: "L1",
+        },
+        {
+          description: "Lei progressista 2",
+          type: Faction.PROGRESSISTAS,
+          name: "L2",
+        },
+      ],
+      roles: [
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.CONSERVADOR,
+      ],
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+    game!.drawLaws();
+    game!.chooseLaw(0);
+    game!.startVoting();
+    for (const player of players) {
+      game!.vote(player, true);
+    }
+    game!.endVoting();
+    game!.sabotage();
+    game!.chooseSabotageCrisis(0)
+    game!.nextRound();
+    game!.drawLaws();
+    game!.chooseLaw(0);
+    game!.startVoting();
+    for (const player of players) {
+      game!.vote(player, true);
+    }
+    game!.endVoting();
+    const can = game!.canSabotage();
+    expect(can).toBe(false);  
+  })
 });

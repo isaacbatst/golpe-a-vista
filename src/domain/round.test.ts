@@ -221,7 +221,7 @@ describe("Sabotagem", () => {
 
     const [error] = round.sabotage();
 
-    expect(error).toBe("Não é possível sabotar uma lei conservadora");
+    expect(error).toBe("Não é possível sabotar");
   });
   
   it("deve sabotar uma lei progressista", () => {
