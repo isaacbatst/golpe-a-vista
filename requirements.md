@@ -14,7 +14,7 @@
 ## **2️⃣ Condição de Vitória**
 📌 **O jogo termina quando um time atinge um dos objetivos:**  
    - ✅ **Progressistas vencem** ao aprovar **6 leis progressistas** ou cassar **todos os conservadores**. 
-   - ✅ **Conservadores vencem** ao cassar o **radical** ou aprovar **10 leis conservadoras**.  
+   - ✅ **Conservadores vencem** ao cassar o **radical** ou aprovar **7 leis conservadoras**.  
 
 ---
 
@@ -25,7 +25,7 @@ Cada rodada segue a seguinte estrutura:
    - O **Presidente Interino** é rotacionado a cada rodada, sem repetir antes que todos tenham assumido o cargo.  
 
 2️⃣ **Distribuir Leis**  
-   - O Presidente recebe **duas leis aleatórias** do baralho.  
+   - O Presidente recebe **três leis aleatórias** do baralho e veta uma, descartando-a.  
 
 3️⃣ **Escolha da Lei e Debate**  
    - O Presidente escolhe **uma das leis**, sem revelá-la.  
@@ -44,7 +44,7 @@ Cada rodada segue a seguinte estrutura:
 Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas:
 
 📌 **1️⃣ Pelo "Receio" de um Moderado**  
-   - Se um **moderado aprovar a segunda lei progressista consecutiva**, ele **puxa uma carta de crise**.  
+   - Se um **moderado aprovar a segunda lei progressista consecutiva** e a cada 2 leis progressistas aprovadas, **uma crise é ativada**.
    - **Somente o Presidente Interino saberá que a crise aconteceu** e poderá blefar sobre sua existência.  
 
 📌 **2️⃣ Pela Sabotagem dos Conservadores**  
@@ -56,23 +56,21 @@ Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas
 
 📌 **Efeito das Crises:**  
 ✅ **A crise tem efeito apenas na próxima rodada.**  
-✅ **O próximo Presidente Interino será obrigado a escolher uma lei conservadora.**  
-✅ **Somente o Presidente Interino saberá da crise, podendo blefar ou revelar a informação.**  
-
+✅ **O próximo Presidente Interino, não pode vetar uma lei conservadora se tiver outra opção.**
 ---
 
 ## **5️⃣ Cassação de Jogadores**
 📌 A cada **três leis conservadoras forem aprovadas**, ou **três crises**, é acionado o direito de cassar um jogador.  
-📌 **A cada duas cassacoes negadas, uma lei conservadora é automaticamente aprovada.**  
-📌 O jogador cassado **sai do jogo sem revelar sua identidade**.  
 📌 **A cassacão precisa ser aprovada por votação pública**.  
+📌 **A cada duas cassações negadas, uma lei conservadora é automaticamente aprovada.**  
+📌 O jogador cassado **sai do jogo sem revelar sua identidade**.  
 
 ---
 
 ## **6️⃣ Mecânica do Dossiê**
-📌 **Após a votação da lei, o ex-Presidente escolhe quem receberá o Dossiê.**  
+📌 **Antes a votação da lei, o ex-Presidente escolhe quem receberá o Dossiê.**  
 📌 O ex-Presidente **não pode escolher a si mesmo nem um jogador que tenha recebido o Dossiê na rodada anterior**.  
-📌 O jogador escolhido recebe **informação privada** sobre as leis do Presidente atual.  
+📌 O jogador escolhido recebe **informação privada** sobre as leis do Presidente atual, exceto sobre a lei descartada.  
 📌 O jogador pode **falar a verdade ou mentir sobre o conteúdo do Dossiê**.  
 
 🔥 **Isso cria um jogo de confiança e manipulação, onde os jogadores precisam conquistar credibilidade para receber informações valiosas.**
@@ -82,7 +80,7 @@ Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas
 ## **7️⃣ Baralho de Leis**
 📌 As leis são divididas em **progressistas e conservadoras**.  
 📌 **As leis não têm efeito direto, apenas contam para a vitória do time correspondente.**  
-📌 O baralho contém **10 leis progressistas e 10 conservadoras**.  
+📌 O baralho contém **7 leis progressistas e 13 conservadoras**.  
 
 ---
 
@@ -94,14 +92,16 @@ Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas
 - Histórico de rodadas e crises ativadas.  
 
 📌 **Fluxo de Rodada (Resumido para Implementação)**  
-1. **Seleciona Presidente Interino**  
-2. **Distribui duas leis**  
-3. **Presidente escolhe uma lei**  
-4. **Todos votam publicamente**  
-5. **Verifica ativação de crise**  
-6. **Executa efeito da crise (se houver) na próxima rodada.**  
-7. **Verifica condição de cassacão e votação**  
-8. **Passa a vez para o próximo Presidente Interino.**  
+1. **Ex-Presidente escolhe Relator**
+2. **Seleciona Presidente Interino**
+3. **Presidente cassa jogador, se aplicável**
+4. **Presidente recebe crise, se aplicável**
+  - **Se crise ativada, escolhe lei conservadora**
+  - **Se não hover crise, saca 3 leis do baralho e descarta uma, e escolhe uma para votação**
+5. **Todos votam publicamente**  
+6. **Se aprovada, incrementa contador de leis**
+7. **Relator recebe Dossiê**
+8. **Próxima rodada**
 
 ---
 

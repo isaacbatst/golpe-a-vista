@@ -1,5 +1,5 @@
 export class Random {
-  static getFromArray<T>(arr: T[]): T {
+  static getFromArray<T>(arr: ReadonlyArray<T>): T {
     return arr[Math.floor(Math.random() * arr.length)];
   }
 

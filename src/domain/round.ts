@@ -1,10 +1,12 @@
 import { Law } from "../data/laws";
+import { Crisis } from "./crisis";
 import { Either, left, right } from "./either";
 import { Player } from "./player";
 import { Voting } from "./voting";
 
 type RoundParams = {
   president: Player;
+  crisis?: Crisis;
 };
 
 export class Round {
@@ -12,10 +14,12 @@ export class Round {
   public rapporteur: Player | null = null;
   private _lawToVote: Law | null = null;
   private _voting: Voting<Law> | null = null;
+  private _crisis: Crisis | null;
   readonly president: Player;
 
   constructor(props: RoundParams) {
     this.president = props.president;
+    this._crisis = props.crisis ?? null;
   }
 
   setDrawnLaws(laws: Law[]) {
@@ -72,7 +76,11 @@ export class Round {
       ? right(this._lawToVote)
       : right(null);
   }
-  
+
+  get crisis(): Crisis | null {
+    return this._crisis;
+  }
+
   get lawToVote(): Law | null {
     return this._lawToVote;
   }
@@ -87,5 +95,9 @@ export class Round {
 
   get votes() {
     return this._voting?.votes ?? null;
+  }
+
+  get votingResult() {
+    return this._voting?.result ?? null;
   }
 }
