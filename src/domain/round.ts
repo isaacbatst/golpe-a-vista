@@ -15,8 +15,9 @@ type RoundParams = {
 export class Round {
   private static readonly LAWS_TO_DRAW = 3;
 
-  public drawnLaws: Law[] = [];
   public rapporteur: Player | null = null;
+  public nextShouldHaveCrisisPerRejectedLaw = false;
+  private _drawnLaws: Law[] = [];
   private _lawToVote: Law | null = null;
   private _voting: Voting<Law> | null = null;
   private _crisis: Crisis | null;
@@ -38,16 +39,16 @@ export class Round {
 
   drawLaws() {
     const laws = this._deck.draw(Round.LAWS_TO_DRAW);
-    this.drawnLaws = laws;
+    this._drawnLaws = laws;
     return laws;
   }
 
   chooseLaw(index: number): Either<string, void> {
-    if (this._vetoedLaw === this.drawnLaws[index]) {
+    if (this._vetoedLaw === this._drawnLaws[index]) {
       return left("Essa lei foi vetada");
     }
 
-    this._lawToVote = this.drawnLaws[index];
+    this._lawToVote = this._drawnLaws[index];
     return right();
   }
 
@@ -90,7 +91,11 @@ export class Round {
   }
 
   vetoLaw(index: number) {
-    this._vetoedLaw = this.drawnLaws[index];
+    this._vetoedLaw = this._drawnLaws[index];
+  }
+
+  get drawnLaws() {
+    return [...this._drawnLaws];
   }
 
   get vetoedLaw(): Law | null {

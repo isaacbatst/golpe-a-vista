@@ -101,9 +101,11 @@ export class Game {
   }
 
   nextRound() {
-    const crisis = this.shouldTriggerModeratesCrisis()
-      ? this._crisesDeck.draw(1)[0]
-      : undefined;
+    const crisis =
+      this.nextShouldHaveCrisesPerModerateFear ||
+      this.currentRound.nextShouldHaveCrisisPerRejectedLaw
+        ? this._crisesDeck.draw(1)[0]
+        : undefined;
 
     this._rounds.push(
       new Round({
@@ -113,32 +115,6 @@ export class Game {
         crisis,
       })
     );
-  }
-
-  shouldTriggerModeratesCrisis() {
-    const lastTwoLaws = this._approvedLaws.slice(-2);
-    if (lastTwoLaws.length < 2) {
-      return false;
-    }
-    const lastTwoLawsAreProgressive = lastTwoLaws.every(
-      (law) => law.type === Faction.PROGRESSISTAS
-    );
-    if (!lastTwoLawsAreProgressive) {
-      return false;
-    }
-    if (this.president.role !== Role.MODERADO) {
-      return false;
-    }
-    if (!this.currentRound.votingResult) {
-      return false;
-    }
-    if (
-      !this.currentRound.lawToVote ||
-      this.currentRound.lawToVote.type !== Faction.PROGRESSISTAS
-    ) {
-      return false;
-    }
-    return true;
   }
 
   drawLaws(): Law[] {
@@ -167,6 +143,8 @@ export class Game {
 
     if (law) {
       this._approvedLaws.push(law);
+    } else {
+      this.currentRound.nextShouldHaveCrisisPerRejectedLaw = true;
     }
 
     return right(law !== null);
@@ -177,7 +155,9 @@ export class Game {
       return left("O presidente não pode ser o relator");
     }
 
-    const nextPresident = this.getPresidentFromQueue(this.currentRoundIndex + 1);
+    const nextPresident = this.getPresidentFromQueue(
+      this.currentRoundIndex + 1
+    );
     if (nextPresident === player) {
       return left("O próximo presidente não pode ser o relator");
     }
@@ -193,6 +173,32 @@ export class Game {
 
   getPresidentFromQueue(round: number) {
     return this._presidentQueue[round % this._presidentQueue.length];
+  }
+
+  get nextShouldHaveCrisesPerModerateFear() {
+    const lastTwoLaws = this._approvedLaws.slice(-2);
+    if (lastTwoLaws.length < 2) {
+      return false;
+    }
+    const lastTwoLawsAreProgressive = lastTwoLaws.every(
+      (law) => law.type === Faction.PROGRESSISTAS
+    );
+    if (!lastTwoLawsAreProgressive) {
+      return false;
+    }
+    if (this.president.role !== Role.MODERADO) {
+      return false;
+    }
+    if (!this.currentRound.votingResult) {
+      return false;
+    }
+    if (
+      !this.currentRound.lawToVote ||
+      this.currentRound.lawToVote.type !== Faction.PROGRESSISTAS
+    ) {
+      return false;
+    }
+    return true;
   }
 
   get hasProgressiveWon() {

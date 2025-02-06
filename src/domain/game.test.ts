@@ -184,4 +184,44 @@ describe("Crises", () => {
     }
     expect(game!.currentRound!.crisis).not.toBeNull();
   });
+
+  it("deve iniciar a próxima rodada com crise se a lei for rejeitada", () => {
+    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const [error, game] = Game.create({
+      players,
+      laws: [
+        {
+          description: "Lei progressista 1",
+          type: Faction.PROGRESSISTAS,
+          name: "L1",
+        },
+        {
+          description: "Lei progressista 2",
+          type: Faction.PROGRESSISTAS,
+          name: "L2",
+        },
+      ],
+      roles: [
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+      ],
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+    for (let i = 0; i < 2; i++) {
+      game!.drawLaws();
+      game!.chooseLaw(0);
+      game!.startVoting();
+      for (const player of players) {
+        game!.vote(player, false);
+      }
+      game!.endVoting();
+      game!.nextRound();
+    }
+    expect(game!.currentRound!.crisis).not.toBeNull();
+  })
 });
