@@ -221,7 +221,7 @@ describe("Sabotagem", () => {
 
     const [error] = round.sabotage();
 
-    expect(error).toBe("Não é possível sabotar");
+    expect(error).toBe("Não é possível sabotar uma lei conservadora");
   });
   
   it("deve sabotar uma lei progressista", () => {
@@ -235,11 +235,14 @@ describe("Sabotagem", () => {
       ]),
       crisesDeck: makeCrisesDeck(),
     });
-
+const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
     round.drawLaws();
     round.chooseLaw(0);
-    round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
-
+    round.startVoting(players);
+    for(const player of players) {
+      round.vote(player, true);
+    }
+    round.endVoting();
     const [error, crises] = round.sabotage();
 
     expect(error).toBeUndefined();
@@ -257,13 +260,16 @@ describe("Sabotagem", () => {
       ]),
       crisesDeck: makeCrisesDeck(),
     });
-
+    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
     round.drawLaws();
     round.chooseLaw(0);
-    round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
-
-    round.sabotage();
-
+    round.startVoting(players);
+    for(const player of players) {
+      round.vote(player, true);
+    }
+    round.endVoting();
+    const [sabotageError] = round.sabotage();
+    expect(sabotageError).toBeUndefined();
     const [error] = round.chooseSabotageCrisis(0);
     expect(error).toBeUndefined();
     expect(round.sabotageCrisis).not.toBeNull();

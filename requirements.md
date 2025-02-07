@@ -47,13 +47,11 @@ Cada rodada segue a seguinte estrutura:
 Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas:
 
 📌 **"Receio"** dos Moderados  
-   - Se um **moderado aprovar a partir da terceira lei progressista consecutiva**, **uma crise é ativada**.
+   - Se um **moderado aprovar a partir da segunda lei progressista consecutiva**, **uma crise é ativada**.
 
 📌 **Sabotagem** dos Conservadores  
-   - Se a segunda lei progressista consecutiva for aprovada, os **conservadores podem ativar uma crise**.  
-   - **Somente os conservadores saberão da crise**, permitindo que manipulem a narrativa.  
+   - Sempre que uma lei progressista for aprovada, os **conservadores podem ativar uma crise**, a menos que tenham sabotado na rodada anterior.
    - Os conservadores recebem 3 cartas de crise e escolhem uma para ativar.
-   - Os conservadores não podem sabotar se uma crise estiver ativa na rodada.
    - Caso uma crise fosse ser ativada pelo receio de um moderado, a crise escolhida pelos conservadores é priorizada.
 
 📌 **Efeito das Crises:**  
@@ -61,7 +59,7 @@ Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas
 ---
 
 ## **5️⃣ Cassação**
-📌 A partir da quarta lei conservadora e a cada lei conservadora subsequente, além de a cada 3 crises, o presidente deverá propor uma cassação.
+📌 A cada 3 crises, o presidente deverá propor uma cassação.
 📌 A cassação é realizada mediante votação. Caso aprovada, o jogador cassado **sai do jogo sem revelar sua identidade**.  
 📌 Se a cassação for rejeitada, uma lei conservadora é aprovada.
 

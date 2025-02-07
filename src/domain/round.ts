@@ -63,15 +63,27 @@ export class Round {
     return right();
   }
 
-  canSabotage(): boolean {
-    return this._lawToVote?.type === LawType.PROGRESSISTAS;
+  canSabotage(): Either<string, boolean> {
+    if (!this._lawToVote) {
+      return left("Nenhuma lei escolhida para sabotar");
+    }
+
+    if (this._lawToVote.type === LawType.CONSERVADORES) {
+      return left("Não é possível sabotar uma lei conservadora");
+    }
+
+    if(!this.voting?.result){
+      return left("Não é possível sabotar uma lei que não foi aprovada");
+    }
+
+    return right(true);
   }
 
   sabotage(): Either<string, Crisis[]> {
-    if (!this.canSabotage()) {
-      return left("Não é possível sabotar");
+    const [canSabotageError] = this.canSabotage();
+    if (canSabotageError) {
+      return left(canSabotageError);
     }
-
     const crises = this._crisesDeck.draw(3);
     this._sabotageCrisesDrawn = crises;
     return right(crises);
@@ -122,7 +134,7 @@ export class Round {
 
   chooseSabotageCrisis(index: number): Either<string, void> {
     if (!this._sabotageCrisesDrawn) {
-      return left("Não há crises para sabotar");
+      return left("Crises de sabotagem não foram sacadas");
     }
     this._sabotageCrisis = this._sabotageCrisesDrawn[index];
     return right();

@@ -17,7 +17,7 @@ type GameParams = {
   laws?: Law[];
   roles?: Role[];
   crises?: Crisis[];
-  progressiveLawsIntervalToCrisis?: number;
+  progressiveLawsToCrisis?: number;
 };
 
 export class Game {
@@ -41,7 +41,7 @@ export class Game {
   private _rounds: Round[] = [];
   private _roles: Role[];
   private _crisesDeck: Deck<Crisis>;
-  private _progressiveLawsIntervalToCrisis;
+  private _progressiveLawsToCrisis;
 
   static create(props: GameParams): Either<string, Game> {
     const {
@@ -51,9 +51,9 @@ export class Game {
       roles = [...Game.ROLES_DISTRIBUTION],
       lawsToProgressiveWin = 6,
       lawsToConservativeWin = 7,
-      minConservativeLawsToImpeach = 4,
+      minConservativeLawsToImpeach = 5,
       crisesIntervalToImpeach = 3,
-      progressiveLawsIntervalToCrisis = 2,
+      progressiveLawsToCrisis: progressiveLawsToCrisis = 2,
     } = props;
 
     const [errorLawsDeckCreate, lawsDeck] = Deck.create(laws ?? LAWS);
@@ -81,7 +81,7 @@ export class Game {
         crisesDeck,
         minConservativeLawsToImpeach,
         crisesIntervalToImpeach,
-        progressiveLawsIntervalToCrisis
+        progressiveLawsToCrisis
       )
     );
   }
@@ -110,7 +110,7 @@ export class Game {
     this._crisesIntervalToImpeach = crisesIntervalToImpeach;
     this._presidentQueue = [...Random.sort(this._players)];
     this._crisesDeck = crisesDeck;
-    this._progressiveLawsIntervalToCrisis = progressiveLawsIntervalToCrisis;
+    this._progressiveLawsToCrisis = progressiveLawsIntervalToCrisis;
     this._rounds.push(
       new Round({
         president: this._presidentQueue[0],
@@ -199,18 +199,29 @@ export class Game {
     return right();
   }
 
-  canSabotage() {
+  canSabotage(): Either<string, boolean> {
+    const [canSabotageError] = this.currentRound.canSabotage();
+
+    if(canSabotageError) {
+      return left(canSabotageError);
+    }
+
     if (this._rounds.length < 2) {
       return this.currentRound.canSabotage();
     }
 
     const previousRound = this._rounds[this._rounds.length - 2];
-    return !previousRound.sabotageCrisis;
+    if(previousRound.sabotageCrisis){
+      return left("Não é possível sabotar duas vezes seguidas");
+    }
+
+    return right(true);
   }
 
   sabotage() {
-    if (!this.canSabotage()) {
-      return left("Não é possível sabotar");
+    const [canSabotageError] = this.canSabotage();
+    if (canSabotageError) {
+      return left(canSabotageError);
     }
 
     return this.currentRound.sabotage();
@@ -221,7 +232,7 @@ export class Game {
   }
 
   impeach(player: Player): Either<string, void> {
-    if(!this.currentRound.impeachment) {
+    if (!this.currentRound.impeachment) {
       return left("A cassação não está ativa");
     }
 
@@ -275,15 +286,13 @@ export class Game {
   }
 
   get nextShouldHaveCrisisPerModerateFear() {
-    const lastLaws = this._approvedLaws.slice(
-      -this._progressiveLawsIntervalToCrisis
-    );
+    const lastLaws = this._approvedLaws.slice(-this._progressiveLawsToCrisis);
     const areLastLawsProgressive = lastLaws.every(
       (law) => law.type === LawType.PROGRESSISTAS
     );
 
     return (
-      lastLaws.length >= this._progressiveLawsIntervalToCrisis &&
+      lastLaws.length >= this._progressiveLawsToCrisis &&
       areLastLawsProgressive &&
       this.president.role === Role.MODERADO &&
       this.currentRound.lawToVote?.type === LawType.PROGRESSISTAS &&

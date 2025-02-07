@@ -130,7 +130,7 @@ describe("Crises", () => {
       game.endVoting();
       game.nextRound();
     };
-    const progressiveLawsIntervalToCrisis = 3;
+    const progressiveLawsToCrises = 3;
     const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
     const [error, game] = Game.create({
       players,
@@ -154,14 +154,14 @@ describe("Crises", () => {
         Role.MODERADO,
         Role.MODERADO,
       ],
-      progressiveLawsIntervalToCrisis,
+      progressiveLawsToCrisis: progressiveLawsToCrises,
     });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
 
-    for (let i = 1; i <= progressiveLawsIntervalToCrisis * 2; i++) {
+    for (let i = 1; i <= progressiveLawsToCrises * 2; i++) {
       approveLaw(game!);
-      if (i >= progressiveLawsIntervalToCrisis) {
+      if (i >= progressiveLawsToCrises) {
         expect(game!.currentRound!.crisis).not.toBeNull();
       } else {
         expect(game!.currentRound!.crisis).toBeNull();
@@ -209,7 +209,7 @@ describe("Crises", () => {
     expect(game!.currentRound!.crisis).not.toBeNull();
   });
 
-  it("deve iniciar próxima rodada com crise se houver sabotagem", () => {
+  it("deve permitir sabotagem se uma lei progressista foi aprovada nessa rodada", () => {
     const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
     const [error, game] = Game.create({
       players,
@@ -247,6 +247,40 @@ describe("Crises", () => {
     game!.chooseSabotageCrisis(0);
     game!.nextRound();
     expect(game!.currentRound!.crisis).not.toBeNull();
+  });
+
+  it("não deve permitir sabotagem se a lei progressista ainda não foi aprovada nessa rodada", () => {
+    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const [error, game] = Game.create({
+      players,
+      laws: [
+        {
+          description: "Lei progressista 1",
+          type: LawType.PROGRESSISTAS,
+          name: "L1",
+        },
+        {
+          description: "Lei progressista 2",
+          type: LawType.PROGRESSISTAS,
+          name: "L2",
+        },
+      ],
+      roles: [
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.CONSERVADOR,
+      ],
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+    game!.drawLaws();
+    game!.chooseLaw(0);
+    game!.startVoting();
+    const [sabotageError] = game!.sabotage();
+    expect(sabotageError).toBe("Não é possível sabotar uma lei que não foi aprovada");
   });
 
   it("não deve permitir sabotagens em duas rodadas consecutivas", () => {
@@ -293,8 +327,8 @@ describe("Crises", () => {
       game!.vote(player, true);
     }
     game!.endVoting();
-    const can = game!.canSabotage();
-    expect(can).toBe(false);
+    const [canSabotageError] = game!.canSabotage();
+    expect(canSabotageError).toBe("Não é possível sabotar duas vezes seguidas");
   });
 });
 
