@@ -268,39 +268,4 @@ describe("Sabotagem", () => {
     expect(error).toBeUndefined();
     expect(round.sabotageCrisis).not.toBeNull();
   })
-
-  // it("deve iniciar a próxima rodada com crise se lei progressista for aprovada e conservador sabotar governo", () => {
-  //   const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
-  //   const [error, game] = Game.create({
-  //     players,
-  //     laws: [
-  //       {
-  //         description: "Lei progressista 1",
-  //         type: Faction.PROGRESSISTAS,
-  //         name: "L1",
-  //       },
-  //     ],
-  //     roles: [
-  //       Role.MODERADO,
-  //       Role.MODERADO,
-  //       Role.MODERADO,
-  //       Role.MODERADO,
-  //       Role.MODERADO,
-  //       Role.CONSERVADOR,
-  //     ],
-  //   });
-  //   expect(error).toBeUndefined();
-  //   expect(game).toBeDefined();
-  //   game!.drawLaws();
-  //   game!.chooseLaw(0);
-  //   game!.startVoting();
-  //   for (const player of players) {
-  //     game!.vote(player, true);
-  //   }
-  //   game!.endVoting();
-  //   const [sabotageError] = game!.sabotage();
-  //   expect(sabotageError).toBeUndefined();
-  //   game!.nextRound();
-  //   expect(game!.currentRound!.crisis).not.toBeNull();
-  // });
 });

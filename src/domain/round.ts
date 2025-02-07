@@ -31,15 +31,26 @@ export class Round {
   private _sabotageCrisesDrawn: Crisis[] | null = null;
   private _sabotageCrisis: Crisis | null = null;
   private _impeachment: boolean;
+  private _impeached: Player | null = null;
+
   readonly president: Player;
 
   constructor(props: RoundParams) {
     this.president = props.president;
-    this._crisesDeck = props.crisesDeck
+    this._crisesDeck = props.crisesDeck;
     this._crisis = props.crisis ?? null;
     this._lawsDeck = props.lawsDeck;
     this._impeachment = props.impeachment ?? false;
     this.rapporteur = props.rapporteur ?? null;
+  }
+
+  impeach(player: Player): Either<string, void> {
+    if (!this._impeachment) {
+      return left("Cassação não está ativa");
+    }
+    this._impeached = player;
+    player.impeached = true;
+    return right();
   }
 
   setNextRapporteur(player: Player) {
@@ -60,7 +71,7 @@ export class Round {
     this._lawToVote = this._drawnLaws[index];
     return right();
   }
-  
+
   canSabotage(): boolean {
     return this._lawToVote?.type === Faction.PROGRESSISTAS;
   }
@@ -130,9 +141,7 @@ export class Round {
   }
 
   get sabotageCrisesDrawn(): Crisis[] | null {
-    return this.sabotageCrisesDrawn 
-      ? [...this._sabotageCrisesDrawn!]
-      : null;
+    return this.sabotageCrisesDrawn ? [...this._sabotageCrisesDrawn!] : null;
   }
 
   get drawnLaws() {
@@ -165,7 +174,7 @@ export class Round {
 
   get votingResult() {
     return this._voting?.result ?? null;
-  } 
+  }
 
   get nextRapporteur() {
     return this._nextRapporteur;
@@ -173,5 +182,9 @@ export class Round {
 
   get impeachment() {
     return this._impeachment;
+  }
+
+  get impeached() {
+    return this._impeached;
   }
 }

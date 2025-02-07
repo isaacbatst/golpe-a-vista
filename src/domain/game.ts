@@ -193,6 +193,10 @@ export class Game {
     return this.currentRound.chooseSabotageCrisis(index);
   }
 
+  impeach(player: Player) {
+    return this.currentRound.impeach(player);
+  }
+
   getPresidentFromQueue(round: number) {
     return this._presidentQueue[round % this._presidentQueue.length];
   }

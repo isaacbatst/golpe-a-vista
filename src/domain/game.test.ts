@@ -363,4 +363,23 @@ describe("Cassação", () => {
 
     }
   });
+
+  it("não deve cassar jogador se a cassação estiver desativada", () => {
+    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const [error, game] = Game.create({
+      players,
+      laws: Array.from({ length: 9 }, (_, i) => ({
+        description: `Lei conservadora ${i + 1}`,
+        type: Faction.CONSERVADORES,
+        name: `L${i + 1}`,
+      })),
+    })
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+
+
+    const [impeachError] = game!.impeach(game!.players[0]);
+    expect(impeachError).toBe("Cassação não está ativa");
+  })
+
 });
