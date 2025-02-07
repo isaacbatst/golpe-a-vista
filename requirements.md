@@ -5,17 +5,18 @@ Neste jogo, os jogadores assumem papéis de **progressistas** e **conservadores*
 ## **1️⃣ Estrutura Básica do Jogo**
 ✅ **Número de Jogadores:** 6 jogadores  
 ✅ **Papéis no jogo:**  
-   - **Radical (1x)** → Sempre quer aprovar leis progressistas e deve evitar ser cassado.  
-   - **Moderados (3x)** → Jogam do lado dos progressistas, tem receio de gerar crises.
-   - **Conservadores (2x)** → Querem aprovar leis conservadoras e cassar o radical.
+   - **Radical (1x)** → Seu objetivo é tomar o controle do governo, cassando os conservadores ou radicalizando os moderados.
+   - **Moderados (3x)** → Seu objetivo é aprovar leis progressistas, mas tem receio de gerar crises caso muitas leis progressistas sejam aprovadas em sequência.
+   - **Conservadores (2x)** → Seu objetivo é aprovar leis conservadoras e cassar o radical. Sabem quem são os outros conservadores.
 
 ✅ **Rodadas:** O jogo é dividido em rodadas cíclicas, onde cada jogador assume o papel de **Presidente Interino** uma vez antes de reiniciar a ordem.  
 
 ---
 
 ## **2️⃣ Condição de Vitória**
-📌 **O jogo termina quando um time atinge um dos objetivos:**  
-   - ✅ **Progressistas vencem** ao aprovar **6 leis progressistas** ou cassar **todos os conservadores**. 
+📌 **O jogo termina quando um time atinge um dos objetivos:** 
+   - ✅ **Radical vence** se cassar todos os conservadores ou radicalizar a maioria dos moderados.
+   - ✅ **Moderados vencem** ao aprovar **6 leis progressistas** 
    - ✅ **Conservadores vencem** ao cassar o **radical** ou aprovar **7 leis conservadoras**.  
 
 ---
@@ -42,25 +43,24 @@ Cada rodada segue a seguinte estrutura:
 
 ---
 
-## **4️⃣ Mecânica de Crises**
+## **4️⃣ Crises**
 Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas:
 
-📌 **1️⃣ Pelo "Receio" de um Moderado**  
-   - Se um **moderado aprovar a partir da segunda lei progressista consecutiva**, **uma crise é ativada**.
-   - **Somente o Presidente Interino saberá que a crise aconteceu** e poderá blefar sobre sua existência.  
+📌 **"Receio"** dos Moderados  
+   - Se um **moderado aprovar a partir da terceira lei progressista consecutiva**, **uma crise é ativada**.
 
-📌 **2️⃣ Pela Sabotagem dos Conservadores**  
-   - Se **uma lei progressista for aprovada**, os **conservadores podem ativar uma crise**.  
+📌 **Sabotagem** dos Conservadores  
+   - Se a segunda lei progressista consecutiva for aprovada, os **conservadores podem ativar uma crise**.  
    - **Somente os conservadores saberão da crise**, permitindo que manipulem a narrativa.  
    - Os conservadores recebem 3 cartas de crise e escolhem uma para ativar.
-   - Os conservadores não podem ativar duas crises seguidas.
-   - Caso uma crise fosse ativada por um moderado na mesma rodada, a crise escolhida pelos conservadores é priorizada.
+   - Os conservadores não podem sabotar se uma crise estiver ativa na rodada.
+   - Caso uma crise fosse ser ativada pelo receio de um moderado, a crise escolhida pelos conservadores é priorizada.
 
 📌 **Efeito das Crises:**  
 ✅ **A crise tem efeito apenas na próxima rodada.**  
 ---
 
-## **5️⃣ Cassação de Jogadores**
+## **5️⃣ Cassação**
 📌 A partir da quarta lei conservadora e a cada lei conservadora subsequente, além de a cada 3 crises, o presidente deverá propor uma cassação.
 📌 A cassação é realizada mediante votação. Caso aprovada, o jogador cassado **sai do jogo sem revelar sua identidade**.  
 📌 Se a cassação for rejeitada, uma lei conservadora é aprovada.
@@ -68,7 +68,7 @@ Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas
 
 ---
 
-## **6️⃣ Mecânica do Dossiê**
+## **6️⃣ Dossiê**
 📌 **Antes a votação da lei, o ex-Presidente escolhe quem receberá o Dossiê.**  
 📌 O ex-Presidente **não pode escolher a si mesmo nem um jogador que tenha recebido o Dossiê na rodada anterior**.  
 📌 O jogador escolhido recebe **informação privada** sobre as leis do Presidente atual, exceto sobre a lei descartada.  
@@ -78,14 +78,27 @@ Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas
 
 ---
 
-## **7️⃣ Baralho de Leis**
+## **7️⃣ Poderes do Radical**
+
+📌 **Ditadura do Proletariado**
+   - **Ativação:** O radical pode ativar a Ditadura do Proletariado caso um conservador já tenha sido cassado e o alvo seja o último conservador.
+   - **Efeito:** O radical pode cassar um jogador sem votação.  
+
+📌 **Radicalização**
+   - **Ativação:** O radical tentar radicalizar um jogador
+   - **Efeito:** O jogador radicalizado passa a jogar do lado do radical, sem revelar sua identidade. Se o radicalizado for um conservador, nada acontece. Apenas o radical e o radicalizado sabem da mudança.
+   - **Restrição:** Apenas se houver uma **crise ativa** e pelo menos **4 leis progressistas aprovadas**, a cada 3 rodadas.
+   
+---
+
+## **8️⃣ Baralho de Leis**
 📌 As leis são divididas em **progressistas e conservadoras**.  
 📌 **As leis não têm efeito direto, apenas contam para a vitória do time correspondente.**  
 📌 O baralho contém **7 leis progressistas e 13 conservadoras**.  
 
 ---
 
-## **8️⃣ Implementação de Componentes**
+## **9️⃣ Implementação**
 📌 **Estrutura de Dados (JSON ou Banco de Dados)**  
 - Lista de jogadores, seus papéis e status (ativo/cassado).  
 - Contador de leis aprovadas por facção.  
@@ -102,7 +115,8 @@ Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas
 6. **Relator recebe Dossiê**
 7. **O presidente escolhe o Relator da próxima rodada**
 8. **Conservadores podem sabotar, ativando crise**
-9. **Próxima rodada**
+9. **Radical pode radicalizar jogador, se aplicável**
+10. **Próxima rodada**
 
 ---
 
