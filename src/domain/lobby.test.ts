@@ -1,5 +1,5 @@
-import {expect, it} from 'vitest';
-import { Lobby } from './lobby';
+import { expect, it } from "vitest";
+import { Lobby } from "./lobby";
 
 it("deve criar um lobby", () => {
   const [error, lobby] = Lobby.create();
@@ -7,7 +7,7 @@ it("deve criar um lobby", () => {
   expect(lobby).toBeDefined();
 });
 
-it('deve criar um lobby sem jogadores', () => {
+it("deve criar um lobby sem jogadores", () => {
   const [error, lobby] = Lobby.create();
   expect(error).toBeUndefined();
   expect(lobby!.players).toEqual([]);
@@ -20,7 +20,7 @@ it("deve adicionar um jogador ao lobby", () => {
   expect(addPlayerError).toBeUndefined();
 });
 
-it('não deve adicionar o mesmo jogador duas vezes', () => {
+it("não deve adicionar o mesmo jogador duas vezes", () => {
   const [error, lobby] = Lobby.create();
   expect(error).toBeUndefined();
   lobby!.addPlayer("p1");
@@ -28,7 +28,13 @@ it('não deve adicionar o mesmo jogador duas vezes', () => {
   expect(addPlayerError).toBe("Jogador p1 já está no lobby");
 });
 
-it('deve iniciar um jogo com 6 jogadores', () => {
+it("deve criar um lobby sem jogo", () => {
+  const [error, lobby] = Lobby.create();
+  expect(error).toBeUndefined();
+  expect(lobby!.games.length).toBe(0);
+});
+
+it("deve iniciar um jogo com 6 jogadores", () => {
   const [error, lobby] = Lobby.create();
   expect(error).toBeUndefined();
   lobby!.addPlayer("p1");

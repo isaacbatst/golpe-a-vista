@@ -100,7 +100,6 @@ const CRISES = {
     ],
     description:
       "A oposição conseguiu adicionar uma cláusula que torna a lei aprovada na rodada anterior inviável, ela é anulada. O burocrata responsável será punido com um cargo no ministério.",
-    when: "before_dossier",
     type: "Pública",
   },
   VETO_DO_STF: {

@@ -314,6 +314,11 @@ export class Game {
 
     return null;
   }
+
+  get isFinished() {
+    return Boolean(this.winner);
+  }
+
   get roles() {
     return [...this._roles];
   }

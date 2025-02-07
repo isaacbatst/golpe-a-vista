@@ -3,6 +3,7 @@ import { Game } from "./game";
 
 export class Lobby {
   private _players: string[] = [];
+  private _games: Game[] = [];
 
   private constructor() {}
 
@@ -23,12 +24,28 @@ export class Lobby {
       return left("Mínimo de 6 jogadores para iniciar o jogo");
     }
 
-    return Game.create({
+    const [error, game] = Game.create({
       players: this._players,
     });
+
+    if (!game) {
+      return left(error);
+    }
+
+    this._games.push(game);
+
+    return right(game);
+  }
+
+  get currentGame() {
+    return this._games[this._games.length - 1];
   }
 
   get players() {
     return this._players;
+  }
+
+  get games() {
+    return Array.from(this._games.values());
   }
 }
