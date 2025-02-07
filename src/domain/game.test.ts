@@ -114,7 +114,10 @@ describe("Relator do Dossiê", () => {
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
     const firstRapporteur = game!.players.find(
-      (p) => p !== game!.president && p !== game?.getPresidentFromQueue(1)  && p !== game?.getPresidentFromQueue(2)
+      (p) =>
+        p !== game!.president &&
+        p !== game?.getPresidentFromQueue(1) &&
+        p !== game?.getPresidentFromQueue(2)
     );
     game!.chooseDossierRapporteur(firstRapporteur!);
     game!.nextRound();
@@ -154,7 +157,7 @@ describe("Crises", () => {
         game.vote(player, true);
       }
       game.endVoting();
-    }
+    };
     const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
     const [error, game] = Game.create({
       players,
@@ -231,7 +234,7 @@ describe("Crises", () => {
       game!.nextRound();
     }
     expect(game!.currentRound!.crisis).not.toBeNull();
-  })
+  });
 
   it("deve iniciar próxima rodada com crise se houver sabotagem", () => {
     const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
@@ -268,10 +271,10 @@ describe("Crises", () => {
     }
     game!.endVoting();
     game!.sabotage();
-    game!.chooseSabotageCrisis(0)
+    game!.chooseSabotageCrisis(0);
     game!.nextRound();
     expect(game!.currentRound!.crisis).not.toBeNull();
-  })
+  });
 
   it("não deve permitir sabotagens em duas rodadas consecutivas", () => {
     const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
@@ -308,7 +311,7 @@ describe("Crises", () => {
     }
     game!.endVoting();
     game!.sabotage();
-    game!.chooseSabotageCrisis(0)
+    game!.chooseSabotageCrisis(0);
     game!.nextRound();
     game!.drawLaws();
     game!.chooseLaw(0);
@@ -318,8 +321,8 @@ describe("Crises", () => {
     }
     game!.endVoting();
     const can = game!.canSabotage();
-    expect(can).toBe(false);  
-  })
+    expect(can).toBe(false);
+  });
 });
 
 describe("Cassação", () => {
@@ -360,7 +363,6 @@ describe("Cassação", () => {
       } else {
         expect(game!.currentRound!.impeachment).toBe(false);
       }
-
     }
   });
 
@@ -373,13 +375,166 @@ describe("Cassação", () => {
         type: Faction.CONSERVADORES,
         name: `L${i + 1}`,
       })),
-    })
+    });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
 
-
     const [impeachError] = game!.impeach(game!.players[0]);
     expect(impeachError).toBe("Cassação não está ativa");
-  })
+  });
 
+  it("deve cassar jogador se a cassação estiver ativada", () => {
+    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const [error, game] = Game.create({
+      players,
+      laws: Array.from({ length: 9 }, (_, i) => ({
+        description: `Lei conservadora ${i + 1}`,
+        type: Faction.CONSERVADORES,
+        name: `L${i + 1}`,
+      })),
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+
+    for (let i = 0; i < 3; i++) {
+      game!.drawLaws();
+      game!.chooseLaw(0);
+      game!.startVoting();
+      for (const player of players) {
+        game!.vote(player, true);
+      }
+      game!.endVoting();
+      game!.nextRound();
+    }
+
+    const [impeachError] = game!.impeach(game!.players[0]);
+    expect(impeachError).toBeUndefined();
+  });
+
+  it("não deve permitir voto de jogador cassado", () => {
+    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const [error, game] = Game.create({
+      players,
+      laws: Array.from({ length: 9 }, (_, i) => ({
+        description: `Lei conservadora ${i + 1}`,
+        type: Faction.CONSERVADORES,
+        name: `L${i + 1}`,
+      })),
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+
+    for (let i = 0; i < 3; i++) {
+      game!.drawLaws();
+      game!.chooseLaw(0);
+      game!.startVoting();
+      for (const player of players) {
+        game!.vote(player, true);
+      }
+      game!.endVoting();
+      game!.nextRound();
+    }
+
+    const nonPresident = game!.players.find((p) => p !== game!.president);
+    game!.impeach(nonPresident!);
+    game!.drawLaws();
+    game!.chooseLaw(0);
+    game!.startVoting();
+    const [voteError] = game!.vote(nonPresident!.name, true);
+    expect(voteError).toBe("Jogador não pode votar");
+    const canVote = game!.canVote(nonPresident!.name);
+    expect(canVote).toBe(false);
+  });
+
+  it("deve pular jogador cassado na fila de presidente", () => {
+    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const [error, game] = Game.create({
+      players,
+      laws: Array.from({ length: 9 }, (_, i) => ({
+        description: `Lei conservadora ${i + 1}`,
+        type: Faction.CONSERVADORES,
+        name: `L${i + 1}`,
+      })),
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+
+    for (let i = 0; i < 3; i++) {
+      game!.drawLaws();
+      game!.chooseLaw(0);
+      game!.startVoting();
+      for (const player of players) {
+        game!.vote(player, true);
+      }
+      game!.endVoting();
+      game!.nextRound();
+    }
+
+    const nextPresident = game!.getPresidentFromQueue(
+      game!.currentRoundIndex + 1
+    );
+    game!.impeach(nextPresident!);
+    game!.nextRound();
+
+    console.log("president queue", game!.presidentQueue);
+    expect(game!.president).not.toBe(nextPresident);
+  });
+
+  it("não deve permitir jogador cassado como relator do dossiê", () => {
+    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const [error, game] = Game.create({
+      players,
+      laws: Array.from({ length: 9 }, (_, i) => ({
+        description: `Lei conservadora ${i + 1}`,
+        type: Faction.CONSERVADORES,
+        name: `L${i + 1}`,
+      })),
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+
+    for (let i = 0; i < 3; i++) {
+      game!.drawLaws();
+      game!.chooseLaw(0);
+      game!.startVoting();
+      for (const player of players) {
+        game!.vote(player, true);
+      }
+      game!.endVoting();
+      game!.nextRound();
+    }
+
+    const nonPresident = game!.players.find((p) => p !== game!.president);
+    game!.impeach(nonPresident!);
+    const [chooseError] = game!.chooseDossierRapporteur(nonPresident!);
+    expect(chooseError).toBe("O relator não pode ter sido cassado");
+  });
+
+  it("não deve permitir cassar o presidente", () => {
+    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const [error, game] = Game.create({
+      players,
+      laws: Array.from({ length: 9 }, (_, i) => ({
+        description: `Lei conservadora ${i + 1}`,
+        type: Faction.CONSERVADORES,
+        name: `L${i + 1}`,
+      })),
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+
+    for (let i = 0; i < 3; i++) {
+      game!.drawLaws();
+      game!.chooseLaw(0);
+      game!.startVoting();
+      for (const player of players) {
+        game!.vote(player, true);
+      }
+      game!.endVoting();
+      game!.nextRound();
+    }
+
+    const [impeachError] = game!.impeach(game!.president);
+    expect(impeachError).toBe("O presidente não pode ser cassado");
+  });
 });

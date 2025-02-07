@@ -48,6 +48,11 @@ export class Round {
     if (!this._impeachment) {
       return left("Cassação não está ativa");
     }
+
+    if(player === this.president) {
+      return left("O presidente não pode ser cassado");
+    }
+
     this._impeached = player;
     player.impeached = true;
     return right();

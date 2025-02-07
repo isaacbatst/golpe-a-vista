@@ -113,7 +113,8 @@ export class Game {
         crisesDeck: this._crisesDeck,
         rapporteur: this.currentRound.nextRapporteur,
         crisis: this.nextRoundCrisis,
-        impeachment: conservativeLaws.length > 2 && conservativeLaws.length % 3 === 0,
+        impeachment:
+          conservativeLaws.length > 2 && conservativeLaws.length % 3 === 0,
       })
     );
   }
@@ -132,8 +133,16 @@ export class Game {
     );
   }
 
+  canVote(playerName: string) {
+    const player = this.players.find((player) => player.name === playerName);
+    return player ? !player.impeached : false;
+  }
+
   vote(playerName: string, vote: boolean) {
-    this.currentRound.vote(playerName, vote);
+    if (!this.canVote(playerName)) {
+      return left("Jogador não pode votar");
+    }
+    return this.currentRound.vote(playerName, vote);
   }
 
   endVoting(): Either<string, boolean> {
@@ -167,6 +176,10 @@ export class Game {
       return left("O relator não pode ser escolhido duas vezes seguidas");
     }
 
+    if(player.impeached){
+      return left("O relator não pode ter sido cassado");
+    }
+
     this.currentRound.setNextRapporteur(player);
 
     return right();
@@ -198,7 +211,9 @@ export class Game {
   }
 
   getPresidentFromQueue(round: number) {
-    return this._presidentQueue[round % this._presidentQueue.length];
+    return this._presidentQueue.filter((p) => !p.impeached)[
+      round % this._presidentQueue.length
+    ];
   }
 
   get nextRoundCrisis() {
