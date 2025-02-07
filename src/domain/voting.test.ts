@@ -110,7 +110,7 @@ it("deve determinar que sim ganhou quando houver maioria de yes", () => {
   voting!.vote('p4', false);
   voting!.vote('p5', true);
   voting!.vote('p6', true);
-
+  voting?.end();
   expect(voting!.result).toBe(true);
 })
 
@@ -133,6 +133,6 @@ it("deve determinar que não ganhou quando houver empate", () => {
   voting!.vote('p4', false);
   voting!.vote('p5', true);
   voting!.vote('p6', false);
-
+  voting?.end();
   expect(voting!.result).toBe(false);
 })

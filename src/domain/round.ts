@@ -112,6 +112,7 @@ export class Round {
       return left("Votação não iniciada");
     }
 
+    this._voting.end();
     return this._voting.result ? right(this._lawToVote) : right(null);
   }
 

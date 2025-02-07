@@ -3,6 +3,7 @@ import { Either, left, right } from "./either";
 export class Voting<T> {
   private _subject: T;
   private _votes: Map<string, boolean | null>;
+  private _ended = false;
 
   private constructor(subject: T, players: string[]) {
     this._subject = subject;
@@ -19,6 +20,10 @@ export class Voting<T> {
       return left("Mínimo de 2 jogadores para iniciar uma votação");
     }
     return right(new Voting(subject, players));
+  }
+
+  end() {
+    this._ended = true;
   }
 
   vote(player: string, vote: boolean) {
@@ -39,6 +44,7 @@ export class Voting<T> {
 
   get result() {
     const counting = this.counting;
+    if(!this._ended) return null;
     return counting.yes > counting.no + counting.abstention;
   }
 
