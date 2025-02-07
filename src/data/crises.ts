@@ -145,7 +145,7 @@ const CRISES = {
     type: "Pública",
   },
   VOTO_DE_MINERVA: {
-    titles: ["Voto de Minerva", "Decisão da Presidência", "Decisão Final"],
+    titles: ["Voto de Minerva", "Canetada Suprema", "Poder Moderador", "A Mão Invisível (do Presidente)"],
     description:
       "Em caso de empate, o presidente decide o resultado da votação. 'A decisão final é minha.'",
     type: "Pública",
@@ -161,5 +161,6 @@ const CRISES = {
     type: "Pública",
   },
 } as const;
+
 
 export default CRISES;
