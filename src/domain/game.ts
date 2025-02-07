@@ -5,7 +5,7 @@ import { Deck } from "./deck";
 import { Either, left, right } from "./either";
 import { Player } from "./player";
 import { Random } from "./random";
-import { Faction, Role } from "./role";
+import { LawType, Role } from "./role";
 import { Round } from "./round";
 
 type GameParams = {
@@ -17,6 +17,7 @@ type GameParams = {
   laws?: Law[];
   roles?: Role[];
   crises?: Crisis[];
+  progressiveLawsIntervalToCrisis?: number;
 };
 
 export class Game {
@@ -40,6 +41,7 @@ export class Game {
   private _rounds: Round[] = [];
   private _roles: Role[];
   private _crisesDeck: Deck<Crisis>;
+  private _progressiveLawsIntervalToCrisis;
 
   static create(props: GameParams): Either<string, Game> {
     const {
@@ -51,6 +53,7 @@ export class Game {
       lawsToConservativeWin = 7,
       minConservativeLawsToImpeach = 4,
       crisesIntervalToImpeach = 3,
+      progressiveLawsIntervalToCrisis = 2,
     } = props;
 
     const [errorLawsDeckCreate, lawsDeck] = Deck.create(laws ?? LAWS);
@@ -77,7 +80,8 @@ export class Game {
         roles,
         crisesDeck,
         minConservativeLawsToImpeach,
-        crisesIntervalToImpeach
+        crisesIntervalToImpeach,
+        progressiveLawsIntervalToCrisis
       )
     );
   }
@@ -90,7 +94,8 @@ export class Game {
     roles: Role[],
     crisesDeck: Deck<Crisis>,
     minConservativeLawsToImpeach: number,
-    crisesIntervalToImpeach: number
+    crisesIntervalToImpeach: number,
+    progressiveLawsIntervalToCrisis: number
   ) {
     players.forEach((playerName) => {
       const role = Random.extractFromArray(roles);
@@ -105,6 +110,7 @@ export class Game {
     this._crisesIntervalToImpeach = crisesIntervalToImpeach;
     this._presidentQueue = [...Random.sort(this._players)];
     this._crisesDeck = crisesDeck;
+    this._progressiveLawsIntervalToCrisis = progressiveLawsIntervalToCrisis;
     this._rounds.push(
       new Round({
         president: this._presidentQueue[0],
@@ -226,12 +232,18 @@ export class Game {
 
   get nextRoundShouldImpeach() {
     const conservativeLaws = this._approvedLaws.filter(
-      (law) => law.type === Faction.CONSERVADORES
+      (law) => law.type === LawType.CONSERVADORES
     );
 
-    const hasApprovedConservativeLaw = Boolean(this.currentRound.lawToVote?.type === Faction.CONSERVADORES && this.currentRound.votingResult);
+    const hasApprovedConservativeLaw = Boolean(
+      this.currentRound.lawToVote?.type === LawType.CONSERVADORES &&
+        this.currentRound.votingResult
+    );
 
-    if(conservativeLaws.length >= this._minConservativeLawsToImpeach && hasApprovedConservativeLaw){
+    if (
+      conservativeLaws.length >= this._minConservativeLawsToImpeach &&
+      hasApprovedConservativeLaw
+    ) {
       return true;
     }
 
@@ -257,29 +269,20 @@ export class Game {
   }
 
   get nextShouldHaveCrisisPerModerateFear() {
-    const lastTwoLaws = this._approvedLaws.slice(-2);
-    if (lastTwoLaws.length < 2) {
-      return false;
-    }
-    const lastTwoLawsAreProgressive = lastTwoLaws.every(
-      (law) => law.type === Faction.PROGRESSISTAS
+    const lastLaws = this._approvedLaws.slice(
+      -this._progressiveLawsIntervalToCrisis
     );
-    if (!lastTwoLawsAreProgressive) {
-      return false;
-    }
-    if (this.president.role !== Role.MODERADO) {
-      return false;
-    }
-    if (!this.currentRound.votingResult) {
-      return false;
-    }
-    if (
-      !this.currentRound.lawToVote ||
-      this.currentRound.lawToVote.type !== Faction.PROGRESSISTAS
-    ) {
-      return false;
-    }
-    return true;
+    const areLastLawsProgressive = lastLaws.every(
+      (law) => law.type === LawType.PROGRESSISTAS
+    );
+
+    return (
+      lastLaws.length >= this._progressiveLawsIntervalToCrisis &&
+      areLastLawsProgressive &&
+      this.president.role === Role.MODERADO &&
+      this.currentRound.lawToVote?.type === LawType.PROGRESSISTAS &&
+      this.currentRound.votingResult
+    );
   }
 
   get hasProgressiveWon() {
@@ -287,7 +290,7 @@ export class Game {
       .filter((player) => player.role === Role.CONSERVADOR)
       .every((player) => player.impeached);
     return (
-      this._approvedLaws.filter((law) => law.type === Faction.PROGRESSISTAS)
+      this._approvedLaws.filter((law) => law.type === LawType.PROGRESSISTAS)
         .length >= this._lawsToProgressiveWin || everyConservativeIsImpeached
     );
   }
@@ -298,18 +301,18 @@ export class Game {
       .every((player) => player.impeached);
 
     return (
-      this._approvedLaws.filter((law) => law.type === Faction.CONSERVADORES)
+      this._approvedLaws.filter((law) => law.type === LawType.CONSERVADORES)
         .length >= this._lawsToConservativeWin || everyRadicalIsImpeached
     );
   }
 
   get winner() {
     if (this.hasProgressiveWon) {
-      return Faction.PROGRESSISTAS;
+      return LawType.PROGRESSISTAS;
     }
 
     if (this.hasConservativeWon) {
-      return Faction.CONSERVADORES;
+      return LawType.CONSERVADORES;
     }
 
     return null;

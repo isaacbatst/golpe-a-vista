@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Player } from "./player";
-import { Faction, Role } from "./role";
+import { LawType, Role } from "./role";
 import { Round } from "./round";
 import { Deck } from "./deck";
 import { Law } from "../data/laws";
@@ -21,10 +21,10 @@ const makeCrisesDeck = () => {
 
 const makeLawsDeck = (
   laws: Law[] = [
-    { description: "Lei 1", type: Faction.CONSERVADORES, name: "L1" },
-    { description: "Lei 2", type: Faction.CONSERVADORES, name: "L2" },
-    { description: "Lei 3", type: Faction.CONSERVADORES, name: "L3" },
-    { description: "Lei 4", type: Faction.CONSERVADORES, name: "L4" },
+    { description: "Lei 1", type: LawType.CONSERVADORES, name: "L1" },
+    { description: "Lei 2", type: LawType.CONSERVADORES, name: "L2" },
+    { description: "Lei 3", type: LawType.CONSERVADORES, name: "L3" },
+    { description: "Lei 4", type: LawType.CONSERVADORES, name: "L4" },
   ]
 ) => {
   const [error, deck] = Deck.create(laws);
@@ -228,10 +228,10 @@ describe("Sabotagem", () => {
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
       lawsDeck: makeLawsDeck([
-        { description: "Lei 1", type: Faction.PROGRESSISTAS, name: "L1" },
-        { description: "Lei 2", type: Faction.PROGRESSISTAS, name: "L2" },
-        { description: "Lei 3", type: Faction.PROGRESSISTAS, name: "L3" },
-        { description: "Lei 4", type: Faction.PROGRESSISTAS, name: "L4" },
+        { description: "Lei 1", type: LawType.PROGRESSISTAS, name: "L1" },
+        { description: "Lei 2", type: LawType.PROGRESSISTAS, name: "L2" },
+        { description: "Lei 3", type: LawType.PROGRESSISTAS, name: "L3" },
+        { description: "Lei 4", type: LawType.PROGRESSISTAS, name: "L4" },
       ]),
       crisesDeck: makeCrisesDeck(),
     });
@@ -250,10 +250,10 @@ describe("Sabotagem", () => {
     const round = new Round({
       president: new Player("p1", Role.MODERADO),
       lawsDeck: makeLawsDeck([
-        { description: "Lei 1", type: Faction.PROGRESSISTAS, name: "L1" },
-        { description: "Lei 2", type: Faction.PROGRESSISTAS, name: "L2" },
-        { description: "Lei 3", type: Faction.PROGRESSISTAS, name: "L3" },
-        { description: "Lei 4", type: Faction.PROGRESSISTAS, name: "L4" },
+        { description: "Lei 1", type: LawType.PROGRESSISTAS, name: "L1" },
+        { description: "Lei 2", type: LawType.PROGRESSISTAS, name: "L2" },
+        { description: "Lei 3", type: LawType.PROGRESSISTAS, name: "L3" },
+        { description: "Lei 4", type: LawType.PROGRESSISTAS, name: "L4" },
       ]),
       crisesDeck: makeCrisesDeck(),
     });

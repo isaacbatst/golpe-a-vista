@@ -3,7 +3,7 @@ import { Crisis } from "./crisis";
 import { Deck } from "./deck";
 import { Either, left, right } from "./either";
 import { Player } from "./player";
-import { Faction } from "./role";
+import { LawType } from "./role";
 import { Voting } from "./voting";
 
 type RoundParams = {
@@ -74,7 +74,7 @@ export class Round {
   }
 
   canSabotage(): boolean {
-    return this._lawToVote?.type === Faction.PROGRESSISTAS;
+    return this._lawToVote?.type === LawType.PROGRESSISTAS;
   }
 
   sabotage(): Either<string, Crisis[]> {

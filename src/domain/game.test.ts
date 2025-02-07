@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Game } from "./game";
-import { Faction, Role } from "./role";
+import { LawType, Role } from "./role";
 
 describe("Distribuição de Papéis e Votação", () => {
   it("deve distribuir jogadores aleatóriamente entre 1 radical, 3 moderados e 2 conservadores", () => {
@@ -119,7 +119,7 @@ describe("Relator do Dossiê", () => {
 });
 
 describe("Crises", () => {
-  it("deve ativar crise a partir de 2 leis progressistas consecutivas, se aprovadas por um moderado", () => {
+  it("deve ativar crise a partir de X leis progressistas consecutivas, se aprovadas por um moderado", () => {
     const approveLaw = (game: Game) => {
       game.drawLaws();
       game.chooseLaw(0);
@@ -128,19 +128,21 @@ describe("Crises", () => {
         game.vote(player, true);
       }
       game.endVoting();
+      game.nextRound();
     };
+    const progressiveLawsIntervalToCrisis = 3;
     const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
     const [error, game] = Game.create({
       players,
       laws: [
         {
           description: "Lei progressista 1",
-          type: Faction.PROGRESSISTAS,
+          type: LawType.PROGRESSISTAS,
           name: "L1",
         },
         {
           description: "Lei progressista 2",
-          type: Faction.PROGRESSISTAS,
+          type: LawType.PROGRESSISTAS,
           name: "L2",
         },
       ],
@@ -152,18 +154,18 @@ describe("Crises", () => {
         Role.MODERADO,
         Role.MODERADO,
       ],
+      progressiveLawsIntervalToCrisis,
     });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
 
-    for (let j = 0; j < 4; j++) {
+    for (let i = 1; i <= progressiveLawsIntervalToCrisis * 2; i++) {
       approveLaw(game!);
-      if (j > 1) {
+      if (i >= progressiveLawsIntervalToCrisis) {
         expect(game!.currentRound!.crisis).not.toBeNull();
       } else {
         expect(game!.currentRound!.crisis).toBeNull();
       }
-      game!.nextRound();
     }
   });
 
@@ -174,12 +176,12 @@ describe("Crises", () => {
       laws: [
         {
           description: "Lei progressista 1",
-          type: Faction.PROGRESSISTAS,
+          type: LawType.PROGRESSISTAS,
           name: "L1",
         },
         {
           description: "Lei progressista 2",
-          type: Faction.PROGRESSISTAS,
+          type: LawType.PROGRESSISTAS,
           name: "L2",
         },
       ],
@@ -214,12 +216,12 @@ describe("Crises", () => {
       laws: [
         {
           description: "Lei progressista 1",
-          type: Faction.PROGRESSISTAS,
+          type: LawType.PROGRESSISTAS,
           name: "L1",
         },
         {
           description: "Lei progressista 2",
-          type: Faction.PROGRESSISTAS,
+          type: LawType.PROGRESSISTAS,
           name: "L2",
         },
       ],
@@ -254,12 +256,12 @@ describe("Crises", () => {
       laws: [
         {
           description: "Lei progressista 1",
-          type: Faction.PROGRESSISTAS,
+          type: LawType.PROGRESSISTAS,
           name: "L1",
         },
         {
           description: "Lei progressista 2",
-          type: Faction.PROGRESSISTAS,
+          type: LawType.PROGRESSISTAS,
           name: "L2",
         },
       ],
@@ -305,7 +307,7 @@ describe("Cassação", () => {
       minConservativeLawsToImpeach: 5,
       laws: Array.from({ length: 9 }, (_, i) => ({
         description: `Lei conservadora ${i + 1}`,
-        type: Faction.CONSERVADORES,
+        type: LawType.CONSERVADORES,
         name: `L${i + 1}`,
       })),
       roles: [
@@ -354,7 +356,7 @@ describe("Cassação", () => {
       players,
       laws: Array.from({ length: 10 }, (_, i) => ({
         description: `Lei conservadora ${i + 1}`,
-        type: Faction.PROGRESSISTAS,
+        type: LawType.PROGRESSISTAS,
         name: `L${i + 1}`,
       })),
       crisesIntervalToImpeach,
@@ -391,7 +393,7 @@ describe("Cassação", () => {
       players,
       laws: Array.from({ length: 9 }, (_, i) => ({
         description: `Lei conservadora ${i + 1}`,
-        type: Faction.CONSERVADORES,
+        type: LawType.CONSERVADORES,
         name: `L${i + 1}`,
       })),
     });
@@ -408,7 +410,7 @@ describe("Cassação", () => {
       players,
       laws: Array.from({ length: 9 }, (_, i) => ({
         description: `Lei conservadora ${i + 1}`,
-        type: Faction.CONSERVADORES,
+        type: LawType.CONSERVADORES,
         name: `L${i + 1}`,
       })),
     });
@@ -436,7 +438,7 @@ describe("Cassação", () => {
       players,
       laws: Array.from({ length: 9 }, (_, i) => ({
         description: `Lei conservadora ${i + 1}`,
-        type: Faction.CONSERVADORES,
+        type: LawType.CONSERVADORES,
         name: `L${i + 1}`,
       })),
     });
@@ -470,7 +472,7 @@ describe("Cassação", () => {
       players,
       laws: Array.from({ length: 9 }, (_, i) => ({
         description: `Lei conservadora ${i + 1}`,
-        type: Faction.CONSERVADORES,
+        type: LawType.CONSERVADORES,
         name: `L${i + 1}`,
       })),
     });
@@ -503,7 +505,7 @@ describe("Cassação", () => {
       players,
       laws: Array.from({ length: 9 }, (_, i) => ({
         description: `Lei conservadora ${i + 1}`,
-        type: Faction.CONSERVADORES,
+        type: LawType.CONSERVADORES,
         name: `L${i + 1}`,
       })),
     });
@@ -537,7 +539,7 @@ describe("Condições de Vitória", () => {
       laws: [
         {
           description: "Lei progressista 1",
-          type: Faction.PROGRESSISTAS,
+          type: LawType.PROGRESSISTAS,
           name: "L1",
         },
       ],
@@ -555,7 +557,7 @@ describe("Condições de Vitória", () => {
       game!.endVoting();
     }
 
-    expect(game!.winner).toBe(Faction.PROGRESSISTAS);
+    expect(game!.winner).toBe(LawType.PROGRESSISTAS);
   });
 
   it("deve declarar conservador vencedor se aprovar X leis conservadoras", () => {
@@ -566,7 +568,7 @@ describe("Condições de Vitória", () => {
       laws: [
         {
           description: "Lei conservadora 1",
-          type: Faction.CONSERVADORES,
+          type: LawType.CONSERVADORES,
           name: "L1",
         },
       ],
@@ -584,7 +586,7 @@ describe("Condições de Vitória", () => {
       game!.endVoting();
     }
 
-    expect(game!.winner).toBe(Faction.CONSERVADORES);
+    expect(game!.winner).toBe(LawType.CONSERVADORES);
   });
 
   it("deve declarar conservador vencedor se cassar radical", () => {
@@ -594,7 +596,7 @@ describe("Condições de Vitória", () => {
       laws: [
         {
           description: "Lei conservadora 1",
-          type: Faction.CONSERVADORES,
+          type: LawType.CONSERVADORES,
           name: "L1",
         },
       ],
@@ -616,7 +618,7 @@ describe("Condições de Vitória", () => {
     const radical = game!.players.find((p) => p.role === Role.RADICAL);
     const [impeachError] = game!.impeach(radical!);
     expect(impeachError).toBeUndefined();
-    expect(game!.winner).toBe(Faction.CONSERVADORES);
+    expect(game!.winner).toBe(LawType.CONSERVADORES);
   })
 
   it("deve declarar progressista vencedor se cassar todos os conservadores", () => {
@@ -626,7 +628,7 @@ describe("Condições de Vitória", () => {
       laws: [
         {
           description: "Lei conservadora 1",
-          type: Faction.CONSERVADORES,
+          type: LawType.CONSERVADORES,
           name: "L1",
         },
       ],
@@ -664,6 +666,6 @@ describe("Condições de Vitória", () => {
     const conservative2 = game!.players.find((p) => p.role === Role.CONSERVADOR && p !== conservative);
     const [impeachError2] = game!.impeach(conservative2!);
     expect(impeachError2).toBeUndefined();
-    expect(game!.winner).toBe(Faction.PROGRESSISTAS);
+    expect(game!.winner).toBe(LawType.PROGRESSISTAS);
   })
 })
