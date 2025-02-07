@@ -12,6 +12,8 @@ type GameParams = {
   players: string[];
   lawsToProgressiveWin?: number;
   lawsToConservativeWin?: number;
+  minConservativeLawsToImpeach?: number;
+  crisesIntervalToImpeach?: number;
   laws?: Law[];
   roles?: Role[];
   crises?: Crisis[];
@@ -32,6 +34,8 @@ export class Game {
   private _approvedLaws: Law[] = [];
   private _lawsToProgressiveWin: number;
   private _lawsToConservativeWin: number;
+  private _minConservativeLawsToImpeach: number;
+  private _crisesIntervalToImpeach: number;
   private _presidentQueue: Player[];
   private _rounds: Round[] = [];
   private _roles: Role[];
@@ -41,9 +45,12 @@ export class Game {
     const {
       players,
       laws,
+      crises,
       roles = [...Game.ROLES_DISTRIBUTION],
       lawsToProgressiveWin = 6,
       lawsToConservativeWin = 7,
+      minConservativeLawsToImpeach = 4,
+      crisesIntervalToImpeach = 3,
     } = props;
 
     const [errorLawsDeckCreate, lawsDeck] = Deck.create(laws ?? LAWS);
@@ -51,7 +58,7 @@ export class Game {
       return left(errorLawsDeckCreate);
     }
     const [errorCrisesDeckCreate, crisesDeck] = Deck.create(
-      props.crises ??
+      crises ??
         Object.values(CRISES).map(
           (crisis) => new Crisis(crisis.titles, crisis.description, crisis.type)
         )
@@ -68,7 +75,9 @@ export class Game {
         lawsToProgressiveWin,
         lawsToConservativeWin,
         roles,
-        crisesDeck
+        crisesDeck,
+        minConservativeLawsToImpeach,
+        crisesIntervalToImpeach
       )
     );
   }
@@ -79,7 +88,9 @@ export class Game {
     lawsToProgressiveWin: number,
     lawsToConservativeWin: number,
     roles: Role[],
-    crisesDeck: Deck<Crisis>
+    crisesDeck: Deck<Crisis>,
+    minConservativeLawsToImpeach: number,
+    crisesIntervalToImpeach: number
   ) {
     players.forEach((playerName) => {
       const role = Random.extractFromArray(roles);
@@ -90,6 +101,8 @@ export class Game {
     this._lawsDeck = lawsDeck;
     this._lawsToProgressiveWin = lawsToProgressiveWin;
     this._lawsToConservativeWin = lawsToConservativeWin;
+    this._minConservativeLawsToImpeach = minConservativeLawsToImpeach;
+    this._crisesIntervalToImpeach = crisesIntervalToImpeach;
     this._presidentQueue = [...Random.sort(this._players)];
     this._crisesDeck = crisesDeck;
     this._rounds.push(
@@ -102,10 +115,6 @@ export class Game {
   }
 
   nextRound() {
-    const conservativeLaws = this._approvedLaws.filter(
-      (law) => law.type === Faction.CONSERVADORES
-    );
-
     this._rounds.push(
       new Round({
         president: this.getPresidentFromQueue(this._rounds.length),
@@ -113,8 +122,7 @@ export class Game {
         crisesDeck: this._crisesDeck,
         rapporteur: this.currentRound.nextRapporteur,
         crisis: this.nextRoundCrisis,
-        impeachment:
-          conservativeLaws.length > 2 && conservativeLaws.length % 3 === 0,
+        impeachment: this.nextRoundShouldImpeach,
       })
     );
   }
@@ -214,6 +222,23 @@ export class Game {
     return this._presidentQueue.filter((p) => !p.impeached)[
       round % this._presidentQueue.length
     ];
+  }
+
+  get nextRoundShouldImpeach() {
+    const conservativeLaws = this._approvedLaws.filter(
+      (law) => law.type === Faction.CONSERVADORES
+    );
+
+    const hasApprovedConservativeLaw = Boolean(this.currentRound.lawToVote?.type === Faction.CONSERVADORES && this.currentRound.votingResult);
+
+    if(conservativeLaws.length >= this._minConservativeLawsToImpeach && hasApprovedConservativeLaw){
+      return true;
+    }
+
+    const crisesCount = this._rounds.filter((round) => round.crisis).length;
+    if (crisesCount > 0 && crisesCount % this._crisesIntervalToImpeach === 0) {
+      return true;
+    }
   }
 
   get nextRoundCrisis() {
@@ -323,6 +348,14 @@ export class Game {
 
   get rapporteur() {
     return this.currentRound.rapporteur;
+  }
+
+  get minConservativeLawsToImpeach() {
+    return this._minConservativeLawsToImpeach;
+  }
+
+  get crisesIntervalToImpeach() {
+    return this._crisesIntervalToImpeach;
   }
 
   private hasBeenRapporteur(player: Player): boolean {

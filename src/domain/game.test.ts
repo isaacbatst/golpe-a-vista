@@ -297,10 +297,12 @@ describe("Crises", () => {
 });
 
 describe("Cassação", () => {
-  it("deve ativar cassação a cada 3, 6, 9 leis conservadoras", () => {
+  it("deve ativar cassação a partir da Xª lei conservadora somente se lei conservadora foi aprovada", () => {
     const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const minConservativeLawsToImpeach = 5;
     const [error, game] = Game.create({
       players,
+      minConservativeLawsToImpeach: 5,
       laws: Array.from({ length: 9 }, (_, i) => ({
         description: `Lei conservadora ${i + 1}`,
         type: Faction.CONSERVADORES,
@@ -319,7 +321,57 @@ describe("Cassação", () => {
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
 
-    for (let i = 1; i <= 9; i++) {
+    for (let i = 0; i < minConservativeLawsToImpeach; i++) {
+      game!.drawLaws();
+      game!.chooseLaw(0);
+      game!.startVoting();
+      for (const player of players) {
+        game!.vote(player, true);
+      }
+      game!.endVoting();
+      expect(game!.currentRound!.impeachment).toBe(false);
+      game!.nextRound();
+    }
+
+    expect(game!.currentRound!.impeachment).toBe(true);
+  
+    game!.drawLaws();
+    game!.chooseLaw(0);
+    game!.startVoting();
+    for (const player of players) {
+      game!.vote(player, false);
+    }
+    game!.endVoting();
+    game!.nextRound();
+
+    expect(game!.currentRound!.impeachment).toBe(false);
+  });
+
+  it("deve ativar cassação a cada X crises", () => {
+    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const crisesIntervalToImpeach = 2;
+    const [error, game] = Game.create({
+      players,
+      laws: Array.from({ length: 10 }, (_, i) => ({
+        description: `Lei conservadora ${i + 1}`,
+        type: Faction.PROGRESSISTAS,
+        name: `L${i + 1}`,
+      })),
+      crisesIntervalToImpeach,
+      roles: [
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+      ],
+    });
+
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+    // 2 crises com 4 leis progressistas por moderado
+    for (let i = 0; i < 4; i++) {
       game!.drawLaws();
       game!.chooseLaw(0);
       game!.startVoting();
@@ -328,14 +380,10 @@ describe("Cassação", () => {
       }
       game!.endVoting();
       game!.nextRound();
-
-      if (i % 3 === 0 && i > 0) {
-        expect(game!.currentRound!.impeachment).toBe(true);
-      } else {
-        expect(game!.currentRound!.impeachment).toBe(false);
-      }
     }
-  });
+
+    expect(game!.currentRound!.impeachment).toBe(true);
+  })
 
   it("não deve cassar jogador se a cassação estiver desativada", () => {
     const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
@@ -367,7 +415,7 @@ describe("Cassação", () => {
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < game!.minConservativeLawsToImpeach; i++) {
       game!.drawLaws();
       game!.chooseLaw(0);
       game!.startVoting();
@@ -394,8 +442,7 @@ describe("Cassação", () => {
     });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
-
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < game!.minConservativeLawsToImpeach; i++) {
       game!.drawLaws();
       game!.chooseLaw(0);
       game!.startVoting();
@@ -430,7 +477,7 @@ describe("Cassação", () => {
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < game!.minConservativeLawsToImpeach; i++) {
       game!.drawLaws();
       game!.chooseLaw(0);
       game!.startVoting();
@@ -463,7 +510,7 @@ describe("Cassação", () => {
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < game!.minConservativeLawsToImpeach; i++) {
       game!.drawLaws();
       game!.chooseLaw(0);
       game!.startVoting();
@@ -555,7 +602,7 @@ describe("Condições de Vitória", () => {
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < game!.minConservativeLawsToImpeach; i++) {
       game!.drawLaws();
       game!.chooseLaw(0);
       game!.startVoting();
@@ -587,7 +634,7 @@ describe("Condições de Vitória", () => {
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < game!.minConservativeLawsToImpeach; i++) {
       game!.drawLaws();
       game!.chooseLaw(0);
       game!.startVoting();
@@ -603,7 +650,7 @@ describe("Condições de Vitória", () => {
     expect(impeachError).toBeUndefined();
 
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < game!.minConservativeLawsToImpeach; i++) {
       game!.drawLaws();
       game!.chooseLaw(0);
       game!.startVoting();
