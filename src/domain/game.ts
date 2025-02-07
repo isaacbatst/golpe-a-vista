@@ -43,7 +43,7 @@ export class Game {
       laws,
       roles = [...Game.ROLES_DISTRIBUTION],
       lawsToProgressiveWin = 6,
-      lawsToConservativeWin = 6,
+      lawsToConservativeWin = 7,
     } = props;
 
     const [errorLawsDeckCreate, lawsDeck] = Deck.create(laws ?? LAWS);
@@ -176,7 +176,7 @@ export class Game {
       return left("O relator não pode ser escolhido duas vezes seguidas");
     }
 
-    if(player.impeached){
+    if (player.impeached) {
       return left("O relator não pode ter sido cassado");
     }
 
@@ -258,16 +258,23 @@ export class Game {
   }
 
   get hasProgressiveWon() {
+    const everyConservativeIsImpeached = this._players
+      .filter((player) => player.role === Role.CONSERVADOR)
+      .every((player) => player.impeached);
     return (
       this._approvedLaws.filter((law) => law.type === Faction.PROGRESSISTAS)
-        .length >= this._lawsToProgressiveWin
+        .length >= this._lawsToProgressiveWin || everyConservativeIsImpeached
     );
   }
 
   get hasConservativeWon() {
+    const everyRadicalIsImpeached = this._players
+      .filter((player) => player.role === Role.RADICAL)
+      .every((player) => player.impeached);
+
     return (
       this._approvedLaws.filter((law) => law.type === Faction.CONSERVADORES)
-        .length >= this._lawsToConservativeWin
+        .length >= this._lawsToConservativeWin || everyRadicalIsImpeached
     );
   }
 

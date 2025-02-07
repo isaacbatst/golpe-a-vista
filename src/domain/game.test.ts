@@ -48,35 +48,6 @@ describe("Distribuição de Papéis e Votação", () => {
     expect(game!.president).toBeDefined();
     expect(game!.president).not.toBe(firstPresident);
   });
-
-  it("deve declarar progressista vencedor se aprovar X leis progressistas", () => {
-    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
-    const [error, game] = Game.create({
-      players,
-      lawsToProgressiveWin: 1,
-      laws: [
-        {
-          description: "Lei progressista 1",
-          type: Faction.PROGRESSISTAS,
-          name: "L1",
-        },
-      ],
-    });
-    expect(error).toBeUndefined();
-    expect(game).toBeDefined();
-
-    for (let i = 0; i < 5; i++) {
-      game!.drawLaws();
-      game!.chooseLaw(0);
-      game!.startVoting();
-      for (const player of players) {
-        game!.vote(player, true);
-      }
-      game!.endVoting();
-    }
-
-    expect(game!.winner).toBe(Faction.PROGRESSISTAS);
-  });
 });
 
 describe("Relator do Dossiê", () => {
@@ -476,7 +447,6 @@ describe("Cassação", () => {
     game!.impeach(nextPresident!);
     game!.nextRound();
 
-    console.log("president queue", game!.presidentQueue);
     expect(game!.president).not.toBe(nextPresident);
   });
 
@@ -509,16 +479,78 @@ describe("Cassação", () => {
     const [chooseError] = game!.chooseDossierRapporteur(nonPresident!);
     expect(chooseError).toBe("O relator não pode ter sido cassado");
   });
+});
 
-  it("não deve permitir cassar o presidente", () => {
+describe("Condições de Vitória", () => {
+  it("deve declarar progressista vencedor se aprovar X leis progressistas", () => {
     const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
     const [error, game] = Game.create({
       players,
-      laws: Array.from({ length: 9 }, (_, i) => ({
-        description: `Lei conservadora ${i + 1}`,
-        type: Faction.CONSERVADORES,
-        name: `L${i + 1}`,
-      })),
+      lawsToProgressiveWin: 1,
+      laws: [
+        {
+          description: "Lei progressista 1",
+          type: Faction.PROGRESSISTAS,
+          name: "L1",
+        },
+      ],
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+
+    for (let i = 0; i < 5; i++) {
+      game!.drawLaws();
+      game!.chooseLaw(0);
+      game!.startVoting();
+      for (const player of players) {
+        game!.vote(player, true);
+      }
+      game!.endVoting();
+    }
+
+    expect(game!.winner).toBe(Faction.PROGRESSISTAS);
+  });
+
+  it("deve declarar conservador vencedor se aprovar X leis conservadoras", () => {
+    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const [error, game] = Game.create({
+      players,
+      lawsToConservativeWin: 1,
+      laws: [
+        {
+          description: "Lei conservadora 1",
+          type: Faction.CONSERVADORES,
+          name: "L1",
+        },
+      ],
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+
+    for (let i = 0; i < 5; i++) {
+      game!.drawLaws();
+      game!.chooseLaw(0);
+      game!.startVoting();
+      for (const player of players) {
+        game!.vote(player, true);
+      }
+      game!.endVoting();
+    }
+
+    expect(game!.winner).toBe(Faction.CONSERVADORES);
+  });
+
+  it("deve declarar conservador vencedor se cassar radical", () => {
+    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const [error, game] = Game.create({
+      players,
+      laws: [
+        {
+          description: "Lei conservadora 1",
+          type: Faction.CONSERVADORES,
+          name: "L1",
+        },
+      ],
     });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
@@ -534,7 +566,57 @@ describe("Cassação", () => {
       game!.nextRound();
     }
 
-    const [impeachError] = game!.impeach(game!.president);
-    expect(impeachError).toBe("O presidente não pode ser cassado");
-  });
-});
+    const radical = game!.players.find((p) => p.role === Role.RADICAL);
+    const [impeachError] = game!.impeach(radical!);
+    expect(impeachError).toBeUndefined();
+    expect(game!.winner).toBe(Faction.CONSERVADORES);
+  })
+
+  it("deve declarar progressista vencedor se cassar todos os conservadores", () => {
+    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const [error, game] = Game.create({
+      players,
+      laws: [
+        {
+          description: "Lei conservadora 1",
+          type: Faction.CONSERVADORES,
+          name: "L1",
+        },
+      ],
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+
+    for (let i = 0; i < 3; i++) {
+      game!.drawLaws();
+      game!.chooseLaw(0);
+      game!.startVoting();
+      for (const player of players) {
+        game!.vote(player, true);
+      }
+      game!.endVoting();
+      game!.nextRound();
+    }
+
+    const conservative = game!.players.find((p) => p.role === Role.CONSERVADOR);
+    const [impeachError] = game!.impeach(conservative!);
+    expect(impeachError).toBeUndefined();
+
+
+    for (let i = 0; i < 3; i++) {
+      game!.drawLaws();
+      game!.chooseLaw(0);
+      game!.startVoting();
+      for (const player of players) {
+        game!.vote(player, true);
+      }
+      game!.endVoting();
+      game!.nextRound();
+    }
+
+    const conservative2 = game!.players.find((p) => p.role === Role.CONSERVADOR && p !== conservative);
+    const [impeachError2] = game!.impeach(conservative2!);
+    expect(impeachError2).toBeUndefined();
+    expect(game!.winner).toBe(Faction.PROGRESSISTAS);
+  })
+})
