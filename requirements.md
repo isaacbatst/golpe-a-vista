@@ -1,5 +1,7 @@
 # 🎜 Requisitos para Implementação do Jogo
 
+Neste jogo, os jogadores assumem papéis de **progressistas** e **conservadores** em um cenário político fictício. Os progressistas buscam aprovar leis progressistas, enquanto os conservadores devem cassar o radical ou aprovando leis conservadoras. 
+
 ## **1️⃣ Estrutura Básica do Jogo**
 ✅ **Número de Jogadores:** 6 jogadores  
 ✅ **Papéis no jogo:**  
@@ -60,8 +62,10 @@ Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas
 ---
 
 ## **5️⃣ Cassação de Jogadores**
-📌 A cada **três leis conservadoras forem aprovadas**, ou **três crises**, é acionado o direito de cassar um jogador.  
-📌 O jogador cassado **sai do jogo sem revelar sua identidade**.  
+📌 A partir da quarta lei conservadora e a cada lei conservadora subsequente, além de a cada 3 crises, o presidente deverá propor uma cassação.
+📌 A cassação é realizada mediante votação. Caso aprovada, o jogador cassado **sai do jogo sem revelar sua identidade**.  
+📌 Se a cassação for rejeitada, uma lei conservadora é aprovada.
+
 
 ---
 
