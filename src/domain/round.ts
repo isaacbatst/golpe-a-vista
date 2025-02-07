@@ -12,6 +12,7 @@ type RoundParams = {
   crisesDeck: Deck<Crisis>;
   crisis?: Crisis | null;
   rapporteur?: Player | null;
+  impeachment?: boolean;
 };
 
 export class Round {
@@ -29,6 +30,7 @@ export class Round {
   private _nextRapporteur: Player | null = null;
   private _sabotageCrisesDrawn: Crisis[] | null = null;
   private _sabotageCrisis: Crisis | null = null;
+  private _impeachment: boolean;
   readonly president: Player;
 
   constructor(props: RoundParams) {
@@ -36,6 +38,7 @@ export class Round {
     this._crisesDeck = props.crisesDeck
     this._crisis = props.crisis ?? null;
     this._lawsDeck = props.lawsDeck;
+    this._impeachment = props.impeachment ?? false;
     this.rapporteur = props.rapporteur ?? null;
   }
 
@@ -166,5 +169,9 @@ export class Round {
 
   get nextRapporteur() {
     return this._nextRapporteur;
+  }
+
+  get impeachment() {
+    return this._impeachment;
   }
 }

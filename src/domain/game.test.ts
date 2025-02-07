@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { Game } from "./game";
 import { Faction, Role } from "./role";
 
-describe("Setup e Votação", () => {
+describe("Distribuição de Papéis e Votação", () => {
   it("deve distribuir jogadores aleatóriamente entre 1 radical, 3 moderados e 2 conservadores", () => {
     const [error, game] = Game.create({
       players: ["p1", "p2", "p3", "p4", "p5", "p6"],
@@ -145,7 +145,7 @@ describe("Relator do Dossiê", () => {
 });
 
 describe("Crises", () => {
-  it("deve ativar crise a cada 2 leis progressistas consecutiva, se aprovada por um moderado", () => {
+  it("deve ativar crise a partir de 2 leis progressistas consecutivas, se aprovadas por um moderado", () => {
     const approveLaw = (game: Game) => {
       game.drawLaws();
       game.chooseLaw(0);
@@ -182,17 +182,15 @@ describe("Crises", () => {
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
 
-    for (let j = 0; j < 2; j++) {
+    for (let j = 0; j < 4; j++) {
       approveLaw(game!);
-      expect(game!.currentRound!.crisis).toBeNull();
+      if (j > 1) {
+        expect(game!.currentRound!.crisis).not.toBeNull();
+      } else {
+        expect(game!.currentRound!.crisis).toBeNull();
+      }
       game!.nextRound();
     }
-    expect(game!.currentRound!.crisis).not.toBeNull();
-    game!.nextRound();
-    approveLaw(game!);
-    expect(game!.currentRound!.crisis).toBeNull();
-    game!.nextRound();
-    expect(game!.currentRound!.crisis).not.toBeNull();
   });
 
   it("deve iniciar a próxima rodada com crise se a lei for rejeitada", () => {
@@ -322,4 +320,47 @@ describe("Crises", () => {
     const can = game!.canSabotage();
     expect(can).toBe(false);  
   })
+});
+
+describe("Cassação", () => {
+  it("deve ativar cassação a cada 3, 6, 9 leis conservadoras", () => {
+    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const [error, game] = Game.create({
+      players,
+      laws: Array.from({ length: 9 }, (_, i) => ({
+        description: `Lei conservadora ${i + 1}`,
+        type: Faction.CONSERVADORES,
+        name: `L${i + 1}`,
+      })),
+      roles: [
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+      ],
+    });
+
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+
+    for (let i = 1; i <= 9; i++) {
+      game!.drawLaws();
+      game!.chooseLaw(0);
+      game!.startVoting();
+      for (const player of players) {
+        game!.vote(player, true);
+      }
+      game!.endVoting();
+      game!.nextRound();
+
+      if (i % 3 === 0 && i > 0) {
+        expect(game!.currentRound!.impeachment).toBe(true);
+      } else {
+        expect(game!.currentRound!.impeachment).toBe(false);
+      }
+
+    }
+  });
 });

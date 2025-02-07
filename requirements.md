@@ -44,7 +44,7 @@ Cada rodada segue a seguinte estrutura:
 Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas:
 
 📌 **1️⃣ Pelo "Receio" de um Moderado**  
-   - Se um **moderado aprovar a segunda lei progressista consecutiva** e a cada 2 leis progressistas aprovadas, **uma crise é ativada**.
+   - Se um **moderado aprovar a partir da segunda lei progressista consecutiva**, **uma crise é ativada**.
    - **Somente o Presidente Interino saberá que a crise aconteceu** e poderá blefar sobre sua existência.  
 
 📌 **2️⃣ Pela Sabotagem dos Conservadores**  

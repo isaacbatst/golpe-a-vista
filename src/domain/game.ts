@@ -102,6 +102,10 @@ export class Game {
   }
 
   nextRound() {
+    const conservativeLaws = this._approvedLaws.filter(
+      (law) => law.type === Faction.CONSERVADORES
+    );
+
     this._rounds.push(
       new Round({
         president: this.getPresidentFromQueue(this._rounds.length),
@@ -109,6 +113,7 @@ export class Game {
         crisesDeck: this._crisesDeck,
         rapporteur: this.currentRound.nextRapporteur,
         crisis: this.nextRoundCrisis,
+        impeachment: conservativeLaws.length > 2 && conservativeLaws.length % 3 === 0,
       })
     );
   }
@@ -177,7 +182,7 @@ export class Game {
   }
 
   sabotage() {
-    if(!this.canSabotage()) {
+    if (!this.canSabotage()) {
       return left("Não é possível sabotar");
     }
 
@@ -199,7 +204,7 @@ export class Game {
 
     if (
       this.currentRound.nextShouldHaveCrisisPerRejectedLaw ||
-      this.nextShouldHaveCrisesPerModerateFear
+      this.nextShouldHaveCrisisPerModerateFear
     ) {
       return this._crisesDeck.draw(1)[0];
     }
@@ -207,7 +212,7 @@ export class Game {
     return null;
   }
 
-  get nextShouldHaveCrisesPerModerateFear() {
+  get nextShouldHaveCrisisPerModerateFear() {
     const lastTwoLaws = this._approvedLaws.slice(-2);
     if (lastTwoLaws.length < 2) {
       return false;
