@@ -1,13 +1,13 @@
 # 🎜 Requisitos para Implementação do Jogo
 
-Neste jogo, os jogadores assumem papéis de **progressistas** e **conservadores** em um cenário político fictício. Os progressistas buscam aprovar leis progressistas, enquanto os conservadores devem cassar o radical ou aprovando leis conservadoras. 
+Neste jogo, os jogadores assumem papéis de **radical**, **moderados** e **conservadores** em um cenário político fictício. O objetivo é aprovar leis progressistas ou conservadoras e cassar os oponentes para vencer o jogo.
 
 ## **1️⃣ Estrutura Básica do Jogo**
 ✅ **Número de Jogadores:** 6 jogadores  
 ✅ **Papéis no jogo:**  
-   - **Radical (1x)** → Seu objetivo é tomar o controle do governo, cassando os conservadores ou radicalizando os moderados.
    - **Moderados (3x)** → Seu objetivo é aprovar leis progressistas, mas tem receio de gerar crises caso muitas leis progressistas sejam aprovadas em sequência.
    - **Conservadores (2x)** → Seu objetivo é aprovar leis conservadoras e cassar o radical. Sabem quem são os outros conservadores.
+   - **Radical (1x)** → Seu objetivo é tomar o controle do governo, cassando os conservadores ou radicalizando os moderados.
 
 ✅ **Rodadas:** O jogo é dividido em rodadas cíclicas, onde cada jogador assume o papel de **Presidente Interino** uma vez antes de reiniciar a ordem.  
 
