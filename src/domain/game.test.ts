@@ -370,7 +370,7 @@ describe("Cassação", () => {
 
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
-    // 2 crises com 4 leis progressistas por moderado
+
     for (let i = 0; i < 4; i++) {
       game!.drawLaws();
       game!.chooseLaw(0);

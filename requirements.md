@@ -53,9 +53,8 @@ Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas
    - Se **uma lei progressista for aprovada**, os **conservadores podem ativar uma crise**.  
    - **Somente os conservadores saberão da crise**, permitindo que manipulem a narrativa.  
    - Os conservadores recebem 3 cartas de crise e escolhem uma para ativar.
-
-📌 **Regra Extra:**  
-✅ **Os conservadores NÃO podem ativar duas crises seguidas.**  
+   - Os conservadores não podem ativar duas crises seguidas.
+   - Caso uma crise fosse ativada por um moderado na mesma rodada, a crise escolhida pelos conservadores é priorizada.
 
 📌 **Efeito das Crises:**  
 ✅ **A crise tem efeito apenas na próxima rodada.**  

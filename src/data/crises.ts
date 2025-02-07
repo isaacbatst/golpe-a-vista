@@ -6,9 +6,9 @@ const CRISES = {
     type: "Oculta",
   },
   MENSALAO: {
-    titles: ["Mensalão", "O Mensalinho", "Operação Caixa 2"],
+    titles: ["Mensalão", "Caixa 2", "Propina"],
     description:
-      "O Presidente pode forçar um jogador específico a votar a favor da próxima lei aprovada. Só os dois sabem, mas podem fingir que nada aconteceu. 'Vote certo e talvez tenha uma vaguinha no ministério depois...'",
+      "O Presidente forçará um jogador específico a votar a favor da próxima lei. Seu voto contará por dois nessa ocasião. 'Democracia é bom, mas dinheiro é melhor.'",
     type: "Oculta",
   },
   CAFE_COM_A_ABIN: {
@@ -16,10 +16,11 @@ const CRISES = {
       "Café com a ABIN",
       "Visita do FBI",
       "Papo Reto com a Inteligência",
+      "Carro Preto na Porta",
+      "MIB",
     ],
     description:
-      "O jogador que receberia o Dossiê teve um encontro inesperado com agentes estrangeiros e agora não sabe de nada. Em termos de jogo, ele não recebe nada nesta rodada.",
-    when: "before_dossier",
+      "O jogador que receberia o Dossiê terá um encontro inesperado, ele não lembrará de nada. Em termos de jogo, ele não receberá o Dossiê. 'Viva a liberdade!'",
     type: "Oculta",
   },
   OPERACAO_MAOS_LIMPAS: {
