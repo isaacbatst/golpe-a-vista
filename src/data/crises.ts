@@ -2,7 +2,7 @@ const CRISES = {
   PLANO_COHEN: {
     titles: ["Plano Cohen", "Dossiê Fake do PCC", "Arquivo Secreto da CPI"],
     description:
-      "O Presidente descobre que o Dossiê contém informação falsificada ou manipulada estrategicamente. Ele pode alertar ou não os outros jogadores, mas ninguém sabe se é blefe ou verdade. 'A verdade é um campo de batalha.'",
+      "O Presidente descobre que o Dossiê dessa rodada contém informação falsificada ou manipulada estrategicamente. 'A verdade é um campo de batalha.'",
     type: "Oculta",
   },
   MENSALAO: {
@@ -29,7 +29,7 @@ const CRISES = {
       "Relatório da Receita Federal",
     ],
     description:
-      "O Presidente recebe um fato verdadeiro sobre uma votação anterior, mas só pode revelar se quiser (ou blefar sobre outra coisa). 'A questão é: será que ele realmente tem provas?'",
+      "O Presidente recebe um relatório indicando qual foi a lei vetada. 'A questão é: será que ele realmente tem provas?'",
     type: "Oculta",
   },
   O_FMI_MANDOU: {
@@ -45,9 +45,10 @@ const CRISES = {
       "Os Rothschild Intervêm",
       "Reptilianos dão as caras",
       "Nova Ordem Mundial Contra-Ataca!",
+      "Anunnaki na Área",
     ],
     description:
-      "O Presidente é obrigado a votar a favor da lei em votação, independentemente de sua facção. 'Por motivos de força maior, a decisão foi tomada por nós.'",
+      "O Presidente é obrigado a vetar uma lei progressista. 'Por motivos de força maior, a decisão foi tomada por nós.'",
     type: "Oculta",
   },
   REGIME_DE_URGENCIA: {
@@ -56,30 +57,27 @@ const CRISES = {
       "Um setor se articulou para apressar a votação e agora o Presidente deve vetar uma lei e escolher outra em 5 segundos, ou a primeira da pilha será aprovada. Os outros jogadores têm 5 segundos para votar, ou será aprovada automaticamente, já que 'os políticos trabalham rápido quando convém'.",
     type: "Pública",
   },
-  CPI_DA_MADRUGADA: {
-    titles: [
-      "CPI da Madrugada",
-      "Sessão Secreta",
-      "O Que Os Olhos Não Veem...",
-    ],
+  SESSEAO_SECRETA: {
+    titles: ["Sessão Secreta", "O Que Os Olhos Não Veem..."],
     description:
-      "A votação desta rodada é feita secretamente (sem revelar quem votou em quê). 'Foi tudo resolvido em uma reunião discreta na calada da noite.'",
+      "A votação desta rodada é feita secretamente. 'Foi tudo resolvido em uma reunião discreta na calada da noite.'",
     type: "Pública",
   },
   GOLPE_DE_ESTADO: {
-    titles: ["Golpe de Estado", "Pedalada Fiscal", "Tudo por um Fiat Elba..."],
+    titles: [
+      "Golpe de Estado",
+      "Pedalada Fiscal",
+      "Tudo por um Fiat Elba...",
+      "Lava Jato",
+    ],
     description:
-      "O presidente foi pego em um escândalo! O Presidente perde imediatamente o turno, e a presidência passa para o próximo jogador. 'Por razões de estabilidade nacional, a liderança foi alterada.'",
+      "O presidente foi pego com a boca na butija, a presidencia é passada para o próximo jogador na ordem de jogo. 'Agora sim, o Brasil vai pra frente!'",
     type: "Pública",
   },
   VAZAMENTO_NO_WIKILEAKS: {
-    titles: [
-      "Vazamento no WikiLeaks",
-      "Dossiê Snowden",
-      "Lei da Transparência",
-    ],
+    titles: ["Vazamento no WikiLeaks", "Snowden Contra-Ataca", "Vaza Jato"],
     description:
-      "Uma cópia do Dossiê foi disponibilizada na internet e todos os jogadores podem ver. 'Bem-vindo à era da informação.'",
+      "Uma cópia parcial do Dossiê foi disponibilizada na internet. Todos verão uma das cartas que não foi vetada. 'Bem-vindo à era da informação.'",
     when: "before_dossier",
     type: "Pública",
   },
@@ -90,7 +88,7 @@ const CRISES = {
       "Congresso Travado",
     ],
     description:
-      "O Presidente não pode vetar uma lei conservadora nesta rodada, pois a oposição trancou a pauta e está tentando empurrar a lei goela abaixo.'",
+      "O Presidente não pode vetar uma lei conservadora nesta rodada, pois a oposição trancou a pauta e quer empurrar a lei goela abaixo.'",
     type: "Pública",
   },
   PEGADINHA_DO_PARAGRAFO_47_INCISO_V: {
@@ -100,14 +98,14 @@ const CRISES = {
       "Burocracia a Jato",
     ],
     description:
-      "A oposição conseguiu adicionar uma cláusula que torna a lei inviável. A lei não contará para a vitória de nenhuma facção. O burocrata que escreveu isso sumiu misteriosamente.",
+      "A oposição conseguiu adicionar uma cláusula que torna a lei aprovada na rodada anterior inviável, ela é anulada. O burocrata responsável será punido com um cargo no ministério.",
     when: "before_dossier",
     type: "Pública",
   },
   VETO_DO_STF: {
     titles: ["Veto do STF", "Xandão Mandou", "São 3 Poderes, Não 2"],
     description:
-      "O Supremo Tribunal Federal vetou a lei aprovada na rodada anterior. 'A justiça tarda, mas não falha.'",
+      "O Supremo Tribunal Federal anulou a lei aprovada na rodada anterior. 'A justiça tarda, mas não falha.'",
     type: "Pública",
   },
   DELACAO_PREMIADA: {
@@ -130,27 +128,36 @@ const CRISES = {
   },
   RECONTAGEM_VOTOS: {
     titles: ["Recontagem de Votos", "Voto Impresso Já!", "Eleição Roubada"],
-    description: "Os poderosos não gostaram do resultado da última votação e decidiram recontar os votos. Se a última lei aprovada foi progressista, ela é vetada. Se foi conservadora, ela é aprovada. 'A democracia é um conceito flexível.'",
+    description:
+      "Os poderosos não gostaram do resultado da última votação e ao recontar os votos, um deles desapareceu misteriosamente. A lei aprovada na rodada anterior é anulada.",
     type: "Pública",
   },
   CENSURA_ESTATAL: {
     titles: ["Censura Estatal", "Cala a Boca, Jornalista!"],
-    description: "Um decreto emergencial proibiu certas informações de serem divulgadas. O Dossiê não pode ser passado nesta rodada. 'A verdade é perigosa.'",
+    description:
+      "Um decreto emergencial proibiu certas informações de serem divulgadas. O Dossiê não pode ser passado nesta rodada. 'A verdade é perigosa.'",
     type: "Oculta",
   },
   PACOTE_DE_LEIS: {
     titles: ["Pacote de Leis", "O Centrão é Que Manda", "Toma Lá, Dá Cá"],
-    description: "Se o presidente aprovar uma lei progressista, uma lei conservadora passará junto. 'A política é a arte do possível.'",
+    description:
+      "Se o presidente aprovar uma lei progressista, uma lei conservadora passará junto. 'A política é a arte do possível.'",
     type: "Pública",
   },
   VOTO_DE_MINERVA: {
     titles: ["Voto de Minerva", "Decisão da Presidência", "Decisão Final"],
-    description: "Em caso de empate, o presidente decide o resultado da votação. 'A decisão final é minha.'",
+    description:
+      "Em caso de empate, o presidente decide o resultado da votação. 'A decisão final é minha.'",
     type: "Pública",
   },
   FRAUDE_ELEITORAL: {
-    titles: ["Fraude Eleitoral", "Urna Eletrônica Hackeada"],
-    description: "Os conservadores têm seus votos duplicados nesta rodada. 'A democracia parece melhor quando se tem dinheiro.'",
+    titles: [
+      "Fraude Eleitoral",
+      "Urna Eletrônica Hackeada",
+      "Democracia Burguesa",
+    ],
+    description:
+      "Os conservadores têm seus votos duplicados nesta rodada. 'A democracia parece melhor quando se tem dinheiro.'",
     type: "Pública",
   },
 } as const;
