@@ -659,6 +659,7 @@ describe("Condições de Vitória", () => {
     const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
     const [error, game] = Game.create({
       players,
+      minConservativeLawsToImpeach: 2,
       laws: [
         {
           description: "Lei conservadora 1",
