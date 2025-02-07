@@ -20,6 +20,7 @@ export class Round {
 
   public rapporteur: Player | null = null;
   public nextShouldHaveCrisisPerRejectedLaw = false;
+  public impeached: Player | null = null;
   private _drawnLaws: Law[] = [];
   private _crisis: Crisis | null;
   private _lawToVote: Law | null = null;
@@ -31,7 +32,6 @@ export class Round {
   private _sabotageCrisesDrawn: Crisis[] | null = null;
   private _sabotageCrisis: Crisis | null = null;
   private _impeachment: boolean;
-  private _impeached: Player | null = null;
 
   readonly president: Player;
 
@@ -42,16 +42,6 @@ export class Round {
     this._lawsDeck = props.lawsDeck;
     this._impeachment = props.impeachment ?? false;
     this.rapporteur = props.rapporteur ?? null;
-  }
-
-  impeach(player: Player): Either<string, void> {
-    if (!this._impeachment) {
-      return left("Cassação não está ativa");
-    }
-
-    this._impeached = player;
-    player.impeached = true;
-    return right();
   }
 
   setNextRapporteur(player: Player) {
@@ -183,9 +173,5 @@ export class Round {
 
   get impeachment() {
     return this._impeachment;
-  }
-
-  get impeached() {
-    return this._impeached;
   }
 }

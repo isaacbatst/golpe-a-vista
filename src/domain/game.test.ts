@@ -401,7 +401,7 @@ describe("Cassação", () => {
     expect(game).toBeDefined();
 
     const [impeachError] = game!.impeach(game!.players[0]);
-    expect(impeachError).toBe("Cassação não está ativa");
+    expect(impeachError).toBe("A cassação não está ativa");
   });
 
   it("deve cassar jogador se a cassação estiver ativada", () => {

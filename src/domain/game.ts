@@ -220,8 +220,14 @@ export class Game {
     return this.currentRound.chooseSabotageCrisis(index);
   }
 
-  impeach(player: Player) {
-    return this.currentRound.impeach(player);
+  impeach(player: Player): Either<string, void> {
+    if(!this.currentRound.impeachment) {
+      return left("A cassação não está ativa");
+    }
+
+    player.impeached = true;
+    this.currentRound.impeached = player;
+    return right();
   }
 
   getPresidentFromQueue(round: number) {
