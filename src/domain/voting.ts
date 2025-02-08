@@ -7,7 +7,6 @@ export class Voting<T> {
 
   private constructor(subject: T, players: string[]) {
     this._subject = subject;
-
     this._votes = new Map();
 
     players.forEach((player) => {
@@ -27,6 +26,7 @@ export class Voting<T> {
   }
 
   vote(player: string, vote: boolean) {
+    if(this._ended) return;
     this._votes.set(player, vote);
   }
 
