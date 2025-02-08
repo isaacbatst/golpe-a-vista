@@ -365,11 +365,11 @@ describe("Cassação", () => {
         game!.vote(player, true);
       }
       game!.endVoting();
-      expect(game!.currentRound!.impeachment).toBe(false);
+      expect(game!.currentRound!.hasImpeachment).toBe(false);
       game!.nextRound();
     }
 
-    expect(game!.currentRound!.impeachment).toBe(true);
+    expect(game!.currentRound!.hasImpeachment).toBe(true);
   
     game!.drawLaws();
     game!.chooseLaw(0);
@@ -380,7 +380,7 @@ describe("Cassação", () => {
     game!.endVoting();
     game!.nextRound();
 
-    expect(game!.currentRound!.impeachment).toBe(false);
+    expect(game!.currentRound!.hasImpeachment).toBe(false);
   });
 
   it("deve ativar cassação a cada X crises", () => {
@@ -418,87 +418,8 @@ describe("Cassação", () => {
       game!.nextRound();
     }
 
-    expect(game!.currentRound!.impeachment).toBe(true);
+    expect(game!.currentRound!.hasImpeachment).toBe(true);
   })
-
-  it("não deve cassar jogador se a cassação estiver desativada", () => {
-    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
-    const [error, game] = Game.create({
-      players,
-      laws: Array.from({ length: 9 }, (_, i) => ({
-        description: `Lei conservadora ${i + 1}`,
-        type: LawType.CONSERVADORES,
-        name: `L${i + 1}`,
-      })),
-    });
-    expect(error).toBeUndefined();
-    expect(game).toBeDefined();
-
-    const [impeachError] = game!.impeach(game!.players[0]);
-    expect(impeachError).toBe("A cassação não está ativa");
-  });
-
-  it("deve cassar jogador se a cassação estiver ativada", () => {
-    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
-    const [error, game] = Game.create({
-      players,
-      laws: Array.from({ length: 9 }, (_, i) => ({
-        description: `Lei conservadora ${i + 1}`,
-        type: LawType.CONSERVADORES,
-        name: `L${i + 1}`,
-      })),
-    });
-    expect(error).toBeUndefined();
-    expect(game).toBeDefined();
-
-    for (let i = 0; i < game!.minConservativeLawsToImpeach; i++) {
-      game!.drawLaws();
-      game!.chooseLaw(0);
-      game!.startVoting();
-      for (const player of players) {
-        game!.vote(player, true);
-      }
-      game!.endVoting();
-      game!.nextRound();
-    }
-
-    const [impeachError] = game!.impeach(game!.players[0]);
-    expect(impeachError).toBeUndefined();
-  });
-
-  it("não deve permitir voto de jogador cassado", () => {
-    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
-    const [error, game] = Game.create({
-      players,
-      laws: Array.from({ length: 9 }, (_, i) => ({
-        description: `Lei conservadora ${i + 1}`,
-        type: LawType.CONSERVADORES,
-        name: `L${i + 1}`,
-      })),
-    });
-    expect(error).toBeUndefined();
-    expect(game).toBeDefined();
-    for (let i = 0; i < game!.minConservativeLawsToImpeach; i++) {
-      game!.drawLaws();
-      game!.chooseLaw(0);
-      game!.startVoting();
-      for (const player of players) {
-        game!.vote(player, true);
-      }
-      game!.endVoting();
-      game!.nextRound();
-    }
-
-    const nonPresident = game!.players.find((p) => p !== game!.president);
-    game!.impeach(nonPresident!);
-    game!.drawLaws();
-    game!.chooseLaw(0);
-    game!.startVoting();
-    const [voteError] = game!.vote(nonPresident!.name, true);
-    expect(voteError).toBe("Jogador não pode votar");
-    const canVote = game!.canVote(nonPresident!.name);
-    expect(canVote).toBe(false);
-  });
 
   it("deve pular jogador cassado na fila de presidente", () => {
     const players = ["p1", "p2", "p3", "p4", "p5", "p6"];

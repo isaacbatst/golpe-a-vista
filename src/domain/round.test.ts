@@ -305,6 +305,6 @@ describe("Cassação", () => {
   })
 
   it("deve realizar votação de cassação", () => {
-
+ 
   })
 });
