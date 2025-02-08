@@ -84,7 +84,7 @@ it("deve contar os votos", () => {
   voting!.vote('p5', true);
   voting!.vote('p6', false);
 
-  expect(voting!.counting).toEqual({
+  expect(voting!.count).toEqual({
     yes: 3,
     no: 3,
     abstention: 0,

@@ -75,4 +75,12 @@ export class Impeachment {
       this.target.role === Role.CONSERVADOR && this.isSomeConservativeImpeached
     );
   }
+
+  get votingCount() {
+    return this._voting?.count ?? null;
+  }
+
+  get votingResult() {
+    return this._voting?.result ?? null;
+  }
 }

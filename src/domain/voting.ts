@@ -30,7 +30,7 @@ export class Voting<T> {
     this._votes.set(player, vote);
   }
 
-  get counting() {
+  get count() {
     return {
       yes: Array.from(this._votes.values()).filter((vote) => vote === true)
         .length,
@@ -43,7 +43,7 @@ export class Voting<T> {
   }
 
   get result() {
-    const counting = this.counting;
+    const counting = this.count;
     if(!this._ended) return null;
     return counting.yes > counting.no + counting.abstention;
   }

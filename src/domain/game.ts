@@ -142,7 +142,7 @@ export class Game {
   }
 
   startVoting() {
-    return this.currentRound.startVoting(
+    return this.currentRound.startLawVoting(
       this._players.map((player) => player.name)
     );
   }
@@ -156,11 +156,11 @@ export class Game {
     if (!this.canVote(playerName)) {
       return left("Jogador não pode votar");
     }
-    return this.currentRound.vote(playerName, vote);
+    return this.currentRound.voteForLaw(playerName, vote);
   }
 
   endVoting(): Either<string, boolean> {
-    const [error, law] = this.currentRound.endVoting();
+    const [error, law] = this.currentRound.endLawVoting();
     if (error) {
       return left(error);
     }

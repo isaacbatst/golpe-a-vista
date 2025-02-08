@@ -98,7 +98,7 @@ describe("Votação", () => {
       lawsDeck: makeLawsDeck(),
       crisesDeck: makeCrisesDeck(),    });
 
-    const [error] = round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
+    const [error] = round.startLawVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
 
     expect(error).toBe("Nenhuma lei escolhida para votação");
   });
@@ -111,7 +111,7 @@ describe("Votação", () => {
 
     round.drawLaws();
     round.chooseLaw(0);
-    round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
+    round.startLawVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
 
     expect(round.voting).not.toBeNull();
   });
@@ -124,9 +124,9 @@ describe("Votação", () => {
 
     round.drawLaws();
     round.chooseLaw(0);
-    round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
+    round.startLawVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
 
-    const [error] = round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
+    const [error] = round.startLawVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
 
     expect(error).toBe("Votação já iniciada");
   });
@@ -139,14 +139,14 @@ describe("Votação", () => {
 
     round.drawLaws();
     round.chooseLaw(0);
-    round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
+    round.startLawVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
 
-    round.vote("p1", true);
-    round.vote("p2", true);
-    round.vote("p3", true);
-    round.vote("p4", false);
-    round.vote("p5", false);
-    round.vote("p6", false);
+    round.voteForLaw("p1", true);
+    round.voteForLaw("p2", true);
+    round.voteForLaw("p3", true);
+    round.voteForLaw("p4", false);
+    round.voteForLaw("p5", false);
+    round.voteForLaw("p6", false);
 
     expect(round.votingCount).toEqual({
       yes: 3,
@@ -171,16 +171,16 @@ describe("Votação", () => {
 
     round.drawLaws();
     round.chooseLaw(0);
-    round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
+    round.startLawVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
 
-    round.vote("p1", true);
-    round.vote("p2", true);
-    round.vote("p3", true);
-    round.vote("p4", true);
-    round.vote("p5", true);
-    round.vote("p6", true);
+    round.voteForLaw("p1", true);
+    round.voteForLaw("p2", true);
+    round.voteForLaw("p3", true);
+    round.voteForLaw("p4", true);
+    round.voteForLaw("p5", true);
+    round.voteForLaw("p6", true);
 
-    const [, approvedLaw] = round.endVoting();
+    const [, approvedLaw] = round.endLawVoting();
 
     expect(approvedLaw).toBe(round.lawToVote);
   });
@@ -193,16 +193,16 @@ describe("Votação", () => {
 
     round.drawLaws();
     round.chooseLaw(0);
-    round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
+    round.startLawVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
 
-    round.vote("p1", true);
-    round.vote("p2", true);
-    round.vote("p3", false);
-    round.vote("p4", false);
-    round.vote("p5", false);
-    round.vote("p6", false);
+    round.voteForLaw("p1", true);
+    round.voteForLaw("p2", true);
+    round.voteForLaw("p3", false);
+    round.voteForLaw("p4", false);
+    round.voteForLaw("p5", false);
+    round.voteForLaw("p6", false);
 
-    const [, approvedLaw] = round.endVoting();
+    const [, approvedLaw] = round.endLawVoting();
 
     expect(approvedLaw).toBeNull();
   });
@@ -217,7 +217,7 @@ describe("Sabotagem", () => {
 
     round.drawLaws();
     round.chooseLaw(0);
-    round.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
+    round.startLawVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
 
     const [error] = round.sabotage();
 
@@ -238,11 +238,11 @@ describe("Sabotagem", () => {
 const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
     round.drawLaws();
     round.chooseLaw(0);
-    round.startVoting(players);
+    round.startLawVoting(players);
     for(const player of players) {
-      round.vote(player, true);
+      round.voteForLaw(player, true);
     }
-    round.endVoting();
+    round.endLawVoting();
     const [error, crises] = round.sabotage();
 
     expect(error).toBeUndefined();
@@ -263,11 +263,11 @@ const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
     const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
     round.drawLaws();
     round.chooseLaw(0);
-    round.startVoting(players);
+    round.startLawVoting(players);
     for(const player of players) {
-      round.vote(player, true);
+      round.voteForLaw(player, true);
     }
-    round.endVoting();
+    round.endLawVoting();
     const [sabotageError] = round.sabotage();
     expect(sabotageError).toBeUndefined();
     const [error] = round.chooseSabotageCrisis(0);
@@ -305,6 +305,25 @@ describe("Cassação", () => {
   })
 
   it("deve realizar votação de cassação", () => {
- 
+    const round = new Round({
+      president: new Player("p1", Role.RADICAL),
+      lawsDeck: makeLawsDeck(),
+      crisesDeck: makeCrisesDeck(),
+      hasImpeachment: true,
+    });
+
+    const target = new Player("p2", Role.MODERADO);
+    const [error] = round.startImpeachment(target);
+    expect(error).toBeUndefined();
+    expect(round.impeachment).toBeDefined();
+    const [startVotingError] = round.startImpeachmentVoting(["p1", "p2"]);
+    expect(startVotingError).toBeUndefined();
+    round.voteForImpeachment("p1", true);
+    round.voteForImpeachment("p2", true);
+    expect(round.impeachmentVotingCount).toEqual({
+      yes: 2,
+      no: 0,
+      abstention: 0,
+    });
   })
 });

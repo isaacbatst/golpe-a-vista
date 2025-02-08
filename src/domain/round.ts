@@ -91,7 +91,7 @@ export class Round {
     return right(crises);
   }
 
-  startVoting(players: string[]): Either<string, void> {
+  startLawVoting(players: string[]): Either<string, void> {
     if (this._lawVoting) {
       return left("Votação já iniciada");
     }
@@ -111,7 +111,7 @@ export class Round {
     return right(undefined);
   }
 
-  vote(playerName: string, vote: boolean): Either<string, void> {
+  voteForLaw(playerName: string, vote: boolean): Either<string, void> {
     if (!this._lawVoting) {
       return left("Votação não iniciada");
     }
@@ -121,7 +121,7 @@ export class Round {
     return right(undefined);
   }
 
-  endVoting(): Either<string, Law | null> {
+  endLawVoting(): Either<string, Law | null> {
     if (!this._lawVoting) {
       return left("Votação não iniciada");
     }
@@ -154,6 +154,32 @@ export class Round {
       accuser: this.president,
       isSomeConservativeImpeached,
     });
+    return right();
+  }
+
+  startImpeachmentVoting(players: string[]): Either<string, void> {
+    if (!this._impeachment) {
+      return left("Cassação não iniciada");
+    }
+
+    const [error] = this._impeachment.startVoting(players);
+    if(error) {
+      return left(error);
+    }
+
+    return right();
+  }
+
+  voteForImpeachment(player: string, approve: boolean): Either<string, void> {
+    if (!this._impeachment) {
+      return left("Cassação não iniciada");
+    }
+
+    const [error] = this._impeachment.vote(player, approve);
+    if(error) {
+      return left(error);
+    }
+
     return right();
   }
 
@@ -197,7 +223,7 @@ export class Round {
   }
 
   get votingCount() {
-    return this._lawVoting?.counting ?? null;
+    return this._lawVoting?.count ?? null;
   }
 
   get votes() {
@@ -222,5 +248,9 @@ export class Round {
 
   get impeachment() {
     return this._impeachment;
+  }
+
+  get impeachmentVotingCount() {
+    return this._impeachment?.votingCount ?? null;
   }
 }
