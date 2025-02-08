@@ -50,9 +50,9 @@ describe("Impeachment", () => {
     expect(impeachment.target.impeached).toBe(false);
   });
 
-  it("deve permitir pular votação se alvo for conservador, acusador for radical e um conservador já tiver sido cassado", () => {
+  it("deve permitir pular votação se alvo for conservador e um conservador já tiver sido cassado", () => {
     const impeachment = new Impeachment({
-      accuser: new Player("p1", Role.RADICAL),
+      accuser: new Player("p1", Role.MODERADO),
       target: new Player("p2", Role.CONSERVADOR),
       isSomeConservativeImpeached: true,
     });

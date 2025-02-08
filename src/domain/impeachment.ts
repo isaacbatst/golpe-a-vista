@@ -38,7 +38,7 @@ export class Impeachment {
       players
     );
 
-    if(!voting) {
+    if (!voting) {
       return left(error);
     }
 
@@ -62,7 +62,7 @@ export class Impeachment {
 
     this._voting?.end();
 
-    if(this._voting && this._voting.result === false) {
+    if (this._voting && this._voting.result === false) {
       return right(false);
     }
 
@@ -72,9 +72,7 @@ export class Impeachment {
 
   get shouldSkipVoting() {
     return (
-      this.target.role === Role.CONSERVADOR &&
-      this.isSomeConservativeImpeached &&
-      this.accuser.role === Role.RADICAL
+      this.target.role === Role.CONSERVADOR && this.isSomeConservativeImpeached
     );
   }
 }
