@@ -2,6 +2,7 @@ import { Law } from "../data/laws";
 import { Crisis } from "./crisis";
 import { Deck } from "./deck";
 import { Either, left, right } from "./either";
+import { Impeachment } from "./impeachment";
 import { Player } from "./player";
 import { LawType } from "./role";
 import { Voting } from "./voting";
@@ -12,7 +13,7 @@ type RoundParams = {
   crisesDeck: Deck<Crisis>;
   crisis?: Crisis | null;
   rapporteur?: Player | null;
-  impeachment?: boolean;
+  hasImpeachment?: boolean;
 };
 
 export class Round {
@@ -20,18 +21,19 @@ export class Round {
 
   public rapporteur: Player | null = null;
   public nextShouldHaveCrisisPerRejectedLaw = false;
-  public impeached: Player | null = null;
+  private _impeached: Player | null = null;
   private _drawnLaws: Law[] = [];
   private _crisis: Crisis | null;
   private _lawToVote: Law | null = null;
-  private _voting: Voting<Law> | null = null;
+  private _lawVoting: Voting<Law> | null = null;
   private _crisesDeck: Deck<Crisis>;
   private _lawsDeck: Deck<Law>;
   private _vetoedLaw: Law | null = null;
   private _nextRapporteur: Player | null = null;
   private _sabotageCrisesDrawn: Crisis[] | null = null;
   private _sabotageCrisis: Crisis | null = null;
-  private _impeachment: boolean;
+  private _hasImpeachment: boolean;
+  private _impeachment: Impeachment | null = null;
 
   readonly president: Player;
 
@@ -40,7 +42,7 @@ export class Round {
     this._crisesDeck = props.crisesDeck;
     this._crisis = props.crisis ?? null;
     this._lawsDeck = props.lawsDeck;
-    this._impeachment = props.impeachment ?? false;
+    this._hasImpeachment = props.hasImpeachment ?? false;
     this.rapporteur = props.rapporteur ?? null;
   }
 
@@ -72,7 +74,7 @@ export class Round {
       return left("Não é possível sabotar uma lei conservadora");
     }
 
-    if(!this.voting?.result){
+    if (!this.voting?.result) {
       return left("Não é possível sabotar uma lei que não foi aprovada");
     }
 
@@ -90,7 +92,7 @@ export class Round {
   }
 
   startVoting(players: string[]): Either<string, void> {
-    if (this._voting) {
+    if (this._lawVoting) {
       return left("Votação já iniciada");
     }
 
@@ -104,28 +106,28 @@ export class Round {
       return left(error);
     }
 
-    this._voting = voting;
+    this._lawVoting = voting;
 
     return right(undefined);
   }
 
   vote(playerName: string, vote: boolean): Either<string, void> {
-    if (!this._voting) {
+    if (!this._lawVoting) {
       return left("Votação não iniciada");
     }
 
-    this._voting.vote(playerName, vote);
+    this._lawVoting.vote(playerName, vote);
 
     return right(undefined);
   }
 
   endVoting(): Either<string, Law | null> {
-    if (!this._voting) {
+    if (!this._lawVoting) {
       return left("Votação não iniciada");
     }
 
-    this._voting.end();
-    return this._voting.result ? right(this._lawToVote) : right(null);
+    this._lawVoting.end();
+    return this._lawVoting.result ? right(this._lawToVote) : right(null);
   }
 
   vetoLaw(index: number) {
@@ -137,6 +139,32 @@ export class Round {
       return left("Crises de sabotagem não foram sacadas");
     }
     this._sabotageCrisis = this._sabotageCrisesDrawn[index];
+    return right();
+  }
+
+  startImpeachment(
+    target: Player,
+    isSomeConservativeImpeached = false
+  ): Either<string, void> {
+    if (!this._hasImpeachment) {
+      return left("A cassação não está ativa nessa rodada");
+    }
+    this._impeachment = new Impeachment({
+      target,
+      accuser: this.president,
+      isSomeConservativeImpeached,
+    });
+    return right();
+  }
+
+  impeach(player: Player): Either<string, void> {
+    if (!this._hasImpeachment) {
+      return left("A cassação não está ativa nessa rodada");
+    }
+
+    this._impeached = player;
+    player.impeached = true;
+
     return right();
   }
 
@@ -165,23 +193,31 @@ export class Round {
   }
 
   get voting(): Voting<Law> | null {
-    return this._voting;
+    return this._lawVoting;
   }
 
   get votingCount() {
-    return this._voting?.counting ?? null;
+    return this._lawVoting?.counting ?? null;
   }
 
   get votes() {
-    return this._voting?.votes ?? null;
+    return this._lawVoting?.votes ?? null;
   }
 
   get votingResult() {
-    return this._voting?.result ?? null;
+    return this._lawVoting?.result ?? null;
   }
 
   get nextRapporteur() {
     return this._nextRapporteur;
+  }
+
+  get hasImpeachment() {
+    return this._hasImpeachment;
+  }
+
+  get impeached() {
+    return this._impeached;
   }
 
   get impeachment() {

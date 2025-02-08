@@ -275,3 +275,36 @@ const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
     expect(round.sabotageCrisis).not.toBeNull();
   })
 });
+
+describe("Cassação", () => {
+  it("não deve permitir que presidente inicie cassação, se ela não estiver ativa na rodada", () => {
+    const round = new Round({
+      president: new Player("p1", Role.MODERADO),
+      lawsDeck: makeLawsDeck(),
+      crisesDeck: makeCrisesDeck(),
+    });
+
+    const [error] = round.startImpeachment(new Player("p2", Role.MODERADO));
+
+    expect(error).toBe("A cassação não está ativa nessa rodada");
+  });
+
+  it("deve permitir que presidente inicie cassação, se ela estiver ativa na rodada", () => {
+    const round = new Round({
+      president: new Player("p1", Role.MODERADO),
+      lawsDeck: makeLawsDeck(),
+      crisesDeck: makeCrisesDeck(),
+      hasImpeachment: true,
+    });
+
+    const target = new Player("p2", Role.MODERADO);
+    const [error] = round.startImpeachment(target);
+
+    expect(error).toBeUndefined();
+    expect(round.impeachment?.target).toBe(target);
+  })
+
+  it("deve realizar votação de cassação", () => {
+
+  })
+});
