@@ -2,7 +2,7 @@ import { Either, left, right } from "./either";
 
 export class Voting {
   private _votes: Map<string, boolean | null>;
-  private _ended = false;
+  private _hasEnded = false;
 
   private constructor(players: string[]) {
     this._votes = new Map();
@@ -20,12 +20,22 @@ export class Voting {
   }
 
   end() {
-    this._ended = true;
+    this._hasEnded = true;
   }
 
-  vote(player: string, vote: boolean) {
-    if(this._ended) return;
+  vote(player: string, vote: boolean): boolean | null {
+    if(this._hasEnded) return null;
     this._votes.set(player, vote);
+    const somePlayerHasNotVoted = Array.from(this._votes.values()).some(
+      (vote) => vote === null
+    );
+    if(somePlayerHasNotVoted) return false;
+    this.end();
+    return true;
+  }
+
+  get hasEnded() {
+    return this._hasEnded;
   }
 
   get count() {
@@ -42,7 +52,7 @@ export class Voting {
 
   get result() {
     const counting = this.count;
-    if(!this._ended) return null;
+    if(!this._hasEnded) return null;
     return counting.yes > counting.no + counting.abstention;
   }
 

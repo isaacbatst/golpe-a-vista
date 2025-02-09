@@ -65,7 +65,7 @@ export class ImpeachmentStage extends Stage {
     return right();
   }
 
-  vote(player: string, approve: boolean): Either<string, void> {
+  vote(player: string, approve: boolean): Either<string, boolean> {
     const [error] = this.assertCurrentAction("VOTING");
     if (error) return left(error);
 
@@ -74,7 +74,7 @@ export class ImpeachmentStage extends Stage {
     if (!this._voting) return left("Votação não iniciada.");
 
     this._voting.vote(player, approve);
-    return right();
+    return right(this._voting.hasEnded);
   }
 
   endVoting() {

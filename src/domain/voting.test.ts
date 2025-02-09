@@ -98,3 +98,18 @@ it("deve determinar que não ganhou quando houver empate", () => {
   voting?.end();
   expect(voting!.result).toBe(false);
 });
+
+it("deve finalizar automaticamente quando todos votaram", () => {
+  const [error, voting] = Voting.create(["p1", "p2", "p3", "p4", "p5", "p6"]);
+
+  expect(error).toBeUndefined();
+  expect(voting).toBeDefined();
+
+  voting!.vote("p1", true);
+  voting!.vote("p2", false);
+  voting!.vote("p3", true);
+  voting!.vote("p4", false);
+  voting!.vote("p5", true);
+  voting!.vote("p6", false);
+  expect(voting!.hasEnded).toBe(true);
+});
