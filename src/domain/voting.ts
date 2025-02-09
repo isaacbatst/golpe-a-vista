@@ -1,12 +1,10 @@
 import { Either, left, right } from "./either";
 
-export class Voting<T> {
-  private _subject: T;
+export class Voting {
   private _votes: Map<string, boolean | null>;
   private _ended = false;
 
-  private constructor(subject: T, players: string[]) {
-    this._subject = subject;
+  private constructor(players: string[]) {
     this._votes = new Map();
 
     players.forEach((player) => {
@@ -14,11 +12,11 @@ export class Voting<T> {
     });
   }
 
-  static create<T>(subject: T, players: string[]): Either<string, Voting<T>> {
+  static create(players: string[]): Either<string, Voting> {
     if (players.length < 2) {
       return left("Mínimo de 2 jogadores para iniciar uma votação");
     }
-    return right(new Voting(subject, players));
+    return right(new Voting(players));
   }
 
   end() {
@@ -46,10 +44,6 @@ export class Voting<T> {
     const counting = this.count;
     if(!this._ended) return null;
     return counting.yes > counting.no + counting.abstention;
-  }
-
-  get subject() {
-    return this._subject;
   }
 
   get votes() {

@@ -20,12 +20,13 @@ export class Round {
   private static readonly LAWS_TO_DRAW = 3;
 
   public rapporteur: Player | null = null;
+  public isDossierVisibleToRapporteur = false;
   public nextShouldHaveCrisisPerRejectedLaw = false;
   private _impeached: Player | null = null;
   private _drawnLaws: Law[] = [];
   private _crisis: Crisis | null;
   private _lawToVote: Law | null = null;
-  private _lawVoting: Voting<Law> | null = null;
+  private _lawVoting: Voting | null = null;
   private _crisesDeck: Deck<Crisis>;
   private _lawsDeck: Deck<Law>;
   private _vetoedLaw: Law | null = null;
@@ -100,7 +101,7 @@ export class Round {
       return left("Nenhuma lei escolhida para votação");
     }
 
-    const [error, voting] = Voting.create(this._lawToVote, players);
+    const [error, voting] = Voting.create(players);
 
     if (!voting) {
       return left(error);
@@ -218,7 +219,7 @@ export class Round {
     return this._lawToVote;
   }
 
-  get voting(): Voting<Law> | null {
+  get voting(): Voting | null {
     return this._lawVoting;
   }
 
