@@ -15,9 +15,9 @@ Neste jogo, os jogadores assumem papéis de **radical**, **moderados** e **conse
 
 ## **2️⃣ Condição de Vitória**
 📌 **O jogo termina quando um time atinge um dos objetivos:** 
-   - ✅ **Radical vence** se cassar todos os conservadores ou radicalizar a maioria dos moderados.
    - ✅ **Moderados vencem** ao aprovar **6 leis progressistas** 
-   - ✅ **Conservadores vencem** ao cassar o **radical** ou aprovar **7 leis conservadoras**.  
+   - ✅ **Radical vence** se cassar **todos os conservadores** ou radicalizar a **maioria dos moderados**.
+   - ✅ **Conservadores vencem** ao cassar **o radical** ou aprovar **7 leis conservadoras**.  
 
 ---
 
@@ -78,14 +78,14 @@ Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas
 
 ## **7️⃣ Poderes do Radical**
 
-📌 **Ditadura do Proletariado**
-   - **Ativação:** O radical pode ativar a Ditadura do Proletariado caso um conservador já tenha sido cassado e o alvo seja o último conservador.
-   - **Efeito:** O radical pode cassar um jogador sem votação.  
+📌 **Revolução Armada**
+   - **Ativação:** O radical pode ativar a Revolução Armada caso o alvo da cassação seja um conservador, ao menos um conservador esteja cassado e um moderado esteja radicalizado.
+   - **Efeito:** A cassação é aprovada automaticamente, sem votação.
 
 📌 **Radicalização**
    - **Ativação:** O radical tentar radicalizar um jogador
    - **Efeito:** O jogador radicalizado passa a jogar do lado do radical, sem revelar sua identidade. Se o radicalizado for um conservador, nada acontece. Apenas o radical e o radicalizado sabem da mudança.
-   - **Restrição:** Apenas se houver uma **crise ativa** e pelo menos **4 leis progressistas aprovadas**, a cada 3 rodadas.
+   - **Restrição:** Apenas se houver uma **crise ativa** e pelo menos **4 leis progressistas aprovadas** ou **4 leis conservadoras aprovadas**. 
    
 ---
 
@@ -105,16 +105,20 @@ Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas
 
 📌 **Fluxo de Rodada (Resumido para Implementação)**  
 1. **Seleciona Presidente Interino**
-2. **Presidente cassa jogador, se aplicável**
+2. **Cassação**
+   a. **Presidente propõe cassação, se aplicável**
+   b. **Jogadores votam, se aprovada, jogador é cassado**
 3. **Presidente recebe crise, se aplicável**
-4. **Presidente recebe 3 leis, veta uma e escolhe outra para votação**
-4. **Todos votam publicamente**  
-5. **Se aprovada, incrementa contador de leis**
-6. **Relator recebe Dossiê**
-7. **O presidente escolhe o Relator da próxima rodada**
-8. **Conservadores podem sabotar, ativando crise**
-9. **Radical pode radicalizar jogador, se aplicável**
-10. **Próxima rodada**
+4. **Legislação**
+   a. **Presidente recebe 3 leis, veta uma e escolhe outra para votação**
+   b. **Todos votam publicamente**  
+   c. **Se aprovada, incrementa contador de leis**
+5. **Dossiê**
+   a. **Presidente escolhe Relator da próxima rodada**
+   b. **Se houver Relator, recebe Dossiê**
+6. **Conservadores podem sabotar, ativando crise**
+7. **Radical pode radicalizar jogador, se aplicável**
+8. **Próxima rodada**
 
 ---
 
