@@ -87,8 +87,11 @@ export class LegislativeStage extends Stage {
     if (error) return left(error);
     if (!this._voting) return left("A votação não foi iniciada.");
 
-    this._voting.vote(playerName, vote)
-    
+    const hasEnded = this._voting.vote(playerName, vote)
+
+    if(hasEnded) {
+      return this.endVoting();
+    }
 
     return right();
   }
@@ -126,5 +129,9 @@ export class LegislativeStage extends Stage {
 
   get votes() {
     return this._voting?.votes ?? null;
+  }
+
+  get votingHasEnded() {
+    return this._voting?.hasEnded ?? null;
   }
 }

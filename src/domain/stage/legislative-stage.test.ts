@@ -87,23 +87,21 @@ describe("Estágio Legislativo", () => {
     stage.chooseLawForVoting(0);
     stage.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
   
-    const [errorP1] = stage.vote("p1", true);
-    expect(errorP1).toBeUndefined();
-    const [errorP2] = stage.vote("p2", true);
-    expect(errorP2).toBeUndefined();
-    const [errorP3] = stage.vote("p3", true);
-    expect(errorP3).toBeUndefined();
-    const [errorP4] = stage.vote("p4", false);
-    expect(errorP4).toBeUndefined();
-    const [errorP5] = stage.vote("p5", false);
-    expect(errorP5).toBeUndefined();
-    const [errorP6] = stage.vote("p6", false);
-    expect(errorP6).toBeUndefined();
+    const [error1] = stage.vote("p1", true);
+    expect(error1).toBeUndefined();
+    const [error2] = stage.vote("p2", true);
+    expect(error2).toBeUndefined();
+    const [error3] = stage.vote("p3", true);
+    expect(error3).toBeUndefined();
+    const [error4] = stage.vote("p4", false);
+    expect(error4).toBeUndefined();
+    const [error5] = stage.vote("p5", false);
+    expect(error5).toBeUndefined();
   
     expect(stage.votingCount).toEqual({
       yes: 3,
-      no: 3,
-      abstention: 0,
+      no: 2,
+      abstention: 1,
     });
     const votes = stage.votes;
     expect(votes).not.toBeNull();
@@ -112,7 +110,7 @@ describe("Estágio Legislativo", () => {
     expect(votes!.get("p3")).toBe(true);
     expect(votes!.get("p4")).toBe(false);
     expect(votes!.get("p5")).toBe(false);
-    expect(votes!.get("p6")).toBe(false);
+    expect(votes!.get("p6")).toBeNull();
   
     const [error] = stage.endVoting();
     expect(error).toBeUndefined();
@@ -126,23 +124,21 @@ describe("Estágio Legislativo", () => {
     stage.chooseLawForVoting(0);
     stage.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
   
-    const [errorP1] = stage.vote("p1", true);
-    expect(errorP1).toBeUndefined();
-    const [errorP2] = stage.vote("p2", true);
-    expect(errorP2).toBeUndefined();
-    const [errorP3] = stage.vote("p3", true);
-    expect(errorP3).toBeUndefined();
-    const [errorP4] = stage.vote("p4", true);
-    expect(errorP4).toBeUndefined();
-    const [errorP5] = stage.vote("p5", false);
-    expect(errorP5).toBeUndefined();
-    const [errorP6] = stage.vote("p6", false);
-    expect(errorP6).toBeUndefined();
+    const [error1] = stage.vote("p1", true);
+    expect(error1).toBeUndefined();
+    const [error2] = stage.vote("p2", true);
+    expect(error2).toBeUndefined();
+    const [error3] = stage.vote("p3", true);
+    expect(error3).toBeUndefined();
+    const [error4] = stage.vote("p4", true);
+    expect(error4).toBeUndefined();
+    const [error5] = stage.vote("p5", false);
+    expect(error5).toBeUndefined();
   
     expect(stage.votingCount).toEqual({
       yes: 4,
-      no: 2,
-      abstention: 0,
+      no: 1,
+      abstention: 1,
     });
     const votes = stage.votes;
     expect(votes).not.toBeNull();
@@ -151,11 +147,32 @@ describe("Estágio Legislativo", () => {
     expect(votes!.get("p3")).toBe(true);
     expect(votes!.get("p4")).toBe(true);
     expect(votes!.get("p5")).toBe(false);
-    expect(votes!.get("p6")).toBe(false);
   
     const [error] = stage.endVoting();
     expect(error).toBeUndefined();
     expect(stage.votingResult).toBeTruthy();
   })
   
+  it("deve finalizar votação automaticamente com todos os votos", () => {
+    const stage = new LegislativeStage(makeLawsDeck());
+    stage.drawLaws();
+    stage.vetoLaw(1);
+    stage.chooseLawForVoting(0);
+    stage.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
+  
+    const [error1] = stage.vote("p1", true);
+    expect(error1).toBeUndefined();
+    const [error2] = stage.vote("p2", true);
+    expect(error2).toBeUndefined();
+    const [error3] = stage.vote("p3", true);
+    expect(error3).toBeUndefined();
+    const [error4] = stage.vote("p4", true);
+    expect(error4).toBeUndefined();
+    const [error5] = stage.vote("p5", true);
+    expect(error5).toBeUndefined();
+    const [error6] = stage.vote("p6", true);
+    expect(error6).toBeUndefined();
+  
+    expect(stage.votingHasEnded).toBe(true);
+  })
 })
