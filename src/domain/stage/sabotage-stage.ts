@@ -16,12 +16,9 @@ export class SabotageStage extends Stage {
 
   constructor(
     private _crisesDeck: Deck<Crisis>,
+    currentAction?: SabotageAction
   ) {
-    super([
-      "DRAW_CRISIS",
-      "CHOOSE_CRISIS",
-      "ADVANCE_STAGE",
-    ]);
+    super(["DRAW_CRISIS", "CHOOSE_CRISIS", "ADVANCE_STAGE"], currentAction);
   }
 
   drawCrises(): Either<string, Crisis[]> {

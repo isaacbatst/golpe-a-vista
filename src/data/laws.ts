@@ -1,7 +1,5 @@
 import { LawType } from "../domain/role";
 
-export type LawType = LawType.PROGRESSISTAS | LawType.CONSERVADORES | 'neutra';
-
 export interface Law {
   name: string;
   type: LawType;

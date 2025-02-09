@@ -16,9 +16,10 @@ export class DossierStage extends Stage {
   constructor(
     private _currentPresident: Player,
     private _nextPresident: Player,
-    private _currentRapporteur: Player | null
+    private _currentRapporteur: Player | null,
+    currentAction?: DossierAction,
   ) {
-    super(["SELECT_RAPPORTEUR", "PASS_DOSSIER", "ADVANCE_STAGE"]);
+    super(["SELECT_RAPPORTEUR", "PASS_DOSSIER", "ADVANCE_STAGE"], currentAction);
   }
 
   chooseNextRapporteur(player: Player): Either<string, void> {

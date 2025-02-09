@@ -18,9 +18,9 @@ export abstract class Stage {
   protected _currentAction: string;
   private _actions: string[];
 
-  constructor(actions: string[]) {
+  constructor(actions: string[], currentAction: string = actions[0]) {
     this._actions = actions;
-    this._currentAction = actions[0];
+    this._currentAction = currentAction;
   }
 
   get currentAction(): string {
@@ -39,7 +39,7 @@ export abstract class Stage {
     this._currentAction = this._actions[currentIndex + 1] ?? this._actions[this._actions.length - 1];
   }
 
-  isComplete(): boolean {
+  get isComplete(): boolean {
     return this._currentAction === this._actions[this._actions.length - 1];
   }
 }

@@ -1,11 +1,16 @@
 import { describe, expect, it } from "vitest";
+import CRISES from "../data/crises";
+import { Law } from "../data/laws";
+import { Crisis, CrisisType } from "./crisis";
+import { Deck } from "./deck";
 import { Player } from "./player";
 import { LawType, Role } from "./role";
 import { Round } from "./round";
-import { Deck } from "./deck";
-import { Law } from "../data/laws";
-import { Crisis } from "./crisis";
-import CRISES from "../data/crises";
+import { DossierAction, DossierStage } from "./stage/dossier-stage";
+import { ImpeachmentAction, ImpeachmentStage } from "./stage/impeachment-stage";
+import { LegislativeAction, LegislativeStage } from "./stage/legislative-stage";
+import { RadicalizationStage } from "./stage/radicalization-stage";
+import { SabotageAction, SabotageStage } from "./stage/sabotage-stage";
 
 const makeCrisesDeck = () => {
   const [error, deck] = Deck.create(
@@ -34,122 +39,217 @@ const makeLawsDeck = (
   return deck;
 };
 
-describe("Sabotagem", () => {
-  it("não deve sabotar uma lei conservadora", () => {
-    const round = new Round({
-      president: new Player("p1", Role.MODERADO),
-      lawsDeck: makeLawsDeck(),
-      crisesDeck: makeCrisesDeck(),    });
-
-    round.drawLaws();
-    round.chooseLaw(0);
-    round.startLawVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
-
-    const [error] = round.sabotage();
-
-    expect(error).toBe("Não é possível sabotar uma lei conservadora");
+describe("Round", () => {
+  it("Deve iniciar Estágio Legislativo", () => {
+    const president = new Player("p1", Role.MODERADO);
+    const nextPresident = new Player("p2", Role.MODERADO);
+    const lawsDeck = makeLawsDeck();
+    const crisesDeck = makeCrisesDeck();
+    const round = new Round({ president, nextPresident, lawsDeck, crisesDeck });
+    expect(round.currentStage).toBeInstanceOf(LegislativeStage);
   });
-  
-  it("deve sabotar uma lei progressista", () => {
-    const round = new Round({
-      president: new Player("p1", Role.MODERADO),
-      lawsDeck: makeLawsDeck([
-        { description: "Lei 1", type: LawType.PROGRESSISTAS, name: "L1" },
-        { description: "Lei 2", type: LawType.PROGRESSISTAS, name: "L2" },
-        { description: "Lei 3", type: LawType.PROGRESSISTAS, name: "L3" },
-        { description: "Lei 4", type: LawType.PROGRESSISTAS, name: "L4" },
-      ]),
-      crisesDeck: makeCrisesDeck(),
-    });
-const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
-    round.drawLaws();
-    round.chooseLaw(0);
-    round.startLawVoting(players);
-    for(const player of players) {
-      round.voteForLaw(player, true);
-    }
-    round.endLawVoting();
-    const [error, crises] = round.sabotage();
 
+  it("Deve iniciar com Cassação caso esteja ativa nesta rodada", () => {
+    const president = new Player("p1", Role.MODERADO);
+    const nextPresident = new Player("p2", Role.MODERADO);
+    const lawsDeck = makeLawsDeck();
+    const crisesDeck = makeCrisesDeck();
+    const round = new Round({
+      president,
+      nextPresident,
+      lawsDeck,
+      crisesDeck,
+      hasImpeachment: true,
+    });
+    expect(round.currentStage).toBeInstanceOf(ImpeachmentStage);
+  });
+
+  it("Deve avançar de cassação para legislativo", () => {
+    const president = new Player("p1", Role.MODERADO);
+    const nextPresident = new Player("p2", Role.MODERADO);
+    const lawsDeck = makeLawsDeck();
+    const crisesDeck = makeCrisesDeck();
+    const round = new Round({
+      president,
+      nextPresident,
+      lawsDeck,
+      crisesDeck,
+      stages: [
+        new ImpeachmentStage(
+          president,
+          false,
+          false,
+          ImpeachmentAction.ADVANCE_STAGE
+        ),
+      ],
+      hasImpeachment: true,
+    });
+    const [error, stage] = round.nextStage();
     expect(error).toBeUndefined();
-    expect(crises).toBeDefined();
-  })
+    expect(stage).toBeInstanceOf(LegislativeStage);
+  });
 
-  it("deve escolher 1 crise para sabotagem", () => {
+  it("Não deve avançar para o Dossiê sem finalizar o Estágio Legislativo", () => {
+    const president = new Player("p1", Role.MODERADO);
+    const nextPresident = new Player("p2", Role.MODERADO);
+    const lawsDeck = makeLawsDeck();
+    const crisesDeck = makeCrisesDeck();
+    const round = new Round({ president, nextPresident, lawsDeck, crisesDeck });
+    const [error] = round.nextStage();
+    expect(error).toBe("Estágio atual não finalizado");
+  });
+
+  it("Deve avançar para o estágio do Dossiê", () => {
+    const president = new Player("p1", Role.MODERADO);
+    const nextPresident = new Player("p2", Role.MODERADO);
+    const lawsDeck = makeLawsDeck();
+    const crisesDeck = makeCrisesDeck();
     const round = new Round({
-      president: new Player("p1", Role.MODERADO),
-      lawsDeck: makeLawsDeck([
-        { description: "Lei 1", type: LawType.PROGRESSISTAS, name: "L1" },
-        { description: "Lei 2", type: LawType.PROGRESSISTAS, name: "L2" },
-        { description: "Lei 3", type: LawType.PROGRESSISTAS, name: "L3" },
-        { description: "Lei 4", type: LawType.PROGRESSISTAS, name: "L4" },
-      ]),
-      crisesDeck: makeCrisesDeck(),
+      president,
+      nextPresident,
+      lawsDeck,
+      crisesDeck,
+      stages: [new LegislativeStage(lawsDeck, LegislativeAction.ADVANCE_STAGE)],
     });
+    const [error, stage] = round.nextStage();
+    expect(error).toBeUndefined();
+    expect(stage).toBeInstanceOf(DossierStage);
+  });
+
+  it("Deve finalizar round após o dossiê", () => {
+    const president = new Player("p1", Role.MODERADO);
+    const nextPresident = new Player("p2", Role.MODERADO);
+    const lawsDeck = makeLawsDeck();
+    const crisesDeck = makeCrisesDeck();
+    const round = new Round({
+      president,
+      nextPresident,
+      lawsDeck,
+      crisesDeck,
+      stages: [
+        new DossierStage(
+          president,
+          nextPresident,
+          null,
+          DossierAction.ADVANCE_STAGE
+        ),
+      ],
+    });
+    const [error, stage] = round.nextStage();
+    expect(error).toBeUndefined();
+    expect(stage).toBeNull();
+    expect(round.finished).toBe(true);
+  });
+
+  it("Deve avançar do Dossiê para o estágio da Sabotagem se uma lei progressista foi aprovada e a rodada anterior não foi sabotada", () => {
+    const president = new Player("p1", Role.MODERADO);
+    const nextPresident = new Player("p2", Role.MODERADO);
+    const lawsDeck = makeLawsDeck(
+      Array.from({ length: 5 }, (_, i) => ({
+        description: `Lei ${i + 1}`,
+        type: LawType.PROGRESSISTAS,
+        name: `L${i + 1}`,
+      }))
+    );
+    const crisesDeck = makeCrisesDeck();
     const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
-    round.drawLaws();
-    round.chooseLaw(0);
-    round.startLawVoting(players);
-    for(const player of players) {
-      round.voteForLaw(player, true);
+    const legislativeStage = new LegislativeStage(lawsDeck);
+    const [drawLawsError] = legislativeStage.drawLaws();
+    expect(drawLawsError).toBeUndefined();
+    const [vetoLawError] = legislativeStage.vetoLaw(0);
+    expect(vetoLawError).toBeUndefined();
+    const [chooseLawForVotingError] = legislativeStage.chooseLawForVoting(1);
+    expect(chooseLawForVotingError).toBeUndefined();
+    const [startVotingError] = legislativeStage.startVoting(players);
+    expect(startVotingError).toBeUndefined();
+    for (const player of players) {
+      const [error] = legislativeStage.vote(player, true);
+      expect(error).toBeUndefined();
     }
-    round.endLawVoting();
-    const [sabotageError] = round.sabotage();
-    expect(sabotageError).toBeUndefined();
-    const [error] = round.chooseSabotageCrisis(0);
-    expect(error).toBeUndefined();
-    expect(round.sabotageCrisis).not.toBeNull();
-  })
-});
-
-describe("Cassação", () => {
-  it("não deve permitir que presidente inicie cassação, se ela não estiver ativa na rodada", () => {
+    expect(legislativeStage.votingResult).toBe(true);
     const round = new Round({
-      president: new Player("p1", Role.MODERADO),
-      lawsDeck: makeLawsDeck(),
-      crisesDeck: makeCrisesDeck(),
+      president,
+      nextPresident,
+      lawsDeck,
+      crisesDeck,
+      stages: [
+        legislativeStage,
+        new DossierStage(
+          president,
+          nextPresident,
+          null,
+          DossierAction.ADVANCE_STAGE
+        ),
+      ],
+      hasLastRoundBeenSabotaged: false,
     });
-
-    const [error] = round.startImpeachment(new Player("p2", Role.MODERADO));
-
-    expect(error).toBe("A cassação não está ativa nessa rodada");
+    const [error, stage] = round.nextStage();
+    expect(error).toBeUndefined();
+    expect(stage).toBeInstanceOf(SabotageStage);
   });
 
-  it("deve permitir que presidente inicie cassação, se ela estiver ativa na rodada", () => {
+  it("Deve avançar do Dossiê para o estágio de Radicalização se não houver Sabotagem, pelo menos X leis progressistas ou Y leis conservadoras foram ativadas e a rodada atual tiver uma crise", () => {
+    const president = new Player("p1", Role.MODERADO);
+    const nextPresident = new Player("p2", Role.MODERADO);
+    const lawsDeck = makeLawsDeck(
+      Array.from({ length: 5 }, (_, i) => ({
+        description: `Lei ${i + 1}`,
+        type: LawType.PROGRESSISTAS,
+        name: `L${i + 1}`,
+      }))
+    );
+    const crisesDeck = makeCrisesDeck();
     const round = new Round({
-      president: new Player("p1", Role.MODERADO),
-      lawsDeck: makeLawsDeck(),
-      crisesDeck: makeCrisesDeck(),
-      hasImpeachment: true,
+      president,
+      nextPresident,
+      lawsDeck,
+      crisesDeck,
+      minRadicalizationConservativeLaws: 2,
+      minRadicalizationProgressiveLaws: 2,
+      previouslyApprovedConservativeLaws: 2,
+      previouslyApprovedProgressiveLaws: 2,
+      crisis: new Crisis(["Crise 1"], "Descrição da crise", CrisisType.PUBLICA),
+      stages: [
+        new LegislativeStage(lawsDeck, LegislativeAction.ADVANCE_STAGE),
+        new DossierStage(
+          president,
+          nextPresident,
+          null,
+          DossierAction.ADVANCE_STAGE
+        ),
+      ],
     });
-
-    const target = new Player("p2", Role.MODERADO);
-    const [error] = round.startImpeachment(target);
-
+    const [error, stage] = round.nextStage();
     expect(error).toBeUndefined();
-    expect(round.impeachment?.target).toBe(target);
-  })
+    expect(stage).toBeInstanceOf(RadicalizationStage);
+  });
 
-  it("deve realizar votação de cassação", () => {
+  it("Deve avançar do estágio de Sabotagem para o estágio de Radicalização se a rodada anterior foi sabotada e cumprir as condições de radicalização", () => {
+    const president = new Player("p1", Role.MODERADO);
+    const nextPresident = new Player("p2", Role.MODERADO);
+    const lawsDeck = makeLawsDeck(
+      Array.from({ length: 5 }, (_, i) => ({
+        description: `Lei ${i + 1}`,
+        type: LawType.PROGRESSISTAS,
+        name: `L${i + 1}`,
+      }))
+    );
+    const crisesDeck = makeCrisesDeck();
     const round = new Round({
-      president: new Player("p1", Role.RADICAL),
-      lawsDeck: makeLawsDeck(),
-      crisesDeck: makeCrisesDeck(),
-      hasImpeachment: true,
+      president,
+      nextPresident,
+      lawsDeck,
+      crisesDeck,
+      minRadicalizationConservativeLaws: 2,
+      minRadicalizationProgressiveLaws: 2,
+      previouslyApprovedConservativeLaws: 2,
+      previouslyApprovedProgressiveLaws: 2,
+      crisis: new Crisis(["Crise 1"], "Descrição da crise", CrisisType.PUBLICA),
+      stages: [new SabotageStage(crisesDeck, SabotageAction.ADVANCE_STAGE)],
+      hasLastRoundBeenSabotaged: true,
     });
-
-    const target = new Player("p2", Role.MODERADO);
-    const [error] = round.startImpeachment(target);
+    const [error, stage] = round.nextStage();
     expect(error).toBeUndefined();
-    expect(round.impeachment).toBeDefined();
-    const [startVotingError] = round.startImpeachmentVoting(["p1", "p2"]);
-    expect(startVotingError).toBeUndefined();
-    round.voteForImpeachment("p1", true);
-    round.voteForImpeachment("p2", true);
-    expect(round.impeachmentVotingCount).toEqual({
-      yes: 2,
-      no: 0,
-      abstention: 0,
-    });
-  })
+    expect(stage).toBeInstanceOf(RadicalizationStage);
+  });
 });

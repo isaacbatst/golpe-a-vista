@@ -21,7 +21,8 @@ export class LegislativeStage extends Stage {
   private _voting: Voting | null = null;
 
   constructor(
-    private _lawsDeck: Deck<Law>
+    private _lawsDeck: Deck<Law>,
+    currentAction?: LegislativeAction
   ) {
     super([
       LegislativeAction.DRAW_LAWS,
@@ -30,13 +31,12 @@ export class LegislativeStage extends Stage {
       LegislativeAction.START_VOTING,
       LegislativeAction.VOTING,
       LegislativeAction.ADVANCE_STAGE,
-    ]);
+    ], currentAction);
   }
 
   drawLaws(): Either<string, Law[]> {
     const [error] = this.assertCurrentAction(LegislativeAction.DRAW_LAWS);
     if (error) return left(error);
-
     this._drawnLaws = this._lawsDeck.draw(3);
     this.advanceAction();
     return right(this._drawnLaws);
@@ -82,7 +82,7 @@ export class LegislativeStage extends Stage {
     return right();
   }
 
-  vote(playerName: string, vote: boolean): Either<string, void> {
+  vote(playerName: string, vote: boolean): Either<string, boolean> {
     const [error] = this.assertCurrentAction(LegislativeAction.VOTING);
     if (error) return left(error);
     if (!this._voting) return left("A votação não foi iniciada.");
@@ -93,16 +93,16 @@ export class LegislativeStage extends Stage {
       return this.endVoting();
     }
 
-    return right();
+    return right(false);
   }
 
-  endVoting(): Either<string, void> {
+  endVoting(): Either<string, true> {
     const [error] = this.assertCurrentAction(LegislativeAction.VOTING);
     if (error) return left(error);
     
     this._voting?.end();
     this.advanceAction();
-    return right();
+    return right(true);
   }
 
   get drawnLaws() {

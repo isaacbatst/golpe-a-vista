@@ -44,18 +44,23 @@ Cada rodada segue a seguinte estrutura:
 ---
 
 ## **4️⃣ Crises**
-Crises adicionam tensão e blefe ao jogo. Elas podem ser ativadas de duas formas:
 
-📌 **"Receio"** dos Moderados  
-   - Se um **moderado aprovar a partir da segunda lei progressista consecutiva**, **uma crise é ativada**.
+Crises ativam vários efeitos no jogo que podem ser benéficos ou prejudiciais para os jogadores. 
 
-📌 **Sabotagem** dos Conservadores  
-   - Sempre que uma lei progressista for aprovada, os **conservadores podem ativar uma crise**, a menos que tenham sabotado na rodada anterior.
-   - Os conservadores recebem 3 cartas de crise e escolhem uma para ativar.
-   - Caso uma crise fosse ser ativada pelo receio de um moderado, a crise escolhida pelos conservadores é priorizada.
+📌 **Ativação**
+
+   ✅  **"Receio"** dos Moderados  
+      - Se um **moderado aprovar a partir da segunda lei progressista consecutiva**, **uma crise é ativada**.
+
+   ✅  **Sabotagem** dos Conservadores  
+      - Sempre que uma lei progressista for aprovada, os **conservadores podem ativar uma crise**
+      - Os conservadores não podem sabotar duas rodadas seguidas.
+      - Os conservadores recebem 3 cartas de crise e escolhem uma para ativar.
+      - Caso uma crise fosse ser ativada pelo receio de um moderado, a crise escolhida pelos conservadores é priorizada.
 
 📌 **Efeito das Crises:**  
-✅ **A crise tem efeito apenas na próxima rodada.**  
+✅ **A crise tem efeito apenas na próxima rodada.**
+✅ **Alguns efeitos são públicos, outros apenas os jogadores envolvidos sabem.**
 ---
 
 ## **5️⃣ Cassação**

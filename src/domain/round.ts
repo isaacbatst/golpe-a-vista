@@ -2,41 +2,46 @@ import { Law } from "../data/laws";
 import { Crisis } from "./crisis";
 import { Deck } from "./deck";
 import { Either, left, right } from "./either";
-import { Impeachment } from "./impeachment";
 import { Player } from "./player";
 import { LawType } from "./role";
-import { Voting } from "./voting";
+import { DossierStage } from "./stage/dossier-stage";
+import { ImpeachmentStage } from "./stage/impeachment-stage";
+import { LegislativeStage } from "./stage/legislative-stage";
+import { RadicalizationStage } from "./stage/radicalization-stage";
+import { SabotageStage } from "./stage/sabotage-stage";
+import { Stage } from "./stage/stage";
 
 type RoundParams = {
   president: Player;
+  nextPresident: Player;
   lawsDeck: Deck<Law>;
   crisesDeck: Deck<Crisis>;
   crisis?: Crisis | null;
   rapporteur?: Player | null;
   hasImpeachment?: boolean;
+  stages?: Stage[];
+  hasLastRoundBeenSabotaged?: boolean;
+  minRadicalizationConservativeLaws?: number;
+  minRadicalizationProgressiveLaws?: number;
+  previouslyApprovedConservativeLaws?: number;
+  previouslyApprovedProgressiveLaws?: number;
 };
 
 export class Round {
-  private static readonly LAWS_TO_DRAW = 3;
-
-  public rapporteur: Player | null = null;
   public isDossierVisibleToRapporteur = false;
-  public nextShouldHaveCrisisPerRejectedLaw = false;
-  private _impeached: Player | null = null;
-  private _drawnLaws: Law[] = [];
-  private _crisis: Crisis | null;
-  private _lawToVote: Law | null = null;
-  private _lawVoting: Voting | null = null;
-  private _crisesDeck: Deck<Crisis>;
-  private _lawsDeck: Deck<Law>;
-  private _vetoedLaw: Law | null = null;
-  private _nextRapporteur: Player | null = null;
-  private _sabotageCrisesDrawn: Crisis[] | null = null;
-  private _sabotageCrisis: Crisis | null = null;
-  private _hasImpeachment: boolean;
-  private _impeachment: Impeachment | null = null;
-
-  readonly president: Player;
+  public readonly president: Player;
+  private readonly _lawsDeck: Deck<Law>;
+  private readonly _nextPresident: Player;
+  private readonly _crisesDeck: Deck<Crisis>;
+  private readonly _crisis: Crisis | null;
+  private readonly _rapporteur: Player | null;
+  private readonly _hasImpeachment: boolean;
+  private readonly _hasLastRoundBeenSabotaged: boolean;
+  private readonly _minRadicalizationConservativeLaws: number;
+  private readonly _minRadicalizationProgressiveLaws: number;
+  private readonly _previouslyApprovedConservativeLaws: number;
+  private readonly _previouslyApprovedProgressiveLaws: number;
+  private readonly _stages: Stage[];
 
   constructor(props: RoundParams) {
     this.president = props.president;
@@ -44,214 +49,127 @@ export class Round {
     this._crisis = props.crisis ?? null;
     this._lawsDeck = props.lawsDeck;
     this._hasImpeachment = props.hasImpeachment ?? false;
-    this.rapporteur = props.rapporteur ?? null;
+    this._rapporteur = props.rapporteur ?? null;
+    this._nextPresident = props.nextPresident;
+    this._hasLastRoundBeenSabotaged = props.hasLastRoundBeenSabotaged ?? false;
+    this._minRadicalizationConservativeLaws =
+      props.minRadicalizationConservativeLaws ?? 4;
+    this._minRadicalizationProgressiveLaws =
+      props.minRadicalizationProgressiveLaws ?? 4;
+    this._previouslyApprovedConservativeLaws =
+      props.previouslyApprovedConservativeLaws ?? 0;
+    this._previouslyApprovedProgressiveLaws =
+      props.previouslyApprovedProgressiveLaws ?? 0;
+    this._stages = props.stages ?? [this.createFirstStage()];
   }
 
-  setNextRapporteur(player: Player) {
-    this._nextRapporteur = player;
-  }
-
-  drawLaws() {
-    const laws = this._lawsDeck.draw(Round.LAWS_TO_DRAW);
-    this._drawnLaws = laws;
-    return laws;
-  }
-
-  chooseLaw(index: number): Either<string, void> {
-    if (this._vetoedLaw === this._drawnLaws[index]) {
-      return left("Essa lei foi vetada");
+  nextStage(): Either<string, Stage | null> {
+    if (!this.currentStage.isComplete) {
+      return left("Estágio atual não finalizado");
     }
 
-    this._lawToVote = this._drawnLaws[index];
-    return right();
-  }
+    const next = this.createNextStage();
 
-  canSabotage(): Either<string, boolean> {
-    if (!this._lawToVote) {
-      return left("Nenhuma lei escolhida para sabotar");
+    if (!next) {
+      return right(null);
     }
 
-    if (this._lawToVote.type === LawType.CONSERVADORES) {
-      return left("Não é possível sabotar uma lei conservadora");
+    this._stages.push(next);
+    return right(next);
+  }
+
+  private createFirstStage(): Stage {
+    if (this._hasImpeachment) {
+      return new ImpeachmentStage(this.president);
     }
 
-    if (!this.voting?.result) {
-      return left("Não é possível sabotar uma lei que não foi aprovada");
+    return new LegislativeStage(this._lawsDeck);
+  }
+
+  private createNextStage(): Stage | null {
+    if (this.currentStage instanceof ImpeachmentStage) {
+      return new LegislativeStage(this._lawsDeck);
     }
 
-    return right(true);
-  }
-
-  sabotage(): Either<string, Crisis[]> {
-    const [canSabotageError] = this.canSabotage();
-    if (canSabotageError) {
-      return left(canSabotageError);
-    }
-    const crises = this._crisesDeck.draw(3);
-    this._sabotageCrisesDrawn = crises;
-    return right(crises);
-  }
-
-  startLawVoting(players: string[]): Either<string, void> {
-    if (this._lawVoting) {
-      return left("Votação já iniciada");
+    if (this.currentStage instanceof LegislativeStage) {
+      return new DossierStage(
+        this.president,
+        this._nextPresident,
+        this._rapporteur
+      );
     }
 
-    if (!this._lawToVote) {
-      return left("Nenhuma lei escolhida para votação");
+    if (
+      this.currentStage instanceof DossierStage &&
+      this.hasApprovedLaw(LawType.PROGRESSISTAS) &&
+      !this._hasLastRoundBeenSabotaged
+    ) {
+      return new SabotageStage(this._crisesDeck);
     }
 
-    const [error, voting] = Voting.create(players);
-
-    if (!voting) {
-      return left(error);
+    if (
+      this.currentStage instanceof DossierStage &&
+      this.hasMinLawsToRadicalization() &&
+      this._crisis
+    ) {
+      return new RadicalizationStage();
     }
 
-    this._lawVoting = voting;
-
-    return right(undefined);
-  }
-
-  voteForLaw(playerName: string, vote: boolean): Either<string, void> {
-    if (!this._lawVoting) {
-      return left("Votação não iniciada");
+    if (
+      this.currentStage instanceof SabotageStage &&
+      this.hasMinLawsToRadicalization() &&
+      this._crisis
+    ) {
+      return new RadicalizationStage();
     }
 
-    this._lawVoting.vote(playerName, vote);
-
-    return right(undefined);
+    return null;
   }
 
-  endLawVoting(): Either<string, Law | null> {
-    if (!this._lawVoting) {
-      return left("Votação não iniciada");
-    }
+  private hasMinLawsToRadicalization(): boolean {
+    const legislativeStages = this._stages.filter(
+      (stage): stage is LegislativeStage => stage instanceof LegislativeStage
+    );
 
-    this._lawVoting.end();
-    return this._lawVoting.result ? right(this._lawToVote) : right(null);
+    const conservativeLaws = legislativeStages.filter(
+      (stage) => stage.lawToVote?.type === LawType.CONSERVADORES
+    ).length;
+    const progressiveLaws = legislativeStages.filter(
+      (stage) => stage.lawToVote?.type === LawType.PROGRESSISTAS
+    ).length;
+
+    const totalConservativeLaws =
+      this._previouslyApprovedConservativeLaws + conservativeLaws;
+    const totalProgressiveLaws =
+      this._previouslyApprovedProgressiveLaws + progressiveLaws;
+
+    return (
+      totalConservativeLaws >= this._minRadicalizationConservativeLaws ||
+      totalProgressiveLaws >= this._minRadicalizationProgressiveLaws
+    );
   }
 
-  vetoLaw(index: number) {
-    this._vetoedLaw = this._drawnLaws[index];
+  private hasApprovedLaw(type: LawType): boolean {
+    const legislativeStages = this._stages.filter(
+      (stage): stage is LegislativeStage => stage instanceof LegislativeStage
+    );
+
+    console.log(legislativeStages);
+
+    return legislativeStages.some(
+      (stage) => stage.lawToVote?.type === type && stage.votingResult
+    );
   }
 
-  chooseSabotageCrisis(index: number): Either<string, void> {
-    if (!this._sabotageCrisesDrawn) {
-      return left("Crises de sabotagem não foram sacadas");
-    }
-    this._sabotageCrisis = this._sabotageCrisesDrawn[index];
-    return right();
+  get currentStage(): Stage {
+    return this._stages[this._stages.length - 1];
   }
 
-  startImpeachment(
-    target: Player,
-    isSomeConservativeImpeached = false
-  ): Either<string, void> {
-    if (!this._hasImpeachment) {
-      return left("A cassação não está ativa nessa rodada");
-    }
-    this._impeachment = new Impeachment({
-      target,
-      accuser: this.president,
-      isSomeConservativeImpeached,
-    });
-    return right();
+  get finished(): boolean {
+    return this.createNextStage() === null;
   }
 
-  startImpeachmentVoting(players: string[]): Either<string, void> {
-    if (!this._impeachment) {
-      return left("Cassação não iniciada");
-    }
-
-    const [error] = this._impeachment.startVoting(players);
-    if(error) {
-      return left(error);
-    }
-
-    return right();
-  }
-
-  voteForImpeachment(player: string, approve: boolean): Either<string, void> {
-    if (!this._impeachment) {
-      return left("Cassação não iniciada");
-    }
-
-    const [error] = this._impeachment.vote(player, approve);
-    if(error) {
-      return left(error);
-    }
-
-    return right();
-  }
-
-  impeach(player: Player): Either<string, void> {
-    if (!this._hasImpeachment) {
-      return left("A cassação não está ativa nessa rodada");
-    }
-
-    this._impeached = player;
-    player.impeached = true;
-
-    return right();
-  }
-
-  get sabotageCrisis() {
-    return this._sabotageCrisis;
-  }
-
-  get sabotageCrisesDrawn(): Crisis[] | null {
-    return this.sabotageCrisesDrawn ? [...this._sabotageCrisesDrawn!] : null;
-  }
-
-  get drawnLaws() {
-    return [...this._drawnLaws];
-  }
-
-  get vetoedLaw(): Law | null {
-    return this._vetoedLaw;
-  }
-
-  get crisis(): Crisis | null {
-    return this._crisis;
-  }
-
-  get lawToVote(): Law | null {
-    return this._lawToVote;
-  }
-
-  get voting(): Voting | null {
-    return this._lawVoting;
-  }
-
-  get votingCount() {
-    return this._lawVoting?.count ?? null;
-  }
-
-  get votes() {
-    return this._lawVoting?.votes ?? null;
-  }
-
-  get votingResult() {
-    return this._lawVoting?.result ?? null;
-  }
-
-  get nextRapporteur() {
-    return this._nextRapporteur;
-  }
-
-  get hasImpeachment() {
-    return this._hasImpeachment;
-  }
-
-  get impeached() {
-    return this._impeached;
-  }
-
-  get impeachment() {
-    return this._impeachment;
-  }
-
-  get impeachmentVotingCount() {
-    return this._impeachment?.votingCount ?? null;
+  get nextShouldHaveCrisisPerRejectedLaw(): boolean {
+    return false;
   }
 }

@@ -19,7 +19,8 @@ export class ImpeachmentStage extends Stage {
   constructor(
     readonly accuser: Player,
     private _isSomeConservativeImpeached: boolean = false,
-    private _isRadicalImpeached: boolean = false
+    private _isRadicalImpeached: boolean = false,
+    currentAction?: ImpeachmentAction,
   ) {
     super([
       "SELECT_TARGET",
@@ -27,7 +28,7 @@ export class ImpeachmentStage extends Stage {
       "VOTING",
       "EXECUTION",
       "ADVANCE_STAGE",
-    ]);
+    ], currentAction);
   }
 
   chooseTarget(target: Player): Either<string, void> {
