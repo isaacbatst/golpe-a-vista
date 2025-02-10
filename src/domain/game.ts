@@ -3,6 +3,7 @@ import { Crisis } from "./crisis/crisis";
 import { Deck } from "./deck";
 import { Either, left, right } from "./either";
 import { Player } from "./player";
+import { PresidentQueue } from "./president-queue";
 import { Random } from "./random";
 import { LawType, Role } from "./role";
 import { Round } from "./round";
@@ -57,7 +58,7 @@ export class Game {
   private _lawsToProgressiveWin: number;
   private _lawsToConservativeWin: number;
   private _crisesIntervalToImpeach: number;
-  private _presidentQueue: Player[];
+  private _presidentQueue: PresidentQueue;
   private _rounds: Round[];
   private _crisesDeck: Deck<Crisis>;
   private _progressiveLawsToFear;
@@ -112,7 +113,9 @@ export class Game {
     this._lawsToProgressiveWin = lawsToProgressiveWin;
     this._lawsToConservativeWin = lawsToConservativeWin;
     this._crisesIntervalToImpeach = crisesIntervalToImpeach;
-    this._presidentQueue = presidentQueue ?? [...Random.sort(this._players)];
+    this._presidentQueue = new PresidentQueue(
+      presidentQueue ?? [...Random.sort(this._players)]
+    );
     this._crisesDeck = crisesDeck;
     this._progressiveLawsToFear = progressiveLawsIntervalToCrisis;
     this._rejectedLawsIntervalToCrisis = rejectedLawsIntervalToCrisis;
@@ -148,9 +151,7 @@ export class Game {
   }
 
   getPresidentFromQueue(round: number) {
-    return this._presidentQueue.filter((p) => !p.impeached)[
-      round % this._presidentQueue.length
-    ];
+    return this._presidentQueue.getByRoundNumber(round);
   }
 
   get nextRoundShouldImpeach() {
@@ -221,8 +222,10 @@ export class Game {
   get hasRadicalWon() {
     const impeachedConservatives = this._players.filter(
       (player) => player.role === Role.CONSERVADOR && player.impeached
-    )
-    return impeachedConservatives.length >= this._conservativesImpeachedToRadicalWin
+    );
+    return (
+      impeachedConservatives.length >= this._conservativesImpeachedToRadicalWin
+    );
   }
 
   get winner() {
@@ -234,7 +237,7 @@ export class Game {
       return Role.CONSERVADOR;
     }
 
-    if(this.hasRadicalWon){
+    if (this.hasRadicalWon) {
       return Role.RADICAL;
     }
 
@@ -267,10 +270,6 @@ export class Game {
 
   get president() {
     return this.currentRound.president;
-  }
-
-  get presidentQueue() {
-    return [...this._presidentQueue];
   }
 
   get players() {
