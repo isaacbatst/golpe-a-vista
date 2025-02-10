@@ -10,6 +10,7 @@ import { LegislativeAction, LegislativeStage } from "./stage/legislative-stage";
 import { RadicalizationStage } from "./stage/radicalization-stage";
 import { SabotageAction, SabotageStage } from "./stage/sabotage-stage";
 import { CafeComAAbin } from "./crisis/cafe-com-a-abin-crisis";
+import { FmiMandou } from "./crisis/fmi-mandou";
 
 describe("Estágios", () => {
   it("Deve iniciar Estágio Legislativo", () => {
@@ -81,7 +82,7 @@ describe("Estágios", () => {
       nextPresident,
       lawsDeck,
       crisesDeck,
-      stages: [new LegislativeStage(lawsDeck, LegislativeAction.ADVANCE_STAGE)],
+      stages: [new LegislativeStage(lawsDeck, null, LegislativeAction.ADVANCE_STAGE)],
     });
     const [error, stage] = round.nextStage();
     expect(error).toBeUndefined();
@@ -186,7 +187,7 @@ describe("Estágios", () => {
       previouslyApprovedProgressiveLaws: 2,
       crisis: new PlanoCohenCrisis(),
       stages: [
-        new LegislativeStage(lawsDeck, LegislativeAction.ADVANCE_STAGE),
+        new LegislativeStage(lawsDeck, null, LegislativeAction.ADVANCE_STAGE),
         new DossierStage({
           currentPresident: president,
           nextPresident,
@@ -307,6 +308,31 @@ describe("Crises", () => {
         crisis: new CafeComAAbin(),
       });
       expect(round.rapporteurCanSeeDossier).toBe(false);
+    });
+  });
+
+  describe("O FMI Mandou", () => {
+    it("Deve ser obrigatório vetar uma lei progressista", () => {
+      const president = new Player("p1", Role.MODERADO);
+      const nextPresident = new Player("p2", Role.MODERADO);
+      const cards =  Array.from({ length: 3 }, (_, i) => ({
+        description: `Lei ${i + 1}`,
+        type: i === 0 ? LawType.PROGRESSISTAS : LawType.CONSERVADORES,
+        name: `L${i + 1}`,
+      }))
+      const lawsDeck = makeLawsDeck(cards);
+      const crisesDeck = makeCrisesDeck();
+      const round = new Round({
+        president,
+        nextPresident,
+        lawsDeck,
+        crisesDeck,
+        crisis: new FmiMandou(),
+      });
+      expect(round.mustVeto).toBe(LawType.PROGRESSISTAS);
+      expect(round.currentStage).toBeInstanceOf(LegislativeStage);
+      const legislativeStage = round.currentStage as LegislativeStage;
+      expect(legislativeStage.mustVeto).toBe(LawType.PROGRESSISTAS);
     });
   });
 });

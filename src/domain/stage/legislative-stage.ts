@@ -1,16 +1,17 @@
 import { Law } from "../../data/laws";
 import { Deck } from "../deck";
 import { Either, left, right } from "../either";
+import { LawType } from "../role";
 import { Voting } from "../voting";
 import { Stage, StageType } from "./stage";
 
 export enum LegislativeAction {
-  DRAW_LAWS = "DRAW_LAWS",                   
-  VETO_LAW = "VETO_LAW",                     
-  CHOOSE_LAW_FOR_VOTING = "CHOOSE_LAW_FOR_VOTING", 
+  DRAW_LAWS = "DRAW_LAWS",
+  VETO_LAW = "VETO_LAW",
+  CHOOSE_LAW_FOR_VOTING = "CHOOSE_LAW_FOR_VOTING",
   START_VOTING = "START_VOTING",
-  VOTING = "VOTING",       
-  ADVANCE_STAGE = "ADVANCE_STAGE",           
+  VOTING = "VOTING",
+  ADVANCE_STAGE = "ADVANCE_STAGE",
 }
 
 export class LegislativeStage extends Stage {
@@ -22,16 +23,20 @@ export class LegislativeStage extends Stage {
 
   constructor(
     private _lawsDeck: Deck<Law>,
+    private _mustVeto: LawType | null = null,
     currentAction?: LegislativeAction
   ) {
-    super([
-      LegislativeAction.DRAW_LAWS,
-      LegislativeAction.VETO_LAW,
-      LegislativeAction.CHOOSE_LAW_FOR_VOTING,
-      LegislativeAction.START_VOTING,
-      LegislativeAction.VOTING,
-      LegislativeAction.ADVANCE_STAGE,
-    ], currentAction);
+    super(
+      [
+        LegislativeAction.DRAW_LAWS,
+        LegislativeAction.VETO_LAW,
+        LegislativeAction.CHOOSE_LAW_FOR_VOTING,
+        LegislativeAction.START_VOTING,
+        LegislativeAction.VOTING,
+        LegislativeAction.ADVANCE_STAGE,
+      ],
+      currentAction
+    );
   }
 
   drawLaws(): Either<string, Law[]> {
@@ -50,13 +55,20 @@ export class LegislativeStage extends Stage {
       return left("Índice inválido.");
     }
 
+    const law = this._drawnLaws[index];
+    if (!this.vetoableLaws.includes(law)) {
+      return left("Essa lei não pode ser vetada.");
+    }
+
     this._vetoedLaw = this._drawnLaws[index];
     this.advanceAction();
     return right();
   }
 
   chooseLawForVoting(index: number): Either<string, void> {
-    const [error] = this.assertCurrentAction(LegislativeAction.CHOOSE_LAW_FOR_VOTING);
+    const [error] = this.assertCurrentAction(
+      LegislativeAction.CHOOSE_LAW_FOR_VOTING
+    );
     if (error) return left(error);
 
     const law = this._drawnLaws[index];
@@ -72,7 +84,8 @@ export class LegislativeStage extends Stage {
     const [error] = this.assertCurrentAction(LegislativeAction.START_VOTING);
     if (error) return left(error);
 
-    if (!this._lawToVote) return left("Nenhuma lei foi escolhida para votação.");
+    if (!this._lawToVote)
+      return left("Nenhuma lei foi escolhida para votação.");
 
     const [voteError, voting] = Voting.create(players);
     if (!voting) return left(voteError);
@@ -87,9 +100,9 @@ export class LegislativeStage extends Stage {
     if (error) return left(error);
     if (!this._voting) return left("A votação não foi iniciada.");
 
-    const hasEnded = this._voting.vote(playerName, vote)
+    const hasEnded = this._voting.vote(playerName, vote);
 
-    if(hasEnded) {
+    if (hasEnded) {
       return this.endVoting();
     }
 
@@ -99,16 +112,14 @@ export class LegislativeStage extends Stage {
   endVoting(): Either<string, true> {
     const [error] = this.assertCurrentAction(LegislativeAction.VOTING);
     if (error) return left(error);
-    
+
     this._voting?.end();
     this.advanceAction();
     return right(true);
   }
 
   get drawnLaws() {
-    return [
-      ...this._drawnLaws,
-    ];
+    return [...this._drawnLaws];
   }
 
   get lawToVote() {
@@ -133,5 +144,17 @@ export class LegislativeStage extends Stage {
 
   get votingHasEnded() {
     return this._voting?.hasEnded ?? null;
+  }
+
+  get mustVeto() {
+    return this._mustVeto;
+  }
+
+  get vetoableLaws() {
+    if (this._mustVeto === null) return this._drawnLaws;
+    if (this._drawnLaws.every((law) => law.type !== this._mustVeto)) {
+      return this.drawnLaws;
+    }
+    return this._drawnLaws.filter((law) => law.type === this._mustVeto);
   }
 }

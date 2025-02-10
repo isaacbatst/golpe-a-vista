@@ -4,7 +4,7 @@ enum CRISIS_NAMES {
   PLANO_COHEN = "PLANO_COHEN",
   // MENSALAO = "MENSALAO",
   CAFE_COM_A_ABIN = "CAFE_COM_A_ABIN",
-  OPERACAO_MAOS_LIMPAS = "OPERACAO_MAOS_LIMPAS",
+  // OPERACAO_MAOS_LIMPAS = "OPERACAO_MAOS_LIMPAS",
   O_FMI_MANDOU = "O_FMI_MANDOU",
   FORCAS_OCULTAS = "FORCAS_OCULTAS",
   // REGIME_DE_URGENCIA = "REGIME_DE_URGENCIA",
@@ -57,16 +57,16 @@ const CRISES: Record<
       "O Relator do Dossiê terá um encontro inesperado, ele não lembrará de nada. Em termos de jogo, ele não receberá o Dossiê.",
     visibleTo: [CrisisVisibleTo.RAPPORTEUR],
   },
-  OPERACAO_MAOS_LIMPAS: {
-    titles: [
-      "Operação Mãos Limpas",
-      "Caixa Preta da República",
-      "Relatório da Receita Federal",
-    ],
-    description:
-      "O Presidente recebe um relatório indicando qual foi a lei vetada na rodada anterior. 'A questão é: será que ele realmente tem provas?'",
-    visibleTo: [CrisisVisibleTo.PRESIDENT],
-  },
+  // OPERACAO_MAOS_LIMPAS: {
+  //   titles: [
+  //     "Operação Mãos Limpas",
+  //     "Caixa Preta da República",
+  //     "Relatório da Receita Federal",
+  //   ],
+  //   description:
+  //     "O Presidente recebe um relatório indicando qual foi a lei vetada na rodada anterior. 'A questão é: será que ele realmente tem provas?'",
+  //   visibleTo: [CrisisVisibleTo.PRESIDENT],
+  // },
   O_FMI_MANDOU: {
     titles: ["O FMI Mandou", "O Dolár Subiu", "A Bolsa Caiu"],
     description:

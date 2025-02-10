@@ -175,4 +175,44 @@ describe("Estágio Legislativo", () => {
 
     expect(stage.votingHasEnded).toBe(true);
   });
+
+  it("deve configurar veto obrigatório para um tipo de lei", () => {
+    const cards = Array.from({ length: 3 }, (_, i) => ({
+      description: `Lei ${i + 1}`,
+      type: i === 0 ? LawType.PROGRESSISTAS : LawType.CONSERVADORES,
+      name: `L${i + 1}`,
+    }));
+    const stage = new LegislativeStage(
+      makeLawsDeck(cards),
+      LawType.PROGRESSISTAS
+    );
+    stage.drawLaws();
+    stage.chooseLawForVoting(0);
+    expect(stage.mustVeto).toBe(LawType.PROGRESSISTAS);
+    expect(stage.vetoableLaws).toHaveLength(1);
+    expect(stage.vetoableLaws).toContainEqual(cards[0]);
+    const forbiddenIndex = stage.drawnLaws.findIndex(
+      (law) => law.type !== LawType.PROGRESSISTAS
+    );
+    const [error] = stage.vetoLaw(forbiddenIndex);
+    expect(error).toBe("Essa lei não pode ser vetada.");
+  });
+
+  it("deve permitir veto em outro tipo de lei se o tipo obrigatório não for sorteado", () => {
+    const cards = Array.from({ length: 3 }, (_, i) => ({
+      description: `Lei ${i + 1}`,
+      type: LawType.CONSERVADORES,
+      name: `L${i + 1}`,
+    }));
+    const stage = new LegislativeStage(
+      makeLawsDeck(cards),
+      LawType.PROGRESSISTAS
+    );
+    stage.drawLaws();
+    stage.chooseLawForVoting(0);
+    expect(stage.mustVeto).toBe(LawType.PROGRESSISTAS);
+    expect(stage.vetoableLaws).toHaveLength(3);
+    const [error] = stage.vetoLaw(0);
+    expect(error).toBeUndefined();
+  });
 });

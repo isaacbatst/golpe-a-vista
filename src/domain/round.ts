@@ -1,6 +1,7 @@
 import { Law } from "../data/laws";
 import { CafeComAAbin } from "./crisis/cafe-com-a-abin-crisis";
 import { Crisis } from "./crisis/crisis";
+import { FmiMandou } from "./crisis/fmi-mandou";
 import { PlanoCohenCrisis } from "./crisis/plano-cohen-crisis";
 import { Deck } from "./deck";
 import { Either, left, right } from "./either";
@@ -85,12 +86,12 @@ export class Round {
       return new ImpeachmentStage(this.president);
     }
 
-    return new LegislativeStage(this._lawsDeck);
+    return new LegislativeStage(this._lawsDeck, this.mustVeto);
   }
 
   private createNextStage(): Stage | null {
     if (this.currentStage instanceof ImpeachmentStage) {
-      return new LegislativeStage(this._lawsDeck);
+      return new LegislativeStage(this._lawsDeck, this.mustVeto);
     }
 
     if (this.currentStage instanceof LegislativeStage) {
@@ -252,5 +253,13 @@ export class Round {
 
   get rapporteurCanSeeDossier(): boolean {
     return !(this.crisis instanceof CafeComAAbin);
+  }
+
+  get mustVeto(): LawType | null {
+   if(this.crisis instanceof FmiMandou) {
+     return LawType.PROGRESSISTAS;
+   }
+
+    return null;
   }
 }
