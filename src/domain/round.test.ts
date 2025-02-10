@@ -9,6 +9,7 @@ import { ImpeachmentAction, ImpeachmentStage } from "./stage/impeachment-stage";
 import { LegislativeAction, LegislativeStage } from "./stage/legislative-stage";
 import { RadicalizationStage } from "./stage/radicalization-stage";
 import { SabotageAction, SabotageStage } from "./stage/sabotage-stage";
+import { CafeComAAbin } from "./crisis/cafe-com-a-abin-crisis";
 
 describe("Estágios", () => {
   it("Deve iniciar Estágio Legislativo", () => {
@@ -293,6 +294,19 @@ describe("Crises", () => {
   });
 
   describe("Café Com a ABIN", () => {
-    it("Não deve permitir que relator veja o dossiê", () => {});
+    it("Não deve permitir que relator veja o dossiê", () => {
+      const president = new Player("p1", Role.MODERADO);
+      const nextPresident = new Player("p2", Role.MODERADO);
+      const lawsDeck = makeLawsDeck();
+      const crisesDeck = makeCrisesDeck();
+      const round = new Round({
+        president,
+        nextPresident,
+        lawsDeck,
+        crisesDeck,
+        crisis: new CafeComAAbin(),
+      });
+      expect(round.rapporteurCanSeeDossier).toBe(false);
+    });
   });
 });

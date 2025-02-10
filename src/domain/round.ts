@@ -1,4 +1,5 @@
 import { Law } from "../data/laws";
+import { CafeComAAbin } from "./crisis/cafe-com-a-abin-crisis";
 import { Crisis } from "./crisis/crisis";
 import { PlanoCohenCrisis } from "./crisis/plano-cohen-crisis";
 import { Deck } from "./deck";
@@ -225,10 +226,6 @@ export class Round {
     return this._hasImpeachment;
   }
 
-  get fakeDossier(): boolean {
-    return this.crisis instanceof PlanoCohenCrisis;
-  }
-
   get drawnLaws(): Law[] {
     return this._stages
       .filter(
@@ -247,5 +244,13 @@ export class Round {
 
   get rapporteur(): Player | null {
     return this._rapporteur;
+  }
+
+  get fakeDossier(): boolean {
+    return this.crisis instanceof PlanoCohenCrisis;
+  }
+
+  get rapporteurCanSeeDossier(): boolean {
+    return !(this.crisis instanceof CafeComAAbin);
   }
 }
