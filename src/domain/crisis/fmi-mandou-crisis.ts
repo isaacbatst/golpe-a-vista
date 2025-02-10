@@ -1,7 +1,7 @@
 import CRISES from "../../data/crises";
 import { Crisis } from "./crisis";
 
-export class FmiMandou extends Crisis {
+export class FmiMandouCrisis extends Crisis {
   constructor(){
     super({
       description: CRISES.O_FMI_MANDOU.description,

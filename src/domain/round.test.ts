@@ -10,7 +10,8 @@ import { LegislativeAction, LegislativeStage } from "./stage/legislative-stage";
 import { RadicalizationStage } from "./stage/radicalization-stage";
 import { SabotageAction, SabotageStage } from "./stage/sabotage-stage";
 import { CafeComAAbin } from "./crisis/cafe-com-a-abin-crisis";
-import { FmiMandou } from "./crisis/fmi-mandou";
+import { FmiMandouCrisis } from "./crisis/fmi-mandou-crisis";
+import { ForcasOcultasCrisis } from "./crisis/forcas-ocultas-crisis";
 
 describe("Estágios", () => {
   it("Deve iniciar Estágio Legislativo", () => {
@@ -82,7 +83,9 @@ describe("Estágios", () => {
       nextPresident,
       lawsDeck,
       crisesDeck,
-      stages: [new LegislativeStage(lawsDeck, null, LegislativeAction.ADVANCE_STAGE)],
+      stages: [
+        new LegislativeStage(lawsDeck, null, LegislativeAction.ADVANCE_STAGE),
+      ],
     });
     const [error, stage] = round.nextStage();
     expect(error).toBeUndefined();
@@ -311,15 +314,18 @@ describe("Crises", () => {
     });
   });
 
-  describe("O FMI Mandou", () => {
+  describe.each([
+    { name: "FmiMandou", factory: () => new FmiMandouCrisis() },
+    { name: "ForcasOcultas", factory: () => new ForcasOcultasCrisis() },
+  ])("$name", ({ factory }) => {
     it("Deve ser obrigatório vetar uma lei progressista", () => {
       const president = new Player("p1", Role.MODERADO);
       const nextPresident = new Player("p2", Role.MODERADO);
-      const cards =  Array.from({ length: 3 }, (_, i) => ({
+      const cards = Array.from({ length: 3 }, (_, i) => ({
         description: `Lei ${i + 1}`,
         type: i === 0 ? LawType.PROGRESSISTAS : LawType.CONSERVADORES,
         name: `L${i + 1}`,
-      }))
+      }));
       const lawsDeck = makeLawsDeck(cards);
       const crisesDeck = makeCrisesDeck();
       const round = new Round({
@@ -327,7 +333,7 @@ describe("Crises", () => {
         nextPresident,
         lawsDeck,
         crisesDeck,
-        crisis: new FmiMandou(),
+        crisis: factory(),
       });
       expect(round.mustVeto).toBe(LawType.PROGRESSISTAS);
       expect(round.currentStage).toBeInstanceOf(LegislativeStage);

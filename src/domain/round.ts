@@ -1,7 +1,8 @@
 import { Law } from "../data/laws";
 import { CafeComAAbin } from "./crisis/cafe-com-a-abin-crisis";
 import { Crisis } from "./crisis/crisis";
-import { FmiMandou } from "./crisis/fmi-mandou";
+import { FmiMandouCrisis } from "./crisis/fmi-mandou-crisis";
+import { ForcasOcultasCrisis } from "./crisis/forcas-ocultas-crisis";
 import { PlanoCohenCrisis } from "./crisis/plano-cohen-crisis";
 import { Deck } from "./deck";
 import { Either, left, right } from "./either";
@@ -256,9 +257,12 @@ export class Round {
   }
 
   get mustVeto(): LawType | null {
-   if(this.crisis instanceof FmiMandou) {
-     return LawType.PROGRESSISTAS;
-   }
+    if (
+      this.crisis instanceof FmiMandouCrisis ||
+      this.crisis instanceof ForcasOcultasCrisis
+    ) {
+      return LawType.PROGRESSISTAS;
+    }
 
     return null;
   }
