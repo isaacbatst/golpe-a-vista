@@ -236,4 +236,16 @@ export class Round {
       )
       .flatMap((stage) => stage.drawnLaws);
   }
+
+  get nextRapporteur(): Player | null {
+    const dossierStage = this._stages.find(
+      (stage): stage is DossierStage => stage instanceof DossierStage
+    );
+
+    return dossierStage?.nextRapporteur ?? null;
+  }
+
+  get rapporteur(): Player | null {
+    return this._rapporteur;
+  }
 }

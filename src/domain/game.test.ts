@@ -11,6 +11,7 @@ import {
   RadicalizationStage,
 } from "./stage/radicalization-stage";
 import { SabotageStage } from "./stage/sabotage-stage";
+import { DossierStage } from "./stage/dossier-stage";
 
 describe("Rodadas", () => {
   it("não deve finalizar rodada se ainda houver estágios a serem jogados", () => {
@@ -50,6 +51,42 @@ describe("Rodadas", () => {
     const [errorNextRound] = game!.nextRound();
     expect(errorNextRound).toBeUndefined();
   });
+
+  it("deve iniciar a próxima rodada com Relator", () => {
+    const players = Game.createPlayers(["p1", "p2", "p3", "p4", "p5", "p6"]);
+    const crisesDeck = makeCrisesDeck();
+    const lawsDeck = makeLawsDeck();
+    const dossierStage = new DossierStage({
+      currentPresident: players[0],
+      nextPresident: players[1],
+      currentRapporteur: null,
+      lawsDeck,
+      drawnLaws: [],
+    })
+    dossierStage.chooseNextRapporteur(players[3]);
+    dossierStage.passDossier();
+    const [error, game] = Game.create({
+      players,
+      crisesDeck,
+      lawsDeck,
+      presidentQueue: [...players],
+      rounds: [
+        new Round({
+          crisesDeck,
+          lawsDeck,
+          president: players[0],
+          nextPresident: players[1],
+          stages: [dossierStage],
+        }),
+      ],
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+
+    const [errorNextRound] = game!.nextRound();
+    expect(errorNextRound).toBeUndefined();
+    expect(game!.currentRound!.rapporteur).toBe(players[3]);
+  })
 });
 
 describe("Distribuição de Papéis", () => {

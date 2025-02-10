@@ -140,6 +140,7 @@ export class Game {
       crisis: this.nextRoundCrisis,
       hasImpeachment: this.nextRoundShouldImpeach,
       nextPresident: this.getPresidentFromQueue(this._rounds.length + 1),
+      rapporteur: this.currentRound.nextRapporteur,
     });
 
     this._rounds.push(round);

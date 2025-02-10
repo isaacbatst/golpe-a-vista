@@ -245,8 +245,33 @@ describe("Estágios", () => {
       crisesDeck,
       stages: [sabotageStage],
     });
-    expect(round.sabotageCrisis).toBe(sabotageStage.selectedCrisis)
-  })
+    expect(round.sabotageCrisis).toBe(sabotageStage.selectedCrisis);
+  });
+
+  it("Deve retornar relator da próxima rodada", () => {
+    const president = new Player("p1", Role.MODERADO);
+    const nextPresident = new Player("p2", Role.MODERADO);
+    const lawsDeck = makeLawsDeck();
+    const crisesDeck = makeCrisesDeck();
+    const dossierStage = new DossierStage({
+      currentPresident: president,
+      nextPresident,
+      currentRapporteur: new Player("p3", Role.MODERADO),
+      drawnLaws: [],
+      lawsDeck,
+    });
+    const nextRapporteur = new Player("p4", Role.MODERADO);
+    dossierStage.chooseNextRapporteur(nextRapporteur);
+    const round = new Round({
+      president,
+      nextPresident,
+      lawsDeck,
+      crisesDeck,
+      stages: [dossierStage],
+      rapporteur: new Player("p3", Role.MODERADO),
+    });
+    expect(round.nextRapporteur).toBe(nextRapporteur);
+  });
 });
 
 describe("Crises", () => {
@@ -268,8 +293,6 @@ describe("Crises", () => {
   });
 
   describe("Café Com a ABIN", () => {
-    it("Não deve permitir que relator veja o dossiê", () => {
-
-    })
-  })
+    it("Não deve permitir que relator veja o dossiê", () => {});
+  });
 });
