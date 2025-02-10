@@ -12,6 +12,7 @@ import { SabotageAction, SabotageStage } from "./stage/sabotage-stage";
 import { CafeComAAbin } from "./crisis/cafe-com-a-abin-crisis";
 import { FmiMandouCrisis } from "./crisis/fmi-mandou-crisis";
 import { ForcasOcultasCrisis } from "./crisis/forcas-ocultas-crisis";
+import { SessaoSecretaCrisis } from "./crisis/sessao-secreta-crisis";
 
 describe("Estágios", () => {
   it("Deve iniciar Estágio Legislativo", () => {
@@ -315,8 +316,8 @@ describe("Crises", () => {
   });
 
   describe.each([
-    { name: "FmiMandou", factory: () => new FmiMandouCrisis() },
-    { name: "ForcasOcultas", factory: () => new ForcasOcultasCrisis() },
+    { name: "FMI Mandou", factory: () => new FmiMandouCrisis() },
+    { name: "Forças Ocultas", factory: () => new ForcasOcultasCrisis() },
   ])("$name", ({ factory }) => {
     it("Deve ser obrigatório vetar uma lei progressista", () => {
       const president = new Player("p1", Role.MODERADO);
@@ -341,4 +342,21 @@ describe("Crises", () => {
       expect(legislativeStage.mustVeto).toBe(LawType.PROGRESSISTAS);
     });
   });
+
+  describe('Sessão Secreta', () => {
+    it("Deve fazer votação legislativa secreta", () => {
+      const president = new Player("p1", Role.MODERADO);
+      const nextPresident = new Player("p2", Role.MODERADO);
+      const lawsDeck = makeLawsDeck();
+      const crisesDeck = makeCrisesDeck();
+      const round = new Round({
+        president,
+        nextPresident,
+        lawsDeck,
+        crisesDeck,
+        crisis: new SessaoSecretaCrisis(),
+      });
+      expect(round.secretLegislativeVoting).toBe(true);
+    })
+  })
 });

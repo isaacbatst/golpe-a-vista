@@ -8,7 +8,7 @@ enum CRISIS_NAMES {
   O_FMI_MANDOU = "O_FMI_MANDOU",
   FORCAS_OCULTAS = "FORCAS_OCULTAS",
   // REGIME_DE_URGENCIA = "REGIME_DE_URGENCIA",
-  // SESSEAO_SECRETA = "SESSEAO_SECRETA",
+  SESSAO_SECRETA = "SESSAO_SECRETA",
   // GOLPE_DE_ESTADO = "GOLPE_DE_ESTADO",
   // VAZAMENTO_NO_WIKILEAKS = "VAZAMENTO_NO_WIKILEAKS",
   // CONGRESSO_TRANCADO = "CONGRESSO_TRANCADO",
@@ -43,7 +43,7 @@ const CRISES: Record<
   //   titles: ["Mensalão", "Caixa 2", "Propina"],
   //   description:
   //     "O Presidente forçará um jogador a votar a favor da próxima lei. 'Democracia é bom, mas dinheiro é melhor.'",
-  //   type: [CrisisVisibleTo.PRESIDENT],
+  //   visibleTo: [CrisisVisibleTo.PRESIDENT],
   // },
   CAFE_COM_A_ABIN: {
     titles: [
@@ -90,14 +90,14 @@ const CRISES: Record<
   //   titles: ["Regime de Urgência", "Votação Relâmpago", "PEC da Madrugada"],
   //   description:
   //     "Um setor se articulou para apressar a votação e agora o Presidente deve vetar uma lei e escolher outra em 5 segundos, ou a primeira da pilha será aprovada. Os outros jogadores têm 5 segundos para votar, ou será aprovada automaticamente, já que 'os políticos trabalham rápido quando convém'.",
-  //   type: [CrisisVisibleTo.ALL],
+  //   visibleTo: [CrisisVisibleTo.ALL],
   // },
-  // SESSEAO_SECRETA: {
-  //   titles: ["Sessão Secreta", "O Que Os Olhos Não Veem..."],
-  //   description:
-  //     "A votação desta rodada é feita secretamente. 'Foi tudo resolvido em uma reunião discreta na calada da noite.'",
-  //   type: [CrisisVisibleTo.ALL],
-  // },
+  SESSAO_SECRETA: {
+    titles: ["Sessão Secreta", "O Que Os Olhos Não Veem..."],
+    description:
+      "A votação desta rodada é feita secretamente. 'Foi tudo resolvido em uma reunião discreta na calada da noite.'",
+    visibleTo: [CrisisVisibleTo.ALL],
+  },
   // GOLPE_DE_ESTADO: {
   //   titles: [
   //     "Golpe de Estado",
@@ -107,13 +107,13 @@ const CRISES: Record<
   //   ],
   //   description:
   //     "O presidente foi pego com a boca na butija, a presidencia é passada para o próximo jogador na ordem de jogo. 'Agora sim, o Brasil vai pra frente!'",
-  //   type: [CrisisVisibleTo.ALL],
+  //   visibleTo: [CrisisVisibleTo.ALL],
   // },
   // VAZAMENTO_NO_WIKILEAKS: {
   //   titles: ["Vazamento no WikiLeaks", "Snowden Contra-Ataca", "Vaza Jato"],
   //   description:
   //     "Uma cópia parcial do Dossiê foi disponibilizada na internet. Todos verão uma das cartas que não foi vetada. 'Bem-vindo à era da informação.'",
-  //   type: [CrisisVisibleTo.ALL],
+  //   visibleTo: [CrisisVisibleTo.ALL],
   // },
   // CONGRESSO_TRANCADO: {
   //   titles: [
@@ -123,7 +123,7 @@ const CRISES: Record<
   //   ],
   //   description:
   //     "O Presidente não pode vetar uma lei conservadora nesta rodada, pois a oposição trancou a pauta e quer empurrar a lei goela abaixo.'",
-  //   type: [CrisisVisibleTo.ALL],
+  //   visibleTo: [CrisisVisibleTo.ALL],
   // },
   // PEGADINHA_DO_PARAGRAFO_47_INCISO_V: {
   //   titles: [
@@ -133,55 +133,55 @@ const CRISES: Record<
   //   ],
   //   description:
   //     "A oposição conseguiu adicionar uma cláusula que torna a lei aprovada na rodada anterior inviável, ela é anulada. O burocrata responsável será punido com um cargo no ministério.",
-  //   type: [CrisisVisibleTo.ALL],
+  //   visibleTo: [CrisisVisibleTo.ALL],
   // },
   // VETO_DO_STF: {
   //   titles: ["Veto do STF", "Xandão Mandou", "São 3 Poderes, Não 2"],
   //   description:
   //     "O Supremo Tribunal Federal anulou a lei aprovada na rodada anterior. 'A justiça tarda, mas não falha.'",
-  //   type: [CrisisVisibleTo.ALL],
+  //   visibleTo: [CrisisVisibleTo.ALL],
   // },
   // DELACAO_PREMIADA: {
   //   titles: ["Delação Premiada", "Cagueta", "X9"],
   //   description:
   //     "O Presidente pode escolher um jogador para revelar sua facção para todos. 'A verdade é uma arma poderosa.'",
-  //   type: [CrisisVisibleTo.ALL],
+  //   visibleTo: [CrisisVisibleTo.ALL],
   // },
   // MENSAGEM_ANONIMA: {
   //   titles: ["Mensagem Anônima", "E-mail Anônimo", "Beijos, Anônimo"],
   //   description:
   //     "O Presidente recebe uma mensagem anônima com informações sobre um jogador. Ele pode revelar ou não. 'A verdade é uma faca de dois gumes.'",
-  //   type: [CrisisVisibleTo.PRESIDENT],
+  //   visibleTo: [CrisisVisibleTo.PRESIDENT],
   // },
   // TUITACO: {
   //   titles: ["Tuitaço", "Fake News", "Pablo Marçal"],
   //   description:
   //     "Alguém twittou um exame toxicológico falso do Presidente. O presidente não pode votar nesta rodada pois está ocupado gravando stories para se defender. 'A verdade é relativa.'",
-  //   type: [CrisisVisibleTo.ALL],
+  //   visibleTo: [CrisisVisibleTo.ALL],
   // },
   // RECONTAGEM_VOTOS: {
   //   titles: ["Recontagem de Votos", "Voto Impresso Já!", "Eleição Roubada"],
   //   description:
   //     "Os poderosos não gostaram do resultado da última votação e ao recontar os votos, um deles desapareceu misteriosamente. A lei aprovada na rodada anterior é anulada.",
-  //   type: [CrisisVisibleTo.ALL],
+  //   visibleTo: [CrisisVisibleTo.ALL],
   // },
   // CENSURA_ESTATAL: {
   //   titles: ["Censura Estatal", "Cala a Boca, Jornalista!"],
   //   description:
   //     "Um decreto emergencial proibiu certas informações de serem divulgadas. O Dossiê não pode ser passado nesta rodada. 'A verdade é perigosa.'",
-  //   type: [CrisisVisibleTo.PRESIDENT],
+  //   visibleTo: [CrisisVisibleTo.PRESIDENT],
   // },
   // PACOTE_DE_LEIS: {
   //   titles: ["Pacote de Leis", "O Centrão é Que Manda", "Toma Lá, Dá Cá"],
   //   description:
   //     "Se o presidente aprovar uma lei progressista, uma lei conservadora passará junto. 'A política é a arte do possível.'",
-  //   type: [CrisisVisibleTo.ALL],
+  //   visibleTo: [CrisisVisibleTo.ALL],
   // },
   // VOTO_DE_MINERVA: {
   //   titles: ["Voto de Minerva", "Canetada Suprema", "Poder ModeradJor", "A Mão Invisível (do Presidente)"],
   //   description:
   //     "Em caso de empate, o presidente decide o resultado da votação. 'A decisão final é minha.'",
-  //   type: [CrisisVisibleTo.ALL],
+  //   visibleTo: [CrisisVisibleTo.ALL],
   // },
   // FRAUDE_ELEITORAL: {
   //   titles: [
@@ -191,7 +191,7 @@ const CRISES: Record<
   //   ],
   //   description:
   //     "Os conservadores têm seus votos duplicados nesta rodada. 'A democracia parece melhor quando se tem dinheiro.'",
-  //   type: [CrisisVisibleTo.ALL],
+  //   visibleTo: [CrisisVisibleTo.ALL],
   // },
 };
 

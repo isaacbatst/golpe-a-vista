@@ -4,6 +4,7 @@ import { Crisis } from "./crisis/crisis";
 import { FmiMandouCrisis } from "./crisis/fmi-mandou-crisis";
 import { ForcasOcultasCrisis } from "./crisis/forcas-ocultas-crisis";
 import { PlanoCohenCrisis } from "./crisis/plano-cohen-crisis";
+import { SessaoSecretaCrisis } from "./crisis/sessao-secreta-crisis";
 import { Deck } from "./deck";
 import { Either, left, right } from "./either";
 import { Player } from "./player";
@@ -265,5 +266,9 @@ export class Round {
     }
 
     return null;
+  }
+
+  get secretLegislativeVoting(): boolean {
+    return this.crisis instanceof SessaoSecretaCrisis;
   }
 }
