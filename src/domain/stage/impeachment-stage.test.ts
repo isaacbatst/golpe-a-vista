@@ -28,11 +28,7 @@ describe("Estágio de Cassação", () => {
     expect(voteError1).toBeUndefined();
     const [voteError2] = stage.vote("p2", true);
     expect(voteError2).toBeUndefined();
-    const [endVotingError] = stage.endVoting();
-    expect(endVotingError).toBeUndefined();
-    expect(stage.currentAction).toBe(ImpeachmentAction.EXECUTION);
-    const [error] = stage.impeach();
-    expect(error).toBeUndefined();
+    expect(stage.currentAction).toBe(ImpeachmentAction.ADVANCE_STAGE);
     expect(stage.target!.impeached).toBe(true);
   });
 
@@ -61,27 +57,3 @@ describe("Estágio de Cassação", () => {
     );
   });
 });
-// describe("Cassação", () => {
-//   it("deve realizar votação de cassação", () => {
-//     const round = new Round({
-//       president: new Player("p1", Role.RADICAL),
-//       lawsDeck: makeLawsDeck(),
-//       crisesDeck: makeCrisesDeck(),
-//       hasImpeachment: true,
-//     });
-
-//     const target = new Player("p2", Role.MODERADO);
-//     const [error] = round.startImpeachment(target);
-//     expect(error).toBeUndefined();
-//     expect(round.impeachment).toBeDefined();
-//     const [startVotingError] = round.startImpeachmentVoting(["p1", "p2"]);
-//     expect(startVotingError).toBeUndefined();
-//     round.voteForImpeachment("p1", true);
-//     round.voteForImpeachment("p2", true);
-//     expect(round.impeachmentVotingCount).toEqual({
-//       yes: 2,
-//       no: 0,
-//       abstention: 0,
-//     });
-//   })
-// });

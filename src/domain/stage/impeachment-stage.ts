@@ -74,20 +74,18 @@ export class ImpeachmentStage extends Stage {
 
     if (!this._voting) return left("Votação não iniciada.");
 
-    this._voting.vote(player, approve);
+    const hasEnded = this._voting.vote(player, approve);
+
+    if(hasEnded) {
+      this.advanceAction();
+      return this.impeach();
+    }
+
     return right(this._voting.hasEnded);
   }
 
-  endVoting() {
-    const [error] = this.assertCurrentAction("VOTING");
-    if (error) return left(error);
 
-    this._voting?.end();
-    this.advanceAction();
-    return right();
-  }
-
-  impeach(): Either<string, void> {
+  impeach(): Either<string, boolean> {
     const [error] = this.assertCurrentAction("EXECUTION");
     if (error) return left(error);
     if (!this._voting && !this.shouldSkipVoting)
@@ -98,7 +96,7 @@ export class ImpeachmentStage extends Stage {
     }
 
     this.advanceAction();
-    return right();
+    return right(true);
   }
 
   get shouldSkipVoting() {

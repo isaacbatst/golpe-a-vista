@@ -1,11 +1,66 @@
 import { describe, expect, it } from "vitest";
+import { makeCrisesDeck, makeLawsDeck } from "./deck-factory";
 import { Game } from "./game";
-import { LawType, Role } from "./role";
+import { Role } from "./role";
+import { Round } from "./round";
+import { ImpeachmentStage } from "./stage/impeachment-stage";
+import { LegislativeStage } from "./stage/legislative-stage";
+import {
+  RadicalizationAction,
+  RadicalizationStage,
+} from "./stage/radicalization-stage";
+import { SabotageStage } from "./stage/sabotage-stage";
+import { Crisis, CrisisType } from "./crisis";
 
-describe("Distribuição de Papéis e Votação", () => {
-  it("deve distribuir jogadores aleatóriamente entre 1 radical, 3 moderados e 2 conservadores", () => {
+describe("Rodadas", () => {
+  it("não deve finalizar rodada se ainda houver estágios a serem jogados", () => {
+    const crisesDeck = makeCrisesDeck();
+    const lawsDeck = makeLawsDeck();
     const [error, game] = Game.create({
-      players: ["p1", "p2", "p3", "p4", "p5", "p6"],
+      players: Game.createPlayers(["p1", "p2", "p3", "p4", "p5", "p6"]),
+      crisesDeck,
+      lawsDeck,
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+    const [errorNextRound] = game!.nextRound();
+    expect(errorNextRound).toBe("A rodada atual não foi finalizada");
+  });
+
+  it("deve finalizar a rodada se todos os estágios foram jogados", () => {
+    const players = Game.createPlayers(["p1", "p2", "p3", "p4", "p5", "p6"]);
+    const crisesDeck = makeCrisesDeck();
+    const lawsDeck = makeLawsDeck();
+    const [error, game] = Game.create({
+      players,
+      crisesDeck,
+      lawsDeck,
+      rounds: [
+        new Round({
+          crisesDeck,
+          lawsDeck,
+          president: players[0],
+          nextPresident: players[1],
+          stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
+        }),
+      ],
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+    const [errorNextRound] = game!.nextRound();
+    expect(errorNextRound).toBeUndefined();
+  });
+});
+
+describe("Distribuição de Papéis", () => {
+  it("deve distribuir jogadores aleatóriamente entre 1 radical, 3 moderados e 2 conservadores", () => {
+    const crisesDeck = makeCrisesDeck();
+    const lawsDeck = makeLawsDeck();
+
+    const [error, game] = Game.create({
+      players: Game.createPlayers(["p1", "p2", "p3", "p4", "p5", "p6"]),
+      crisesDeck,
+      lawsDeck,
     });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
@@ -17,10 +72,181 @@ describe("Distribuição de Papéis e Votação", () => {
       game!.players.filter((p) => p.role === Role.CONSERVADOR).length
     ).toBe(2);
   });
+});
 
-  it("deve iniciar a primeira rodada com um jogador aleatório como presidente interino", () => {
+describe("Crises", () => {
+  it.each([2, 3, 4])(
+    "deve iniciar rodada com crise se moderado aprovar %dª lei progressita consecutiva",
+    (n) => {
+      const crisesDeck = makeCrisesDeck();
+      const lawsDeck = makeLawsDeck("progressive");
+      const playersNames = ["p1", "p2", "p3", "p4", "p5", "p6"];
+      const players = Game.createPlayers(
+        playersNames,
+        Array.from(
+          {
+            length: 6,
+          },
+          () => Role.MODERADO
+        )
+      );
+
+      const rounds = Array.from({ length: n }, () => {
+        const legislativeStage = new LegislativeStage(lawsDeck);
+        legislativeStage.drawLaws();
+        legislativeStage.vetoLaw(0);
+        legislativeStage.chooseLawForVoting(1);
+        legislativeStage.startVoting(playersNames);
+        for (const player of players) {
+          legislativeStage.vote(player.name, true);
+        }
+        return new Round({
+          crisesDeck,
+          lawsDeck,
+          president: players[0],
+          nextPresident: players[1],
+          stages: [
+            legislativeStage,
+            new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE),
+          ],
+        });
+      });
+
+      const [error, game] = Game.create({
+        players,
+        crisesDeck,
+        lawsDeck,
+        minProgressiveLawsToFearCrisis: n,
+        rounds,
+      });
+      expect(error).toBeUndefined();
+      expect(game).toBeDefined();
+      const [errorNextRound] = game!.nextRound();
+      expect(errorNextRound).toBeUndefined();
+      expect(game!.currentRound!.crisis).not.toBeNull();
+    }
+  );
+
+  it.each([2, 3, 4])(
+    "deve iniciar rodada com crise a cada %d leis rejeitadas",
+    (n: number) => {
+      const crisesDeck = makeCrisesDeck();
+      const lawsDeck = makeLawsDeck("progressive");
+
+      const rounds = Array.from({ length: n }, () => {
+        const legislativeStage = new LegislativeStage(lawsDeck);
+        legislativeStage.drawLaws();
+        legislativeStage.vetoLaw(0);
+        legislativeStage.chooseLawForVoting(1);
+        const playersNames = ["p1", "p2", "p3", "p4", "p5", "p6"];
+        const players = Game.createPlayers(playersNames);
+        legislativeStage.startVoting(playersNames);
+        for (const player of players) {
+          legislativeStage.vote(player.name, false);
+        }
+
+        return new Round({
+          crisesDeck,
+          lawsDeck,
+          president: players[0],
+          nextPresident: players[1],
+          stages: [
+            legislativeStage,
+            new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE),
+          ],
+        });
+      });
+
+      const [error, game] = Game.create({
+        players: Game.createPlayers(["p1", "p2", "p3", "p4", "p5", "p6"]),
+        crisesDeck,
+        lawsDeck,
+        rounds,
+        rejectedLawsIntervalToCrisis: n,
+      });
+      expect(error).toBeUndefined();
+      expect(game).toBeDefined();
+
+      const [errorNextRound] = game!.nextRound();
+      expect(errorNextRound).toBeUndefined();
+
+      expect(game!.currentRound!.crisis).not.toBeNull();
+    }
+  );
+
+  it("deve iniciar rodada com crise se ocorrer uma sabotagem", () => {
+    const crisesDeck = makeCrisesDeck();
+    const lawsDeck = makeLawsDeck("progressive");
+    const sabotageStage = new SabotageStage(crisesDeck);
+    sabotageStage.drawCrises();
+    sabotageStage.chooseSabotageCrisis(0);
+    const players = Game.createPlayers(["p1", "p2", "p3", "p4", "p5", "p6"]);
+    const rounds = [
+      new Round({
+        crisesDeck,
+        lawsDeck,
+        president: players[0],
+        nextPresident: players[1],
+        stages: [sabotageStage],
+      }),
+    ];
+
     const [error, game] = Game.create({
-      players: ["p1", "p2", "p3", "p4", "p5", "p6"],
+      players,
+      crisesDeck,
+      lawsDeck,
+      rounds,
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+    const [errorNextRound] = game!.nextRound();
+    expect(errorNextRound).toBeUndefined();
+    expect(game!.currentRound!.crisis).not.toBeNull();
+  });
+});
+
+describe("Cassações", () => {
+  it.each([2,3,4,])("Deve iniciar o round com Cassação a cada %d crises", (n) => {
+    const crisesDeck = makeCrisesDeck();
+    const lawsDeck = makeLawsDeck("progressive");
+    const playersNames = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const players = Game.createPlayers(playersNames);
+    const rounds = Array.from({ length: n }, () => {
+      return new Round({
+        crisesDeck,
+        lawsDeck,
+        stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
+        crisis: new Crisis(["Título"], "descrição", CrisisType.OCULTA),
+        president: players[0],
+        nextPresident: players[1],
+      });
+    });
+
+    const [error, game] = Game.create({
+      players,
+      crisesDeck,
+      lawsDeck,
+      rounds,
+      crisesIntervalToImpeach: n,
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+
+    const [errorNextRound] = game!.nextRound();
+    expect(errorNextRound).toBeUndefined();
+
+    expect(game!.currentRound!.hasImpeachment).toBe(true);
+  });
+});
+
+describe("Presidência", () => {
+  it("deve iniciar a primeira rodada com um jogador aleatório como presidente interino", () => {
+    const crisesDeck = makeCrisesDeck();
+    const lawsDeck = makeLawsDeck();
+    const [error, game] = Game.create({
+      players: Game.createPlayers(["p1", "p2", "p3", "p4", "p5", "p6"]),
+      crisesDeck,
+      lawsDeck,
     });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
@@ -29,599 +255,262 @@ describe("Distribuição de Papéis e Votação", () => {
   });
 
   it("deve iniciar a próxima rodada com o próximo jogador como presidente interino", () => {
+    const players = Game.createPlayers(["p1", "p2", "p3", "p4", "p5", "p6"]);
+    const crisesDeck = makeCrisesDeck();
+    const lawsDeck = makeLawsDeck();
     const [error, game] = Game.create({
-      players: ["p1", "p2", "p3", "p4", "p5", "p6"],
+      players,
+      crisesDeck,
+      lawsDeck,
+      presidentQueue: [...players],
+      rounds: [
+        new Round({
+          crisesDeck,
+          lawsDeck,
+          president: players[0],
+          nextPresident: players[1],
+          stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
+        }),
+      ],
     });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
-
     const firstPresident = game!.president;
-
-    game!.drawLaws();
-    game!.chooseLaw(0);
-    game!.startVoting();
-    const [endVotingError] = game!.endVoting();
-    expect(endVotingError).toBeUndefined();
-
-    game!.nextRound();
+    const [nextRoundError] = game!.nextRound();
+    expect(nextRoundError).toBeUndefined();
     expect(game!.currentRoundIndex).toBe(1);
     expect(game!.president).toBeDefined();
     expect(game!.president).not.toBe(firstPresident);
   });
-});
-
-describe("Relator do Dossiê", () => {
-  it("não deve permitir que escolha o presidente atual como Relator do dossiê", () => {
-    const [error, game] = Game.create({
-      players: ["p1", "p2", "p3", "p4", "p5", "p6"],
-    });
-    expect(error).toBeUndefined();
-    expect(game).toBeDefined();
-    const president = game!.president;
-    const [errorChooseDossierRapporteur] =
-      game!.chooseDossierRapporteur(president);
-    expect(errorChooseDossierRapporteur).toBe(
-      "O presidente não pode ser o relator"
-    );
-  });
-
-  it("não deve permitir que escolha o próximo presidente como Relator do dossiê", () => {
-    const [, game] = Game.create({
-      players: ["p1", "p2", "p3", "p4", "p5", "p6"],
-    });
-
-    const nextPresident = game!.getPresidentFromQueue(1);
-    const [errorChooseDossierRapporteur] =
-      game!.chooseDossierRapporteur(nextPresident);
-    expect(errorChooseDossierRapporteur).toBe(
-      "O próximo presidente não pode ser o relator"
-    );
-  });
-
-  it("não deve permitir que escolha o ex-Relator do dossiê como Relator do dossiê", () => {
-    const [error, game] = Game.create({
-      players: ["p1", "p2", "p3", "p4", "p5", "p6"],
-    });
-    expect(error).toBeUndefined();
-    expect(game).toBeDefined();
-    const firstRapporteur = game!.players.find(
-      (p) =>
-        p !== game!.president &&
-        p !== game?.getPresidentFromQueue(1) &&
-        p !== game?.getPresidentFromQueue(2)
-    );
-    game!.chooseDossierRapporteur(firstRapporteur!);
-    game!.nextRound();
-    const [errorChooseDossierRapporteur] = game!.chooseDossierRapporteur(
-      firstRapporteur!
-    );
-    expect(errorChooseDossierRapporteur).toBe(
-      "O relator não pode ser escolhido duas vezes seguidas"
-    );
-  });
-
-  it("deve permitir que escolha um jogador que não o presidente atual nem o próximo para ser o Relator do dossiê", () => {
-    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
-    const [error, game] = Game.create({
-      players,
-    });
-    expect(error).toBeUndefined();
-    expect(game).toBeDefined();
-    const president = game!.president;
-    const nextPresident = game!.getPresidentFromQueue(1);
-    const chosen = game!.players.find(
-      (p) => p !== president && p !== nextPresident
-    );
-    game!.chooseDossierRapporteur(chosen!);
-    game!.nextRound();
-    expect(game!.rapporteur).toBe(chosen);
-  });
-});
-
-describe("Crises", () => {
-  it("deve ativar crise a partir de X leis progressistas consecutivas, se aprovadas por um moderado", () => {
-    const approveLaw = (game: Game) => {
-      game.drawLaws();
-      game.chooseLaw(0);
-      game.startVoting();
-      for (const player of players) {
-        game.vote(player, true);
-      }
-      game.endVoting();
-      game.nextRound();
-    };
-    const progressiveLawsToCrises = 3;
-    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
-    const [error, game] = Game.create({
-      players,
-      laws: [
-        {
-          description: "Lei progressista 1",
-          type: LawType.PROGRESSISTAS,
-          name: "L1",
-        },
-        {
-          description: "Lei progressista 2",
-          type: LawType.PROGRESSISTAS,
-          name: "L2",
-        },
-      ],
-      roles: [
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-      ],
-      progressiveLawsToCrisis: progressiveLawsToCrises,
-    });
-    expect(error).toBeUndefined();
-    expect(game).toBeDefined();
-
-    for (let i = 1; i <= progressiveLawsToCrises * 2; i++) {
-      approveLaw(game!);
-      if (i >= progressiveLawsToCrises) {
-        expect(game!.currentRound!.crisis).not.toBeNull();
-      } else {
-        expect(game!.currentRound!.crisis).toBeNull();
-      }
-    }
-  });
-
-  it("deve iniciar a próxima rodada com crise se a lei for rejeitada", () => {
-    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
-    const [error, game] = Game.create({
-      players,
-      laws: [
-        {
-          description: "Lei progressista 1",
-          type: LawType.PROGRESSISTAS,
-          name: "L1",
-        },
-        {
-          description: "Lei progressista 2",
-          type: LawType.PROGRESSISTAS,
-          name: "L2",
-        },
-      ],
-      roles: [
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-      ],
-    });
-    expect(error).toBeUndefined();
-    expect(game).toBeDefined();
-    for (let i = 0; i < 2; i++) {
-      game!.drawLaws();
-      game!.chooseLaw(0);
-      game!.startVoting();
-      for (const player of players) {
-        game!.vote(player, false);
-      }
-      game!.endVoting();
-      game!.nextRound();
-    }
-    expect(game!.currentRound!.crisis).not.toBeNull();
-  });
-
-  it("deve permitir sabotagem se uma lei progressista foi aprovada nessa rodada", () => {
-    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
-    const [error, game] = Game.create({
-      players,
-      laws: [
-        {
-          description: "Lei progressista 1",
-          type: LawType.PROGRESSISTAS,
-          name: "L1",
-        },
-        {
-          description: "Lei progressista 2",
-          type: LawType.PROGRESSISTAS,
-          name: "L2",
-        },
-      ],
-      roles: [
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.CONSERVADOR,
-      ],
-    });
-    expect(error).toBeUndefined();
-    expect(game).toBeDefined();
-    game!.drawLaws();
-    game!.chooseLaw(0);
-    game!.startVoting();
-    for (const player of players) {
-      game!.vote(player, true);
-    }
-    game!.endVoting();
-    game!.sabotage();
-    game!.chooseSabotageCrisis(0);
-    game!.nextRound();
-    expect(game!.currentRound!.crisis).not.toBeNull();
-  });
-
-  it("não deve permitir sabotagem se a lei progressista ainda não foi aprovada nessa rodada", () => {
-    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
-    const [error, game] = Game.create({
-      players,
-      laws: [
-        {
-          description: "Lei progressista 1",
-          type: LawType.PROGRESSISTAS,
-          name: "L1",
-        },
-        {
-          description: "Lei progressista 2",
-          type: LawType.PROGRESSISTAS,
-          name: "L2",
-        },
-      ],
-      roles: [
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.CONSERVADOR,
-      ],
-    });
-    expect(error).toBeUndefined();
-    expect(game).toBeDefined();
-    game!.drawLaws();
-    game!.chooseLaw(0);
-    game!.startVoting();
-    const [sabotageError] = game!.sabotage();
-    expect(sabotageError).toBe("Não é possível sabotar uma lei que não foi aprovada");
-  });
-
-  it("não deve permitir sabotagens em duas rodadas consecutivas", () => {
-    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
-    const [error, game] = Game.create({
-      players,
-      laws: [
-        {
-          description: "Lei progressista 1",
-          type: LawType.PROGRESSISTAS,
-          name: "L1",
-        },
-        {
-          description: "Lei progressista 2",
-          type: LawType.PROGRESSISTAS,
-          name: "L2",
-        },
-      ],
-      roles: [
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.CONSERVADOR,
-      ],
-    });
-    expect(error).toBeUndefined();
-    expect(game).toBeDefined();
-    game!.drawLaws();
-    game!.chooseLaw(0);
-    game!.startVoting();
-    for (const player of players) {
-      game!.vote(player, true);
-    }
-    game!.endVoting();
-    game!.sabotage();
-    game!.chooseSabotageCrisis(0);
-    game!.nextRound();
-    game!.drawLaws();
-    game!.chooseLaw(0);
-    game!.startVoting();
-    for (const player of players) {
-      game!.vote(player, true);
-    }
-    game!.endVoting();
-    const [canSabotageError] = game!.canSabotage();
-    expect(canSabotageError).toBe("Não é possível sabotar duas vezes seguidas");
-  });
-});
-
-describe("Cassação", () => {
-  it("deve ativar cassação a partir da Xª lei conservadora somente se lei conservadora foi aprovada", () => {
-    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
-    const minConservativeLawsToImpeach = 5;
-    const [error, game] = Game.create({
-      players,
-      minConservativeLawsToImpeach: 5,
-      laws: Array.from({ length: 9 }, (_, i) => ({
-        description: `Lei conservadora ${i + 1}`,
-        type: LawType.CONSERVADORES,
-        name: `L${i + 1}`,
-      })),
-      roles: [
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-      ],
-    });
-
-    expect(error).toBeUndefined();
-    expect(game).toBeDefined();
-
-    for (let i = 0; i < minConservativeLawsToImpeach; i++) {
-      game!.drawLaws();
-      game!.chooseLaw(0);
-      game!.startVoting();
-      for (const player of players) {
-        game!.vote(player, true);
-      }
-      game!.endVoting();
-      expect(game!.currentRound!.hasImpeachment).toBe(false);
-      game!.nextRound();
-    }
-
-    expect(game!.currentRound!.hasImpeachment).toBe(true);
-  
-    game!.drawLaws();
-    game!.chooseLaw(0);
-    game!.startVoting();
-    for (const player of players) {
-      game!.vote(player, false);
-    }
-    game!.endVoting();
-    game!.nextRound();
-
-    expect(game!.currentRound!.hasImpeachment).toBe(false);
-  });
-
-  it("deve ativar cassação a cada X crises", () => {
-    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
-    const crisesIntervalToImpeach = 2;
-    const [error, game] = Game.create({
-      players,
-      laws: Array.from({ length: 10 }, (_, i) => ({
-        description: `Lei conservadora ${i + 1}`,
-        type: LawType.PROGRESSISTAS,
-        name: `L${i + 1}`,
-      })),
-      crisesIntervalToImpeach,
-      roles: [
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-        Role.MODERADO,
-      ],
-    });
-
-    expect(error).toBeUndefined();
-    expect(game).toBeDefined();
-
-    for (let i = 0; i < 4; i++) {
-      game!.drawLaws();
-      game!.chooseLaw(0);
-      game!.startVoting();
-      for (const player of players) {
-        game!.vote(player, true);
-      }
-      game!.endVoting();
-      game!.nextRound();
-    }
-
-    expect(game!.currentRound!.hasImpeachment).toBe(true);
-  })
-
   it("deve pular jogador cassado na fila de presidente", () => {
-    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const playersNames = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const players = Game.createPlayers(playersNames);
+    const crisesDeck = makeCrisesDeck();
+    const lawsDeck = makeLawsDeck();
     const [error, game] = Game.create({
       players,
-      laws: Array.from({ length: 9 }, (_, i) => ({
-        description: `Lei conservadora ${i + 1}`,
-        type: LawType.CONSERVADORES,
-        name: `L${i + 1}`,
-      })),
+      crisesDeck,
+      lawsDeck,
+      rounds: [
+        new Round({
+          crisesDeck,
+          lawsDeck,
+          president: players[0],
+          nextPresident: players[1],
+          hasImpeachment: true,
+        }),
+      ],
     });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
-
-    for (let i = 0; i < game!.minConservativeLawsToImpeach; i++) {
-      game!.drawLaws();
-      game!.chooseLaw(0);
-      game!.startVoting();
-      for (const player of players) {
-        game!.vote(player, true);
-      }
-      game!.endVoting();
-      game!.nextRound();
+    expect(game?.currentRound.currentStage).toBeInstanceOf(ImpeachmentStage);
+    const stage = game!.currentRound.currentStage as ImpeachmentStage;
+    const target = game!.players.find((p) => p !== game?.president);
+    stage.chooseTarget(target!);
+    stage.startVoting(playersNames);
+    for (const player of players) {
+      stage.vote(player.name, true);
     }
+    expect(target?.impeached).toBe(true);
 
-    const nextPresident = game!.getPresidentFromQueue(
-      game!.currentRoundIndex + 1
-    );
-    game!.impeach(nextPresident!);
-    game!.nextRound();
-
-    expect(game!.president).not.toBe(nextPresident);
+    for (let i = 0; i < players.length; i++) {
+      expect(game?.getPresidentFromQueue(i)).not.toBe(target);
+    }
   });
 
   it("não deve permitir jogador cassado como relator do dossiê", () => {
-    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const playersNames = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const players = Game.createPlayers(playersNames);
+    const crisesDeck = makeCrisesDeck();
+    const lawsDeck = makeLawsDeck();
     const [error, game] = Game.create({
       players,
-      laws: Array.from({ length: 9 }, (_, i) => ({
-        description: `Lei conservadora ${i + 1}`,
-        type: LawType.CONSERVADORES,
-        name: `L${i + 1}`,
-      })),
+      crisesDeck,
+      lawsDeck,
+      rounds: [
+        new Round({
+          crisesDeck,
+          lawsDeck,
+          president: players[0],
+          nextPresident: players[1],
+          hasImpeachment: true,
+        }),
+      ],
     });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
-
-    for (let i = 0; i < game!.minConservativeLawsToImpeach; i++) {
-      game!.drawLaws();
-      game!.chooseLaw(0);
-      game!.startVoting();
-      for (const player of players) {
-        game!.vote(player, true);
-      }
-      game!.endVoting();
-      game!.nextRound();
+    expect(game?.currentRound.currentStage).toBeInstanceOf(ImpeachmentStage);
+    const stage = game!.currentRound.currentStage as ImpeachmentStage;
+    const target = game!.players.find((p) => p !== game?.president);
+    stage.chooseTarget(target!);
+    stage.startVoting(playersNames);
+    for (const player of players) {
+      stage.vote(player.name, true);
     }
-
-    const nonPresident = game!.players.find((p) => p !== game!.president);
-    game!.impeach(nonPresident!);
-    const [chooseError] = game!.chooseDossierRapporteur(nonPresident!);
-    expect(chooseError).toBe("O relator não pode ter sido cassado");
+    expect(target?.impeached).toBe(true);
   });
 });
 
 describe("Condições de Vitória", () => {
-  it("deve declarar progressista vencedor se aprovar X leis progressistas", () => {
-    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
-    const [error, game] = Game.create({
-      players,
-      lawsToProgressiveWin: 1,
-      laws: [
+  it.each([6, 7, 8])(
+    "deve declarar moderados vencedores se aprovar %d leis progressistas",
+    (n) => {
+      const playersNames = ["p1", "p2", "p3", "p4", "p5", "p6"];
+      const players = Game.createPlayers(playersNames);
+      const lawsDeck = makeLawsDeck("progressive");
+      const crisesDeck = makeCrisesDeck();
+      const rounds = Array.from(
         {
-          description: "Lei progressista 1",
-          type: LawType.PROGRESSISTAS,
-          name: "L1",
+          length: n,
         },
-      ],
-    });
-    expect(error).toBeUndefined();
-    expect(game).toBeDefined();
-
-    for (let i = 0; i < 5; i++) {
-      game!.drawLaws();
-      game!.chooseLaw(0);
-      game!.startVoting();
-      for (const player of players) {
-        game!.vote(player, true);
-      }
-      game!.endVoting();
+        (_, i) => {
+          const legislativeStage = new LegislativeStage(lawsDeck);
+          legislativeStage.drawLaws();
+          legislativeStage.vetoLaw(0);
+          legislativeStage.chooseLawForVoting(1);
+          legislativeStage.startVoting(playersNames);
+          for (const player of players) {
+            legislativeStage.vote(player.name, true);
+          }
+          return new Round({
+            crisesDeck,
+            lawsDeck,
+            president: players[i % players.length],
+            nextPresident: players[i + (1 % players.length)],
+            stages: [legislativeStage],
+          });
+        }
+      );
+      const [error, game] = Game.create({
+        crisesDeck,
+        lawsDeck,
+        players,
+        lawsToProgressiveWin: n,
+        presidentQueue: [...players],
+        rounds,
+      });
+      expect(error).toBeUndefined();
+      expect(game).toBeDefined();
+      expect(game?.approvedLaws).toHaveLength(n);
+      expect(game!.winner).toBe(Role.MODERADO);
     }
+  );
 
-    expect(game!.winner).toBe(LawType.PROGRESSISTAS);
-  });
-
-  it("deve declarar conservador vencedor se aprovar X leis conservadoras", () => {
-    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
-    const [error, game] = Game.create({
-      players,
-      lawsToConservativeWin: 1,
-      laws: [
+  it.each([6, 7, 8])(
+    "deve declarar conservador vencedor se aprovar %d leis conservadoras",
+    (n) => {
+      const playersNames = ["p1", "p2", "p3", "p4", "p5", "p6"];
+      const players = Game.createPlayers(playersNames);
+      const lawsDeck = makeLawsDeck("conservative");
+      const crisesDeck = makeCrisesDeck();
+      const rounds = Array.from(
         {
-          description: "Lei conservadora 1",
-          type: LawType.CONSERVADORES,
-          name: "L1",
+          length: n,
         },
-      ],
-    });
-    expect(error).toBeUndefined();
-    expect(game).toBeDefined();
-
-    for (let i = 0; i < 5; i++) {
-      game!.drawLaws();
-      game!.chooseLaw(0);
-      game!.startVoting();
-      for (const player of players) {
-        game!.vote(player, true);
-      }
-      game!.endVoting();
+        (_, i) => {
+          const legislativeStage = new LegislativeStage(lawsDeck);
+          legislativeStage.drawLaws();
+          legislativeStage.vetoLaw(0);
+          legislativeStage.chooseLawForVoting(1);
+          legislativeStage.startVoting(playersNames);
+          for (const player of players) {
+            legislativeStage.vote(player.name, true);
+          }
+          return new Round({
+            crisesDeck,
+            lawsDeck,
+            president: players[i % players.length],
+            nextPresident: players[i + (1 % players.length)],
+            stages: [legislativeStage],
+          });
+        }
+      );
+      const [error, game] = Game.create({
+        crisesDeck,
+        lawsDeck,
+        players,
+        lawsToConservativeWin: n,
+        presidentQueue: [...players],
+        rounds,
+      });
+      expect(error).toBeUndefined();
+      expect(game).toBeDefined();
+      expect(game?.approvedLaws).toHaveLength(n);
+      expect(game!.winner).toBe(Role.CONSERVADOR);
     }
-
-    expect(game!.winner).toBe(LawType.CONSERVADORES);
-  });
+  );
 
   it("deve declarar conservador vencedor se cassar radical", () => {
-    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const playersNames = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const players = Game.createPlayers(playersNames);
+    const lawsDeck = makeLawsDeck("conservative");
+    const crisesDeck = makeCrisesDeck();
+    const radical = players.find((p) => p.role === Role.RADICAL)!;
+    const accuser = players.find((p) => p !== radical)!;
+    const impeachmentStage = new ImpeachmentStage(accuser);
+    impeachmentStage.chooseTarget(radical);
+    impeachmentStage.startVoting(playersNames);
+    for (const player of players) {
+      impeachmentStage.vote(player.name, true);
+    }
+    const rounds = [
+      new Round({
+        crisesDeck,
+        lawsDeck,
+        president: players[0],
+        nextPresident: players[1],
+        stages: [impeachmentStage],
+      }),
+    ];
     const [error, game] = Game.create({
+      crisesDeck,
+      lawsDeck,
       players,
-      laws: [
-        {
-          description: "Lei conservadora 1",
-          type: LawType.CONSERVADORES,
-          name: "L1",
-        },
-      ],
+      presidentQueue: [...players],
+      rounds,
     });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
+    expect(game!.winner).toBe(Role.CONSERVADOR);
+  });
 
-    for (let i = 0; i < game!.minConservativeLawsToImpeach; i++) {
-      game!.drawLaws();
-      game!.chooseLaw(0);
-      game!.startVoting();
+  it("deve declarar radical vencedor se cassar 2 conservadores", () => {
+    const playersNames = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const players = Game.createPlayers(playersNames);
+    const lawsDeck = makeLawsDeck("conservative");
+    const crisesDeck = makeCrisesDeck();
+    const conservatives = players.filter((p) => p.role === Role.CONSERVADOR);
+    const accuser = players.find((p) => p.role !== Role.CONSERVADOR)!;
+
+    const stages = conservatives.map((target) => {
+      const impeachmentStage = new ImpeachmentStage(accuser);
+      impeachmentStage.chooseTarget(target);
+      impeachmentStage.startVoting(playersNames);
       for (const player of players) {
-        game!.vote(player, true);
+        impeachmentStage.vote(player.name, true);
       }
-      game!.endVoting();
-      game!.nextRound();
-    }
+      return impeachmentStage;
+    });
 
-    const radical = game!.players.find((p) => p.role === Role.RADICAL);
-    const [impeachError] = game!.impeach(radical!);
-    expect(impeachError).toBeUndefined();
-    expect(game!.winner).toBe(LawType.CONSERVADORES);
-  })
-
-  it("deve declarar progressista vencedor se cassar todos os conservadores", () => {
-    const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
+    const rounds = [
+      new Round({
+        crisesDeck,
+        lawsDeck,
+        president: players[0],
+        nextPresident: players[1],
+        stages,
+      }),
+    ];
     const [error, game] = Game.create({
+      crisesDeck,
+      lawsDeck,
       players,
-      minConservativeLawsToImpeach: 2,
-      laws: [
-        {
-          description: "Lei conservadora 1",
-          type: LawType.CONSERVADORES,
-          name: "L1",
-        },
-      ],
+      conservativesImpeachedToRadicalWin: 2,
+      presidentQueue: [...players],
+      rounds,
     });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
-
-    for (let i = 0; i < game!.minConservativeLawsToImpeach; i++) {
-      game!.drawLaws();
-      game!.chooseLaw(0);
-      game!.startVoting();
-      for (const player of players) {
-        game!.vote(player, true);
-      }
-      game!.endVoting();
-      game!.nextRound();
-    }
-
-    const conservative = game!.players.find((p) => p.role === Role.CONSERVADOR);
-    const [impeachError] = game!.impeach(conservative!);
-    expect(impeachError).toBeUndefined();
-
-
-    for (let i = 0; i < game!.minConservativeLawsToImpeach; i++) {
-      game!.drawLaws();
-      game!.chooseLaw(0);
-      game!.startVoting();
-      for (const player of players) {
-        game!.vote(player, true);
-      }
-      game!.endVoting();
-      game!.nextRound();
-    }
-
-    const conservative2 = game!.players.find((p) => p.role === Role.CONSERVADOR && p !== conservative);
-    const [impeachError2] = game!.impeach(conservative2!);
-    expect(impeachError2).toBeUndefined();
-    expect(game!.winner).toBe(LawType.PROGRESSISTAS);
-  })
-})
+    expect(game!.winner).toBe(Role.RADICAL);
+  });
+});

@@ -23,12 +23,16 @@ export class Deck<T> {
   }
 
   draw(n = 1): T[] {
-    if(n > this._cards.length) {
+    if (n > this._cards.length) {
       this._cards = this._allCards;
       this.shuffle();
     }
 
     return this._cards.splice(0, n);
+  }
+
+  clone() {
+    return new Deck(this._allCards);
   }
 
   get size(): number {

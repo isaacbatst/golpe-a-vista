@@ -1,5 +1,4 @@
-import CRISES from "../data/crises";
-import { Law, LAWS } from "../data/laws";
+import { Law } from "../data/laws";
 import { Crisis } from "./crisis";
 import { Deck } from "./deck";
 import { Either, left, right } from "./either";
@@ -9,67 +8,74 @@ import { LawType, Role } from "./role";
 import { Round } from "./round";
 
 type GameParams = {
-  players: string[];
+  players: Player[];
   lawsToProgressiveWin?: number;
   lawsToConservativeWin?: number;
-  minConservativeLawsToImpeach?: number;
   crisesIntervalToImpeach?: number;
-  laws?: Law[];
-  roles?: Role[];
-  crises?: Crisis[];
-  progressiveLawsToCrisis?: number;
+  crisesDeck: Deck<Crisis>;
+  lawsDeck: Deck<Law>;
+  minProgressiveLawsToFearCrisis?: number;
+  rounds?: Round[];
+  rejectedLawsIntervalToCrisis?: number;
+  presidentQueue?: Player[];
+  conservativesImpeachedToRadicalWin?: number;
 };
 
 export class Game {
-  private static readonly ROLES_DISTRIBUTION = [
-    Role.RADICAL,
-    Role.MODERADO,
-    Role.MODERADO,
-    Role.MODERADO,
-    Role.CONSERVADOR,
-    Role.CONSERVADOR,
-  ];
+  static createPlayers(
+    players: string[],
+    roles: Role[] = Game.rolesByPlayersLength(players.length)
+  ): Player[] {
+    const rolesToDistribute = [...roles];
+    return players.map((playerName) => {
+      const role = Random.extractFromArray(rolesToDistribute);
+      return new Player(playerName, role);
+    });
+  }
+
+  static rolesByPlayersLength(length: number) {
+    const map: Record<number, Role[]> = {
+      6: [
+        Role.RADICAL,
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.MODERADO,
+        Role.CONSERVADOR,
+        Role.CONSERVADOR,
+      ],
+    };
+
+    const roles = map[length];
+    if (!roles) {
+      throw new Error("Quantidade de jogadores não suportada  ");
+    }
+    return roles;
+  }
 
   private _players: Player[] = [];
   private _lawsDeck: Deck<Law>;
-  private _approvedLaws: Law[] = [];
   private _lawsToProgressiveWin: number;
   private _lawsToConservativeWin: number;
-  private _minConservativeLawsToImpeach: number;
   private _crisesIntervalToImpeach: number;
   private _presidentQueue: Player[];
-  private _rounds: Round[] = [];
-  private _roles: Role[];
+  private _rounds: Round[];
   private _crisesDeck: Deck<Crisis>;
-  private _progressiveLawsToCrisis;
+  private _progressiveLawsToFear;
+  private _rejectedLawsIntervalToCrisis: number;
+  private _conservativesImpeachedToRadicalWin: number;
 
   static create(props: GameParams): Either<string, Game> {
     const {
       players,
-      laws,
-      crises,
-      roles = [...Game.ROLES_DISTRIBUTION],
+      lawsDeck,
+      crisesDeck,
       lawsToProgressiveWin = 6,
       lawsToConservativeWin = 7,
-      minConservativeLawsToImpeach = 5,
       crisesIntervalToImpeach = 3,
-      progressiveLawsToCrisis: progressiveLawsToCrisis = 2,
+      minProgressiveLawsToFearCrisis = 2,
+      rejectedLawsIntervalToCrisis = 2,
+      conservativesImpeachedToRadicalWin = 2,
     } = props;
-
-    const [errorLawsDeckCreate, lawsDeck] = Deck.create(laws ?? LAWS);
-    if (!lawsDeck) {
-      return left(errorLawsDeckCreate);
-    }
-    const [errorCrisesDeckCreate, crisesDeck] = Deck.create(
-      crises ??
-        Object.values(CRISES).map(
-          (crisis) => new Crisis(crisis.titles, crisis.description, crisis.type)
-        )
-    );
-
-    if (!crisesDeck) {
-      return left(errorCrisesDeckCreate);
-    }
 
     return right(
       new Game(
@@ -77,162 +83,67 @@ export class Game {
         lawsDeck,
         lawsToProgressiveWin,
         lawsToConservativeWin,
-        roles,
         crisesDeck,
-        minConservativeLawsToImpeach,
         crisesIntervalToImpeach,
-        progressiveLawsToCrisis
+        minProgressiveLawsToFearCrisis,
+        rejectedLawsIntervalToCrisis,
+        conservativesImpeachedToRadicalWin,
+        props.presidentQueue,
+        props.rounds
       )
     );
   }
 
   private constructor(
-    players: string[],
+    players: Player[],
     lawsDeck: Deck<Law>,
     lawsToProgressiveWin: number,
     lawsToConservativeWin: number,
-    roles: Role[],
     crisesDeck: Deck<Crisis>,
-    minConservativeLawsToImpeach: number,
     crisesIntervalToImpeach: number,
-    progressiveLawsIntervalToCrisis: number
+    progressiveLawsIntervalToCrisis: number,
+    rejectedLawsIntervalToCrisis: number,
+    conservativesImpeachedToRadicalWin: number,
+    presidentQueue?: Player[],
+    rounds?: Round[]
   ) {
-    players.forEach((playerName) => {
-      const role = Random.extractFromArray(roles);
-      const player = new Player(playerName, role);
-      this._players.push(player);
-    });
-    this._roles = roles;
+    this._players = players;
     this._lawsDeck = lawsDeck;
     this._lawsToProgressiveWin = lawsToProgressiveWin;
     this._lawsToConservativeWin = lawsToConservativeWin;
-    this._minConservativeLawsToImpeach = minConservativeLawsToImpeach;
     this._crisesIntervalToImpeach = crisesIntervalToImpeach;
-    this._presidentQueue = [...Random.sort(this._players)];
+    this._presidentQueue = presidentQueue ?? [...Random.sort(this._players)];
     this._crisesDeck = crisesDeck;
-    this._progressiveLawsToCrisis = progressiveLawsIntervalToCrisis;
-    this._rounds.push(
+    this._progressiveLawsToFear = progressiveLawsIntervalToCrisis;
+    this._rejectedLawsIntervalToCrisis = rejectedLawsIntervalToCrisis;
+    this._conservativesImpeachedToRadicalWin =
+      conservativesImpeachedToRadicalWin;
+    this._rounds = rounds ?? [
       new Round({
-        president: this._presidentQueue[0],
+        president: this.getPresidentFromQueue(0),
         lawsDeck: this._lawsDeck,
         crisesDeck: this._crisesDeck,
-      })
-    );
+        nextPresident: this.getPresidentFromQueue(1),
+      }),
+    ];
   }
 
-  nextRound() {
-    this._rounds.push(
-      new Round({
-        president: this.getPresidentFromQueue(this._rounds.length),
-        lawsDeck: this._lawsDeck,
-        crisesDeck: this._crisesDeck,
-        rapporteur: this.currentRound.nextRapporteur,
-        crisis: this.nextRoundCrisis,
-        hasImpeachment: this.nextRoundShouldImpeach,
-      })
-    );
-  }
-
-  drawLaws(): Law[] {
-    return this.currentRound.drawLaws();
-  }
-
-  chooseLaw(index: number) {
-    this.currentRound.chooseLaw(index);
-  }
-
-  startVoting() {
-    return this.currentRound.startLawVoting(
-      this._players.map((player) => player.name)
-    );
-  }
-
-  canVote(playerName: string) {
-    const player = this.players.find((player) => player.name === playerName);
-    return player ? !player.impeached : false;
-  }
-
-  vote(playerName: string, vote: boolean) {
-    if (!this.canVote(playerName)) {
-      return left("Jogador não pode votar");
-    }
-    return this.currentRound.voteForLaw(playerName, vote);
-  }
-
-  endVoting(): Either<string, boolean> {
-    const [error, law] = this.currentRound.endLawVoting();
-    if (error) {
-      return left(error);
+  nextRound(): Either<string, Round> {
+    if (!this.currentRound.finished) {
+      return left("A rodada atual não foi finalizada");
     }
 
-    if (law) {
-      this._approvedLaws.push(law);
-    } else {
-      this.currentRound.nextShouldHaveCrisisPerRejectedLaw = true;
-    }
+    const round = new Round({
+      president: this.getPresidentFromQueue(this._rounds.length),
+      lawsDeck: this._lawsDeck,
+      crisesDeck: this._crisesDeck,
+      crisis: this.nextRoundCrisis,
+      hasImpeachment: this.nextRoundShouldImpeach,
+      nextPresident: this.getPresidentFromQueue(this._rounds.length + 1),
+    });
 
-    return right(law !== null);
-  }
-
-  chooseDossierRapporteur(player: Player): Either<string, void> {
-    if (this.president === player) {
-      return left("O presidente não pode ser o relator");
-    }
-
-    const nextPresident = this.getPresidentFromQueue(
-      this.currentRoundIndex + 1
-    );
-    if (nextPresident === player) {
-      return left("O próximo presidente não pode ser o relator");
-    }
-
-    if (this.hasBeenRapporteur(player)) {
-      return left("O relator não pode ser escolhido duas vezes seguidas");
-    }
-
-    if (player.impeached) {
-      return left("O relator não pode ter sido cassado");
-    }
-
-    this.currentRound.setNextRapporteur(player);
-
-    return right();
-  }
-
-  canSabotage(): Either<string, boolean> {
-    const [canSabotageError] = this.currentRound.canSabotage();
-
-    if(canSabotageError) {
-      return left(canSabotageError);
-    }
-
-    if (this._rounds.length < 2) {
-      return this.currentRound.canSabotage();
-    }
-
-    const previousRound = this._rounds[this._rounds.length - 2];
-    if(previousRound.sabotageCrisis){
-      return left("Não é possível sabotar duas vezes seguidas");
-    }
-
-    return right(true);
-  }
-
-  sabotage() {
-    const [canSabotageError] = this.canSabotage();
-    if (canSabotageError) {
-      return left(canSabotageError);
-    }
-
-    return this.currentRound.sabotage();
-  }
-
-  chooseSabotageCrisis(index: number) {
-    return this.currentRound.chooseSabotageCrisis(index);
-  }
-
-  impeach(player: Player): Either<string, void> {
-    return this.currentRound.impeach(player);
+    this._rounds.push(round);
+    return right(round);
   }
 
   getPresidentFromQueue(round: number) {
@@ -242,19 +153,7 @@ export class Game {
   }
 
   get nextRoundShouldImpeach() {
-    const conservativeLaws = this._approvedLaws.filter(
-      (law) => law.type === LawType.CONSERVADORES
-    );
-
-    const hasApprovedConservativeLaw = Boolean(
-      this.currentRound.lawToVote?.type === LawType.CONSERVADORES &&
-        this.currentRound.votingResult
-    );
-
-    if (
-      conservativeLaws.length >= this._minConservativeLawsToImpeach &&
-      hasApprovedConservativeLaw
-    ) {
+    if (this.currentRound.hasApprovedLaw(LawType.CONSERVADORES)) {
       return true;
     }
 
@@ -270,7 +169,7 @@ export class Game {
     }
 
     if (
-      this.currentRound.nextShouldHaveCrisisPerRejectedLaw ||
+      this.nextShouldHaveCrisisPerRejectedLaws ||
       this.nextShouldHaveCrisisPerModerateFear
     ) {
       return this._crisesDeck.draw(1)[0];
@@ -279,49 +178,63 @@ export class Game {
     return null;
   }
 
-  get nextShouldHaveCrisisPerModerateFear() {
-    const lastLaws = this._approvedLaws.slice(-this._progressiveLawsToCrisis);
-    const areLastLawsProgressive = lastLaws.every(
-      (law) => law.type === LawType.PROGRESSISTAS
-    );
-
+  get nextShouldHaveCrisisPerRejectedLaws() {
     return (
-      lastLaws.length >= this._progressiveLawsToCrisis &&
-      areLastLawsProgressive &&
-      this.president.role === Role.MODERADO &&
-      this.currentRound.lawToVote?.type === LawType.PROGRESSISTAS &&
-      this.currentRound.votingResult
+      this.rejectedLaws > 0 &&
+      this.rejectedLaws % this._rejectedLawsIntervalToCrisis === 0
     );
   }
 
-  get hasProgressiveWon() {
-    const everyConservativeIsImpeached = this._players
-      .filter((player) => player.role === Role.CONSERVADOR)
-      .every((player) => player.impeached);
+  get nextShouldHaveCrisisPerModerateFear() {
+    const lastRounds = this._rounds.slice(-this._progressiveLawsToFear);
+    const lastRoundsApprovedProgressiveLaws = lastRounds.every((round) =>
+      round.hasApprovedLaw(LawType.PROGRESSISTAS)
+    );
+
     return (
-      this._approvedLaws.filter((law) => law.type === LawType.PROGRESSISTAS)
-        .length >= this._lawsToProgressiveWin || everyConservativeIsImpeached
+      this.president.role === Role.MODERADO &&
+      this.currentRound.hasApprovedLaw(LawType.PROGRESSISTAS) &&
+      lastRounds.length >= this._progressiveLawsToFear &&
+      lastRoundsApprovedProgressiveLaws
+    );
+  }
+
+  get hasModerateWon() {
+    return (
+      this.approvedLaws.filter((law) => law.type === LawType.PROGRESSISTAS)
+        .length >= this._lawsToProgressiveWin
     );
   }
 
   get hasConservativeWon() {
-    const everyRadicalIsImpeached = this._players
+    const areEveryRadicalImpeached = this._players
       .filter((player) => player.role === Role.RADICAL)
       .every((player) => player.impeached);
 
     return (
-      this._approvedLaws.filter((law) => law.type === LawType.CONSERVADORES)
-        .length >= this._lawsToConservativeWin || everyRadicalIsImpeached
+      this.approvedLaws.filter((law) => law.type === LawType.CONSERVADORES)
+        .length >= this._lawsToConservativeWin || areEveryRadicalImpeached
     );
   }
 
+  get hasRadicalWon() {
+    const impeachedConservatives = this._players.filter(
+      (player) => player.role === Role.CONSERVADOR && player.impeached
+    )
+    return impeachedConservatives.length >= this._conservativesImpeachedToRadicalWin
+  }
+
   get winner() {
-    if (this.hasProgressiveWon) {
-      return LawType.PROGRESSISTAS;
+    if (this.hasModerateWon) {
+      return Role.MODERADO;
     }
 
     if (this.hasConservativeWon) {
-      return LawType.CONSERVADORES;
+      return Role.CONSERVADOR;
+    }
+
+    if(this.hasRadicalWon){
+      return Role.RADICAL;
     }
 
     return null;
@@ -329,10 +242,6 @@ export class Game {
 
   get isFinished() {
     return Boolean(this.winner);
-  }
-
-  get roles() {
-    return [...this._roles];
   }
 
   get currentRound() {
@@ -343,12 +252,16 @@ export class Game {
     return this._rounds.length - 1;
   }
 
-  get votingHistory() {
-    return [...this._rounds.map((round) => round.voting)];
+  get approvedLaws() {
+    return this._rounds.flatMap((round) => round.approvedLaws);
   }
 
-  get approvedLaws() {
-    return [...this._approvedLaws];
+  get rejectedLaws() {
+    const previouslyRejected = this._rounds
+      .filter((round) => round !== this.currentRound)
+      .flatMap((round) => round.rejectedLaws).length;
+
+    return Number(this.currentRound.hasRejectedLaw) + previouslyRejected;
   }
 
   get president() {
@@ -363,19 +276,7 @@ export class Game {
     return [...this._players];
   }
 
-  get rapporteur() {
-    return this.currentRound.rapporteur;
-  }
-
-  get minConservativeLawsToImpeach() {
-    return this._minConservativeLawsToImpeach;
-  }
-
   get crisesIntervalToImpeach() {
     return this._crisesIntervalToImpeach;
-  }
-
-  private hasBeenRapporteur(player: Player): boolean {
-    return this._rounds.some((round) => round.rapporteur === player);
   }
 }

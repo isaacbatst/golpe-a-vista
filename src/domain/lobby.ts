@@ -1,3 +1,7 @@
+import CRISES from "../data/crises";
+import { Law, LAWS } from "../data/laws";
+import { Crisis } from "./crisis";
+import { Deck } from "./deck";
 import { Either, left, right } from "./either";
 import { Game } from "./game";
 
@@ -5,17 +9,29 @@ export class Lobby {
   private _players: string[] = [];
   private _games: Game[] = [];
 
-  private constructor() {}
+  private constructor(
+    private _crisesDeck: Deck<Crisis>,
+    private _lawsDeck: Deck<Law>
+  ) {}
 
-  static create(): Either<never, Lobby> {
-    return right(new Lobby());
+  static create(): Either<string, Lobby> {
+    const [lawsDeckError, lawsDeck] = Deck.create(LAWS);
+    if (!lawsDeck) return left(lawsDeckError);
+    const [crisesDeckError, crisesDeck] = Deck.create(
+      Object.values(CRISES).map(
+        (c) => new Crisis(c.titles, c.description, c.type)
+      )
+    );
+    if (!crisesDeck) return left(crisesDeckError);
+
+    return right(new Lobby(crisesDeck, lawsDeck));
   }
 
   addPlayer(player: string): Either<string, void> {
     if (this._players.includes(player)) {
       return left(`Jogador ${player} já está no lobby`);
     }
-    this._players.push(player); 
+    this._players.push(player);
     return right(undefined);
   }
 
@@ -25,7 +41,9 @@ export class Lobby {
     }
 
     const [error, game] = Game.create({
-      players: this._players,
+      players: Game.createPlayers(this._players),
+      crisesDeck: this._crisesDeck.clone(),
+      lawsDeck: this._lawsDeck.clone(),
     });
 
     if (!game) {

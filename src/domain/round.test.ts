@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import CRISES from "../data/crises";
-import { Law } from "../data/laws";
 import { Crisis, CrisisType } from "./crisis";
-import { Deck } from "./deck";
 import { Player } from "./player";
 import { LawType, Role } from "./role";
 import { Round } from "./round";
@@ -11,33 +8,7 @@ import { ImpeachmentAction, ImpeachmentStage } from "./stage/impeachment-stage";
 import { LegislativeAction, LegislativeStage } from "./stage/legislative-stage";
 import { RadicalizationStage } from "./stage/radicalization-stage";
 import { SabotageAction, SabotageStage } from "./stage/sabotage-stage";
-
-const makeCrisesDeck = () => {
-  const [error, deck] = Deck.create(
-    Object.values(CRISES).map(
-      (crisis) => new Crisis(crisis.titles, crisis.description, crisis.type)
-    )
-  );
-  if (!deck) {
-    throw new Error(error);
-  }
-  return deck;
-};
-
-const makeLawsDeck = (
-  laws: Law[] = [
-    { description: "Lei 1", type: LawType.CONSERVADORES, name: "L1" },
-    { description: "Lei 2", type: LawType.CONSERVADORES, name: "L2" },
-    { description: "Lei 3", type: LawType.CONSERVADORES, name: "L3" },
-    { description: "Lei 4", type: LawType.CONSERVADORES, name: "L4" },
-  ]
-) => {
-  const [error, deck] = Deck.create(laws);
-  if (!deck) {
-    throw new Error(error);
-  }
-  return deck;
-};
+import { makeCrisesDeck, makeLawsDeck } from "./deck-factory";
 
 describe("Round", () => {
   it("Deve iniciar Estágio Legislativo", () => {

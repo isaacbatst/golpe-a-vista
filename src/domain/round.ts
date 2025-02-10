@@ -149,12 +149,10 @@ export class Round {
     );
   }
 
-  private hasApprovedLaw(type: LawType): boolean {
+  hasApprovedLaw(type: LawType): boolean {
     const legislativeStages = this._stages.filter(
       (stage): stage is LegislativeStage => stage instanceof LegislativeStage
     );
-
-    console.log(legislativeStages);
 
     return legislativeStages.some(
       (stage) => stage.lawToVote?.type === type && stage.votingResult
@@ -169,7 +167,57 @@ export class Round {
     return this.createNextStage() === null;
   }
 
-  get nextShouldHaveCrisisPerRejectedLaw(): boolean {
-    return false;
+  get approvedLaws(): Law[] {
+    const legislativeStages = this._stages.filter(
+      (stage): stage is LegislativeStage => stage instanceof LegislativeStage
+    );
+
+    return legislativeStages
+      .filter(
+        (stage) => stage.isComplete && stage.votingResult && stage.lawToVote
+      )
+      .map((stage) => stage.lawToVote!);
+  }
+
+  get rejectedLaws(): Law[] {
+    const legislativeStages = this._stages.filter(
+      (stage): stage is LegislativeStage => stage instanceof LegislativeStage
+    );
+
+    return legislativeStages
+      .filter(
+        (stage) => stage.isComplete && !stage.votingResult && stage.lawToVote
+      )
+      .map((stage) => stage.lawToVote!);
+  }
+
+  get hasRejectedLaw(): boolean {
+    const legislativeStages = this._stages.filter(
+      (stage): stage is LegislativeStage => stage instanceof LegislativeStage
+    );
+
+    return legislativeStages.some(
+      (stage) => stage.isComplete && !stage.votingResult && stage.lawToVote
+    );
+  }
+
+  get sabotageCrisis(): Crisis | null {
+    const sabotageStage = this._stages.find(
+      (stage): stage is SabotageStage => stage instanceof SabotageStage
+    );
+
+    if (!sabotageStage) {
+      return null;
+    }
+
+    return sabotageStage.selectedCrisis;
+  }
+
+  get crisis(): Crisis | null {
+    return this._crisis;
+  }
+
+  get hasImpeachment(): boolean {
+    return this._hasImpeachment;
   }
 }

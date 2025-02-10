@@ -10,11 +10,11 @@ export enum RadicalizationAction {
 export class RadicalizationStage extends Stage {
   readonly type = StageType.RADICALIZATION;
 
-  constructor() {
+  constructor(currentAction?: RadicalizationAction) {
     super([
       RadicalizationAction.RADICALIZE,
       RadicalizationAction.ADVANCE_STAGE,
-    ]);
+    ], currentAction);
   }
 
   radicalize(target: Player): Either<string, boolean> {
