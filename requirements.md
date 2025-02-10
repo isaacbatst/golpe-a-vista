@@ -80,7 +80,7 @@ Crises são eventos adversos gerados pela situação instável que o país se en
 
 📌 Antes de finalizar a rodada, **o Presidente escolhe** quem **receberá um Dossiê no próximo turno**.  
 📌 O Presidente não pode escolher a si mesmo, um jogador que tenha recebido o Dossiê na rodada anterior ou o Presidente da rodada seguinte.
-📌 O jogador escolhido recebe **informação privilegiada** sobre as leis do Presidente atual, ele verá as leis sacadas pelo presidente, menos a lei vetada.  
+📌 O jogador escolhido recebe **informação privilegiada** sobre as leis do Presidente atual, ele verá as leis sacadas pelo presidente.  
 📌 O jogador pode **falar a verdade ou mentir** sobre o conteúdo do Dossiê.  
 
 ---

@@ -1,3 +1,5 @@
+import { Law } from "../../data/laws";
+import { Deck } from "../deck";
 import { Either, left, right } from "../either";
 import { Player } from "../player";
 import { Stage, StageType } from "./stage";
@@ -8,18 +10,38 @@ export enum DossierAction {
   ADVANCE_STAGE = "ADVANCE_STAGE",
 }
 
+type DossierStageParams = {
+  currentPresident: Player;
+  nextPresident: Player;
+  currentRapporteur: Player | null;
+  drawnLaws: Law[];
+  lawsDeck: Deck<Law>;
+  fakeDossier?: boolean;
+  currentAction?: DossierAction;
+};
+
 export class DossierStage extends Stage {
   readonly type = StageType.REPORT_DOSSIER;
   private _nextRapporteur: Player | null = null;
   private _isDossierVisibleToRapporteur = false;
+  private _currentPresident: Player;
+  private _nextPresident: Player;
+  private _currentRapporteur: Player | null;
+  private _drawnLaws: Law[];
+  private _lawsDeck: Deck<Law>;
+  private _fakeDossier: boolean;
 
-  constructor(
-    private _currentPresident: Player,
-    private _nextPresident: Player,
-    private _currentRapporteur: Player | null,
-    currentAction?: DossierAction,
-  ) {
-    super(["SELECT_RAPPORTEUR", "PASS_DOSSIER", "ADVANCE_STAGE"], currentAction);
+  constructor(params: DossierStageParams) {
+    super(
+      ["SELECT_RAPPORTEUR", "PASS_DOSSIER", "ADVANCE_STAGE"],
+      params.currentAction
+    );
+    this._currentPresident = params.currentPresident;
+    this._nextPresident = params.nextPresident;
+    this._currentRapporteur = params.currentRapporteur;
+    this._drawnLaws = params.drawnLaws;
+    this._lawsDeck = params.lawsDeck;
+    this._fakeDossier = params.fakeDossier ?? false;
   }
 
   chooseNextRapporteur(player: Player): Either<string, void> {
@@ -58,6 +80,14 @@ export class DossierStage extends Stage {
     this._isDossierVisibleToRapporteur = true;
     this.advanceAction();
     return right();
+  }
+
+  get dossier(): Law[] {
+    if (this._fakeDossier) {
+      return this._lawsDeck.show(3);
+    }
+
+    return this._drawnLaws;
   }
 
   get nextRapporteur(): Player | null {

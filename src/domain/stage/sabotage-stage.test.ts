@@ -1,15 +1,13 @@
 import { describe, expect, it } from "vitest";
 import CRISES from "../../data/crises";
 import { ActionController } from "../action-controller";
-import { Crisis } from "../crisis/crisis";
+import { PlanoCohenCrisis } from "../crisis/plano-cohen-crisis";
 import { Deck } from "../deck";
 import { SabotageAction, SabotageStage } from "./sabotage-stage";
 
 const makeCrisesDeck = () => {
   const [error, deck] = Deck.create(
-    Object.values(CRISES).map(
-      (crisis) => new Crisis(crisis.titles, crisis.description, crisis.type)
-    )
+    Object.values(CRISES).map(() => new PlanoCohenCrisis())
   );
   if (!deck) {
     throw new Error(error);

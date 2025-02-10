@@ -1,24 +1,36 @@
+import { ActionController } from "../action-controller";
 import { Random } from "../random";
 
 export enum CrisisVisibleTo {
   ALL = "ALL",
   PRESIDENT = "PRESIDENT",
-  RAPPORTEUR = "RAPPORTEUR"
+  RAPPORTEUR = "RAPPORTEUR",
 }
 
-export class Crisis {
-  private _description: string;
-  private _type: CrisisVisibleTo[];
-  private _title: string;
+type CrisisParams = {
+  titles: readonly string[];
+  description: string;
+  actions?: ("ADVANDCE_STAGE" | (string & {}))[];
+  currentAction?: string;
+  visibleTo?: CrisisVisibleTo[];
+  notVisibleTo?: CrisisVisibleTo[];
+};
 
-  constructor(
-    titles: readonly string[],
-    description: string,
-    visibleTo: CrisisVisibleTo[]
-  ) {
-    this._description = description;
-    this._type = visibleTo;
-    this._title = Random.getFromArray(titles);
+export abstract class Crisis {
+  private _description: string;
+  private _visibleTo: CrisisVisibleTo[];
+  private _notVisibleTo: CrisisVisibleTo[];
+  private _title: string;
+  protected _actionController: ActionController | null;
+
+  constructor(params: CrisisParams) {
+    this._description = params.description;
+    this._visibleTo = params.visibleTo ?? [];
+    this._notVisibleTo = params.notVisibleTo ?? [];
+    this._title = Random.getFromArray(params.titles);
+    this._actionController = params.actions
+      ? new ActionController(params.actions, params.currentAction)
+      : null;
   }
 
   get title(): string {
@@ -29,7 +41,19 @@ export class Crisis {
     return this._description;
   }
 
-  get type(): CrisisVisibleTo[] {
-    return this._type;
+  get visibleTo(): CrisisVisibleTo[] {
+    return this._visibleTo;
+  }
+
+  get notVisibleTo(): CrisisVisibleTo[] {
+    return this._notVisibleTo;
+  }
+
+  get currentAction(): string | null {
+    return this._actionController?.currentAction ?? null;
+  }
+
+  get isComplete(): boolean {
+    return this._actionController?.isComplete ?? true;
   }
 }

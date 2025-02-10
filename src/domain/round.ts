@@ -1,5 +1,6 @@
 import { Law } from "../data/laws";
 import { Crisis } from "./crisis/crisis";
+import { PlanoCohenCrisis } from "./crisis/plano-cohen-crisis";
 import { Deck } from "./deck";
 import { Either, left, right } from "./either";
 import { Player } from "./player";
@@ -28,8 +29,8 @@ type RoundParams = {
 };
 
 export class Round {
-  public isDossierVisibleToRapporteur = false;
   public readonly president: Player;
+
   private readonly _lawsDeck: Deck<Law>;
   private readonly _nextPresident: Player;
   private readonly _crisesDeck: Deck<Crisis>;
@@ -92,11 +93,14 @@ export class Round {
     }
 
     if (this.currentStage instanceof LegislativeStage) {
-      return new DossierStage(
-        this.president,
-        this._nextPresident,
-        this._rapporteur
-      );
+      return new DossierStage({
+        currentPresident: this.president,
+        currentRapporteur: this._rapporteur,
+        drawnLaws: this.currentStage.drawnLaws,
+        nextPresident: this._nextPresident,
+        fakeDossier: this.fakeDossier,
+        lawsDeck: this._lawsDeck,
+      });
     }
 
     if (
@@ -219,5 +223,17 @@ export class Round {
 
   get hasImpeachment(): boolean {
     return this._hasImpeachment;
+  }
+
+  get fakeDossier(): boolean {
+    return this.crisis instanceof PlanoCohenCrisis;
+  }
+
+  get drawnLaws(): Law[] {
+    return this._stages
+      .filter(
+        (stage): stage is LegislativeStage => stage instanceof LegislativeStage
+      )
+      .flatMap((stage) => stage.drawnLaws);
   }
 }

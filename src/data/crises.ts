@@ -1,17 +1,43 @@
 import { CrisisVisibleTo } from "../domain/crisis/crisis";
 
-const CRISES: {
-  [key: string]: {
+enum CRISIS_NAMES {
+  PLANO_COHEN = "PLANO_COHEN",
+  // MENSALAO = "MENSALAO",
+  CAFE_COM_A_ABIN = "CAFE_COM_A_ABIN",
+  OPERACAO_MAOS_LIMPAS = "OPERACAO_MAOS_LIMPAS",
+  O_FMI_MANDOU = "O_FMI_MANDOU",
+  FORCAS_OCULTAS = "FORCAS_OCULTAS",
+  // REGIME_DE_URGENCIA = "REGIME_DE_URGENCIA",
+  // SESSEAO_SECRETA = "SESSEAO_SECRETA",
+  // GOLPE_DE_ESTADO = "GOLPE_DE_ESTADO",
+  // VAZAMENTO_NO_WIKILEAKS = "VAZAMENTO_NO_WIKILEAKS",
+  // CONGRESSO_TRANCADO = "CONGRESSO_TRANCADO",
+  // PEGADINHA_DO_PARAGRAFO_47_INCISO_V = "PEGADINHA_DO_PARAGRAFO_47_INCISO_V",
+  // VETO_DO_STF = "VETO_DO_STF",
+  // DELACAO_PREMIADA = "DELACAO_PREMIADA",
+  // MENSAGEM_ANONIMA = "MENSAGEM_ANONIMA",
+  // TUITACO = "TUITACO",
+  // RECONTAGEM_VOTOS = "RECONTAGEM_VOTOS",
+  // CENSURA_ESTATAL = "CENSURA_ESTATAL",
+  // PACOTE_DE_LEIS = "PACOTE_DE_LEIS",
+  // VOTO_DE_MINERVA = "VOTO_DE_MINERVA",
+  // FRAUDE_ELEITORAL = "FRAUDE_ELEITORAL",
+}
+
+const CRISES: Record<
+  CRISIS_NAMES,
+  {
     titles: string[];
     description: string;
-    type: CrisisVisibleTo[];
-  };
-} = {
+    visibleTo?: CrisisVisibleTo[];
+    notVisibleTo?: CrisisVisibleTo[];
+  }
+> = {
   PLANO_COHEN: {
     titles: ["Plano Cohen", "Dossiê Fake do PCC", "Arquivo Secreto da CPI"],
     description:
       "O Presidente descobre que o Dossiê dessa rodada contém informação falsificada ou manipulada estrategicamente. 'A verdade é um campo de batalha.'",
-    type: [CrisisVisibleTo.PRESIDENT],
+    visibleTo: [CrisisVisibleTo.PRESIDENT],
   },
   // MENSALAO: {
   //   titles: ["Mensalão", "Caixa 2", "Propina"],
@@ -28,8 +54,8 @@ const CRISES: {
       "MIB",
     ],
     description:
-      "O jogador que receberia o Dossiê terá um encontro inesperado, ele não lembrará de nada. Em termos de jogo, ele não receberá o Dossiê.",
-    type: [CrisisVisibleTo.PRESIDENT],
+      "O Relator do Dossiê terá um encontro inesperado, ele não lembrará de nada. Em termos de jogo, ele não receberá o Dossiê.",
+    visibleTo: [CrisisVisibleTo.RAPPORTEUR],
   },
   OPERACAO_MAOS_LIMPAS: {
     titles: [
@@ -39,13 +65,13 @@ const CRISES: {
     ],
     description:
       "O Presidente recebe um relatório indicando qual foi a lei vetada na rodada anterior. 'A questão é: será que ele realmente tem provas?'",
-    type: [CrisisVisibleTo.PRESIDENT],
+    visibleTo: [CrisisVisibleTo.PRESIDENT],
   },
   O_FMI_MANDOU: {
     titles: ["O FMI Mandou", "O Dolár Subiu", "A Bolsa Caiu"],
     description:
       "O Presidente deve vetar uma lei progressista, se houver. Um famoso editorial disse que 'o mercado não gostou', e agora não há mais o que fazer.",
-    type: [CrisisVisibleTo.PRESIDENT],
+    visibleTo: [CrisisVisibleTo.PRESIDENT],
   },
   FORCAS_OCULTAS: {
     titles: [
@@ -58,7 +84,7 @@ const CRISES: {
     ],
     description:
       "O Presidente é obrigado a vetar uma lei progressista. 'Por motivos de força maior, a decisão foi tomada por nós.'",
-    type: [CrisisVisibleTo.PRESIDENT],
+    visibleTo: [CrisisVisibleTo.PRESIDENT],
   },
   // REGIME_DE_URGENCIA: {
   //   titles: ["Regime de Urgência", "Votação Relâmpago", "PEC da Madrugada"],
@@ -167,7 +193,6 @@ const CRISES: {
   //     "Os conservadores têm seus votos duplicados nesta rodada. 'A democracia parece melhor quando se tem dinheiro.'",
   //   type: [CrisisVisibleTo.ALL],
   // },
-} 
-
+};
 
 export default CRISES;

@@ -31,6 +31,10 @@ export class Deck<T> {
     return this._cards.splice(0, n);
   }
 
+  show(n = 1): T[] {
+    return this._cards.slice(0, n);
+  }
+
   clone() {
     return new Deck(this._allCards);
   }

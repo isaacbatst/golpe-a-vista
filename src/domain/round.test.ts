@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { Crisis, CrisisVisibleTo } from "./crisis/crisis";
+import { PlanoCohenCrisis } from "./crisis/plano-cohen-crisis";
+import { makeCrisesDeck, makeLawsDeck } from "./deck-factory";
 import { Player } from "./player";
 import { LawType, Role } from "./role";
 import { Round } from "./round";
@@ -8,9 +9,8 @@ import { ImpeachmentAction, ImpeachmentStage } from "./stage/impeachment-stage";
 import { LegislativeAction, LegislativeStage } from "./stage/legislative-stage";
 import { RadicalizationStage } from "./stage/radicalization-stage";
 import { SabotageAction, SabotageStage } from "./stage/sabotage-stage";
-import { makeCrisesDeck, makeLawsDeck } from "./deck-factory";
 
-describe("Round", () => {
+describe("Estágios", () => {
   it("Deve iniciar Estágio Legislativo", () => {
     const president = new Player("p1", Role.MODERADO);
     const nextPresident = new Player("p2", Role.MODERADO);
@@ -98,12 +98,14 @@ describe("Round", () => {
       lawsDeck,
       crisesDeck,
       stages: [
-        new DossierStage(
-          president,
+        new DossierStage({
+          currentPresident: president,
           nextPresident,
-          null,
-          DossierAction.ADVANCE_STAGE
-        ),
+          currentRapporteur: null,
+          drawnLaws: [],
+          currentAction: DossierAction.ADVANCE_STAGE,
+          lawsDeck,
+        }),
       ],
     });
     const [error, stage] = round.nextStage();
@@ -145,12 +147,14 @@ describe("Round", () => {
       crisesDeck,
       stages: [
         legislativeStage,
-        new DossierStage(
-          president,
+        new DossierStage({
+          currentPresident: president,
           nextPresident,
-          null,
-          DossierAction.ADVANCE_STAGE
-        ),
+          currentRapporteur: null,
+          drawnLaws: [],
+          currentAction: DossierAction.ADVANCE_STAGE,
+          lawsDeck,
+        }),
       ],
       hasLastRoundBeenSabotaged: false,
     });
@@ -179,15 +183,17 @@ describe("Round", () => {
       minRadicalizationProgressiveLaws: 2,
       previouslyApprovedConservativeLaws: 2,
       previouslyApprovedProgressiveLaws: 2,
-      crisis: new Crisis(["Crise 1"], "Descrição da crise", [CrisisVisibleTo.ALL]),
+      crisis: new PlanoCohenCrisis(),
       stages: [
         new LegislativeStage(lawsDeck, LegislativeAction.ADVANCE_STAGE),
-        new DossierStage(
-          president,
+        new DossierStage({
+          currentPresident: president,
           nextPresident,
-          null,
-          DossierAction.ADVANCE_STAGE
-        ),
+          currentRapporteur: null,
+          drawnLaws: [],
+          currentAction: DossierAction.ADVANCE_STAGE,
+          lawsDeck,
+        }),
       ],
     });
     const [error, stage] = round.nextStage();
@@ -215,12 +221,31 @@ describe("Round", () => {
       minRadicalizationProgressiveLaws: 2,
       previouslyApprovedConservativeLaws: 2,
       previouslyApprovedProgressiveLaws: 2,
-      crisis: new Crisis(["Crise 1"], "Descrição da crise", [CrisisVisibleTo.ALL]),
+      crisis: new PlanoCohenCrisis(),
       stages: [new SabotageStage(crisesDeck, SabotageAction.ADVANCE_STAGE)],
       hasLastRoundBeenSabotaged: true,
     });
     const [error, stage] = round.nextStage();
     expect(error).toBeUndefined();
     expect(stage).toBeInstanceOf(RadicalizationStage);
+  });
+});
+
+describe("Crises", () => {
+  describe("Plano Cohen", () => {
+    it("Deve gerar dossiê falso para o relator", () => {
+      const president = new Player("p1", Role.MODERADO);
+      const nextPresident = new Player("p2", Role.MODERADO);
+      const lawsDeck = makeLawsDeck();
+      const crisesDeck = makeCrisesDeck();
+      const round = new Round({
+        president,
+        nextPresident,
+        lawsDeck,
+        crisesDeck,
+        crisis: new PlanoCohenCrisis(),
+      });
+      expect(round.fakeDossier).toBe(true);
+    });
   });
 });

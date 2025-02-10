@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { PlanoCohenCrisis } from "./crisis/plano-cohen-crisis";
 import { makeCrisesDeck, makeLawsDeck } from "./deck-factory";
 import { Game } from "./game";
 import { Role } from "./role";
@@ -10,7 +11,6 @@ import {
   RadicalizationStage,
 } from "./stage/radicalization-stage";
 import { SabotageStage } from "./stage/sabotage-stage";
-import { Crisis, CrisisVisibleTo } from "./crisis/crisis";
 
 describe("Rodadas", () => {
   it("não deve finalizar rodada se ainda houver estágios a serem jogados", () => {
@@ -216,7 +216,7 @@ describe("Cassações", () => {
         crisesDeck,
         lawsDeck,
         stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
-        crisis: new Crisis(["Título"], "descrição", [CrisisVisibleTo.PRESIDENT]),
+        crisis: new PlanoCohenCrisis(),
         president: players[0],
         nextPresident: players[1],
       });
