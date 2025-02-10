@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
+import { ActionController } from "../action-controller";
+import { Player } from "../player";
+import { Role } from "../role";
 import {
   RadicalizationAction,
   RadicalizationStage,
 } from "./radicalization-stage";
-import { Player } from "../player";
-import { Role } from "../role";
-import { Stage } from "./stage";
 
 describe("Estágio de Radicalização", () => {
   it("deve radicalizar um alvo", () => {
@@ -21,7 +21,7 @@ describe("Estágio de Radicalização", () => {
     stage.radicalize(target);
     const [error] = stage.radicalize(target);
     expect(error).toBe(
-      Stage.unexpectedActionMessage(
+      ActionController.unexpectedActionMessage(
         RadicalizationAction.RADICALIZE,
         RadicalizationAction.ADVANCE_STAGE
       )

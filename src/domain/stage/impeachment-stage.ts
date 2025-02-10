@@ -38,7 +38,7 @@ export class ImpeachmentStage extends Stage {
     this._target = target;
 
     if (this.shouldSkipVoting) {
-      this._currentAction = ImpeachmentAction.EXECUTION;
+      this.actionController.currentAction = ImpeachmentAction.EXECUTION;
     } else {
       this.advanceAction();
     }

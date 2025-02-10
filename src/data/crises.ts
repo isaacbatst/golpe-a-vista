@@ -14,12 +14,12 @@ const CRISES: {
       "O Presidente descobre que o Dossiê dessa rodada contém informação falsificada ou manipulada estrategicamente. 'A verdade é um campo de batalha.'",
     type: [CrisisVisibleTo.PRESIDENT],
   },
-  MENSALAO: {
-    titles: ["Mensalão", "Caixa 2", "Propina"],
-    description:
-      "O Presidente forçará um jogador a votar a favor da próxima lei. 'Democracia é bom, mas dinheiro é melhor.'",
-    type: [CrisisVisibleTo.PRESIDENT],
-  },
+  // MENSALAO: {
+  //   titles: ["Mensalão", "Caixa 2", "Propina"],
+  //   description:
+  //     "O Presidente forçará um jogador a votar a favor da próxima lei. 'Democracia é bom, mas dinheiro é melhor.'",
+  //   type: [CrisisVisibleTo.PRESIDENT],
+  // },
   CAFE_COM_A_ABIN: {
     titles: [
       "Café com a ABIN",
@@ -39,28 +39,28 @@ const CRISES: {
       "Relatório da Receita Federal",
     ],
     description:
-      "O Presidente recebe um relatório indicando qual foi a lei vetada. 'A questão é: será que ele realmente tem provas?'",
+      "O Presidente recebe um relatório indicando qual foi a lei vetada na rodada anterior. 'A questão é: será que ele realmente tem provas?'",
     type: [CrisisVisibleTo.PRESIDENT],
   },
   O_FMI_MANDOU: {
     titles: ["O FMI Mandou", "O Dolár Subiu", "A Bolsa Caiu"],
     description:
-      "O Presidente deve vetar uma lei progressista, se possível. Um famoso editorial disse que 'o mercado não gostou', e agora não há mais o que fazer.",
+      "O Presidente deve vetar uma lei progressista, se houver. Um famoso editorial disse que 'o mercado não gostou', e agora não há mais o que fazer.",
     type: [CrisisVisibleTo.PRESIDENT],
   },
-  // FORCAS_OCULTAS: {
-  //   titles: [
-  //     "Forças Ocultas",
-  //     "Illuminati Confirmed",
-  //     "Os Rothschild Intervêm",
-  //     "Reptilianos dão as caras",
-  //     "Nova Ordem Mundial Contra-Ataca!",
-  //     "Anunnaki na Área",
-  //   ],
-  //   description:
-  //     "O Presidente é obrigado a vetar uma lei progressista. 'Por motivos de força maior, a decisão foi tomada por nós.'",
-  //   type: [CrisisVisibleTo.PRESIDENT],
-  // },
+  FORCAS_OCULTAS: {
+    titles: [
+      "Forças Ocultas",
+      "Illuminati Confirmed",
+      "Os Rothschild Intervêm",
+      "Reptilianos dão as caras",
+      "Nova Ordem Mundial Contra-Ataca!",
+      "Anunnaki na Área",
+    ],
+    description:
+      "O Presidente é obrigado a vetar uma lei progressista. 'Por motivos de força maior, a decisão foi tomada por nós.'",
+    type: [CrisisVisibleTo.PRESIDENT],
+  },
   // REGIME_DE_URGENCIA: {
   //   titles: ["Regime de Urgência", "Votação Relâmpago", "PEC da Madrugada"],
   //   description:

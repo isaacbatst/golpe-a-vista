@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { Law } from "../../data/laws";
+import { ActionController } from "../action-controller";
 import { Deck } from "../deck";
 import { LawType } from "../role";
 import { LegislativeAction, LegislativeStage } from "./legislative-stage";
-import { Stage } from "./stage";
 
 const makeLawsDeck = (
   laws: Law[] = [
@@ -26,7 +26,7 @@ describe("Estágio Legislativo", () => {
     stage.drawLaws();
     expect(stage.drawnLaws).toHaveLength(3);
   });
-  
+
   it("deve vetar uma das leis", () => {
     const stage = new LegislativeStage(makeLawsDeck());
     const [, laws] = stage.drawLaws();
@@ -35,7 +35,7 @@ describe("Estágio Legislativo", () => {
     const law = laws![0];
     expect(stage.vetoedLaw).toBe(law);
   });
-  
+
   it("não deve escolher uma das leis vetadas", () => {
     const stage = new LegislativeStage(makeLawsDeck());
     stage.drawLaws();
@@ -43,7 +43,7 @@ describe("Estágio Legislativo", () => {
     const [error] = stage.chooseLawForVoting(0);
     expect(error).toBe("Essa lei foi vetada.");
   });
-  
+
   it("deve escolher uma das leis para votação", () => {
     const stage = new LegislativeStage(makeLawsDeck());
     const [, laws] = stage.drawLaws();
@@ -53,18 +53,18 @@ describe("Estágio Legislativo", () => {
     stage.chooseLawForVoting(0);
     expect(stage.lawToVote).toBe(law);
   });
-  
+
   it("não deve iniciar votação sem escolher uma lei", () => {
     const stage = new LegislativeStage(makeLawsDeck());
     const [error] = stage.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
     expect(error).toBe(
-      Stage.unexpectedActionMessage(
+      ActionController.unexpectedActionMessage(
         LegislativeAction.START_VOTING,
         LegislativeAction.DRAW_LAWS
       )
     );
   });
-  
+
   it("não deve iniciar votação duas vezes", () => {
     const stage = new LegislativeStage(makeLawsDeck());
     stage.drawLaws();
@@ -73,20 +73,20 @@ describe("Estágio Legislativo", () => {
     stage.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
     const [error] = stage.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
     expect(error).toBe(
-      Stage.unexpectedActionMessage(
+      ActionController.unexpectedActionMessage(
         LegislativeAction.START_VOTING,
         LegislativeAction.VOTING
       )
     );
   });
-  
+
   it("deve realizar a votação rejeitando a lei sem maioria", () => {
     const stage = new LegislativeStage(makeLawsDeck());
     stage.drawLaws();
     stage.vetoLaw(1);
     stage.chooseLawForVoting(0);
     stage.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
-  
+
     const [error1] = stage.vote("p1", true);
     expect(error1).toBeUndefined();
     const [error2] = stage.vote("p2", true);
@@ -97,7 +97,7 @@ describe("Estágio Legislativo", () => {
     expect(error4).toBeUndefined();
     const [error5] = stage.vote("p5", false);
     expect(error5).toBeUndefined();
-  
+
     expect(stage.votingCount).toEqual({
       yes: 3,
       no: 2,
@@ -111,19 +111,19 @@ describe("Estágio Legislativo", () => {
     expect(votes!.get("p4")).toBe(false);
     expect(votes!.get("p5")).toBe(false);
     expect(votes!.get("p6")).toBeNull();
-  
+
     const [error] = stage.endVoting();
     expect(error).toBeUndefined();
     expect(stage.votingResult).toBeFalsy();
   });
-  
+
   it("deve realizar a votação aprovando a lei com maioria", () => {
     const stage = new LegislativeStage(makeLawsDeck());
     stage.drawLaws();
     stage.vetoLaw(1);
     stage.chooseLawForVoting(0);
     stage.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
-  
+
     const [error1] = stage.vote("p1", true);
     expect(error1).toBeUndefined();
     const [error2] = stage.vote("p2", true);
@@ -134,7 +134,7 @@ describe("Estágio Legislativo", () => {
     expect(error4).toBeUndefined();
     const [error5] = stage.vote("p5", false);
     expect(error5).toBeUndefined();
-  
+
     expect(stage.votingCount).toEqual({
       yes: 4,
       no: 1,
@@ -147,19 +147,19 @@ describe("Estágio Legislativo", () => {
     expect(votes!.get("p3")).toBe(true);
     expect(votes!.get("p4")).toBe(true);
     expect(votes!.get("p5")).toBe(false);
-  
+
     const [error] = stage.endVoting();
     expect(error).toBeUndefined();
     expect(stage.votingResult).toBeTruthy();
-  })
-  
+  });
+
   it("deve finalizar votação automaticamente com todos os votos", () => {
     const stage = new LegislativeStage(makeLawsDeck());
     stage.drawLaws();
     stage.vetoLaw(1);
     stage.chooseLawForVoting(0);
     stage.startVoting(["p1", "p2", "p3", "p4", "p5", "p6"]);
-  
+
     const [error1] = stage.vote("p1", true);
     expect(error1).toBeUndefined();
     const [error2] = stage.vote("p2", true);
@@ -172,7 +172,7 @@ describe("Estágio Legislativo", () => {
     expect(error5).toBeUndefined();
     const [error6] = stage.vote("p6", true);
     expect(error6).toBeUndefined();
-  
+
     expect(stage.votingHasEnded).toBe(true);
-  })
-})
+  });
+});

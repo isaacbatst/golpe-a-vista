@@ -1,4 +1,5 @@
-import { Either, left, right } from "../either";
+import { ActionController } from "../action-controller";
+import { Either } from "../either";
 
 export enum StageType {
   LEGISLATIVE = "LEGISLATIVE",
@@ -10,36 +11,26 @@ export enum StageType {
 }
 
 export abstract class Stage {
-  static unexpectedActionMessage(unexpected: string, expected: string): string {
-    return `Ação inválida: ${unexpected}. Ação esperada: ${expected}.`;
-  }
-
   abstract readonly type: StageType;
-  protected _currentAction: string;
-  private _actions: string[];
+  protected actionController: ActionController;
 
-  constructor(actions: string[], currentAction: string = actions[0]) {
-    this._actions = actions;
-    this._currentAction = currentAction;
+  constructor(actions: string[], currentAction?: string) {
+    this.actionController = new ActionController(actions, currentAction);
   }
 
   get currentAction(): string {
-    return this._currentAction;
+    return this.actionController.currentAction;
   }
 
   protected assertCurrentAction(action: string): Either<string, void> {
-    if (this._currentAction !== action) {
-      return left(Stage.unexpectedActionMessage(action, this._currentAction));
-    }
-    return right();
+    return this.actionController.assertCurrentAction(action);
   }
 
   protected advanceAction(): void {
-    const currentIndex = this._actions.indexOf(this._currentAction);
-    this._currentAction = this._actions[currentIndex + 1] ?? this._actions[this._actions.length - 1];
+    this.actionController.advanceAction();
   }
 
   get isComplete(): boolean {
-    return this._currentAction === this._actions[this._actions.length - 1];
+    return this.actionController.isComplete;
   }
 }

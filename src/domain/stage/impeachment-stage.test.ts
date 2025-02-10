@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { ImpeachmentAction, ImpeachmentStage } from "./impeachment-stage";
+import { ActionController } from "../action-controller";
 import { Player } from "../player";
 import { Role } from "../role";
-import { Stage } from "./stage";
+import { ImpeachmentAction, ImpeachmentStage } from "./impeachment-stage";
 
 describe("Estágio de Cassação", () => {
   it("deve escolher o alvo", () => {
@@ -50,7 +50,7 @@ describe("Estágio de Cassação", () => {
 
     const [error] = stage.startVoting(["p1", "p2"]);
     expect(error).toBe(
-      Stage.unexpectedActionMessage(
+      ActionController.unexpectedActionMessage(
         ImpeachmentAction.START_VOTING,
         ImpeachmentAction.EXECUTION
       )
