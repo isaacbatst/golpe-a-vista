@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Crisis, CrisisType } from "./crisis";
+import { Crisis, CrisisVisibleTo } from "./crisis";
 import { Player } from "./player";
 import { LawType, Role } from "./role";
 import { Round } from "./round";
@@ -179,7 +179,7 @@ describe("Round", () => {
       minRadicalizationProgressiveLaws: 2,
       previouslyApprovedConservativeLaws: 2,
       previouslyApprovedProgressiveLaws: 2,
-      crisis: new Crisis(["Crise 1"], "Descrição da crise", CrisisType.PUBLICA),
+      crisis: new Crisis(["Crise 1"], "Descrição da crise", [CrisisVisibleTo.ALL]),
       stages: [
         new LegislativeStage(lawsDeck, LegislativeAction.ADVANCE_STAGE),
         new DossierStage(
@@ -215,7 +215,7 @@ describe("Round", () => {
       minRadicalizationProgressiveLaws: 2,
       previouslyApprovedConservativeLaws: 2,
       previouslyApprovedProgressiveLaws: 2,
-      crisis: new Crisis(["Crise 1"], "Descrição da crise", CrisisType.PUBLICA),
+      crisis: new Crisis(["Crise 1"], "Descrição da crise", [CrisisVisibleTo.ALL]),
       stages: [new SabotageStage(crisesDeck, SabotageAction.ADVANCE_STAGE)],
       hasLastRoundBeenSabotaged: true,
     });

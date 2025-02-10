@@ -1,22 +1,23 @@
 import { Random } from "./random";
 
-export enum CrisisType {
-  PUBLICA = "Pública",
-  OCULTA = "Oculta",
+export enum CrisisVisibleTo {
+  ALL = "ALL",
+  PRESIDENT = "PRESIDENT",
+  RAPPORTEUR = "RAPPORTEUR"
 }
 
 export class Crisis {
   private _description: string;
-  private _type: CrisisType;
+  private _type: CrisisVisibleTo[];
   private _title: string;
 
   constructor(
     titles: readonly string[],
     description: string,
-    type: CrisisType
+    visibleTo: CrisisVisibleTo[]
   ) {
     this._description = description;
-    this._type = type;
+    this._type = visibleTo;
     this._title = Random.getFromArray(titles);
   }
 
@@ -28,7 +29,7 @@ export class Crisis {
     return this._description;
   }
 
-  get type(): CrisisType {
+  get type(): CrisisVisibleTo[] {
     return this._type;
   }
 }

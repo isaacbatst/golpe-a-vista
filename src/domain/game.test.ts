@@ -10,7 +10,7 @@ import {
   RadicalizationStage,
 } from "./stage/radicalization-stage";
 import { SabotageStage } from "./stage/sabotage-stage";
-import { Crisis, CrisisType } from "./crisis";
+import { Crisis, CrisisVisibleTo } from "./crisis";
 
 describe("Rodadas", () => {
   it("não deve finalizar rodada se ainda houver estágios a serem jogados", () => {
@@ -216,7 +216,7 @@ describe("Cassações", () => {
         crisesDeck,
         lawsDeck,
         stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
-        crisis: new Crisis(["Título"], "descrição", CrisisType.OCULTA),
+        crisis: new Crisis(["Título"], "descrição", [CrisisVisibleTo.PRESIDENT]),
         president: players[0],
         nextPresident: players[1],
       });
