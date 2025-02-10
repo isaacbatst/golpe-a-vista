@@ -25,6 +25,12 @@ export class ActionController {
     return this.currentAction === this._actions[this._actions.length - 1];
   }
 
+  get actions(): string[] {
+    return [
+      ...this._actions
+    ]
+  }
+
   static unexpectedActionMessage(unexpected: string, expected: string): string {
     return `Ação inválida: ${unexpected}. Ação esperada: ${expected}.`;
   }

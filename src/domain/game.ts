@@ -136,6 +136,13 @@ export class Game {
       return left("A rodada atual não foi finalizada");
     }
 
+    let nextPresident = this._presidentQueue.getByRoundNumber(this._rounds.length);
+
+    while(nextPresident.impeached){
+      this._presidentQueue.shift();
+      nextPresident = this._presidentQueue.getByRoundNumber(this._rounds.length);
+    }
+
     const round = new Round({
       president: this.getPresidentFromQueue(this._rounds.length),
       lawsDeck: this._lawsDeck,

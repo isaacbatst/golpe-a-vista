@@ -1,5 +1,6 @@
 import { ActionController } from "../action-controller";
 import { Random } from "../random";
+import { Round } from "../round";
 
 export enum CrisisVisibleTo {
   ALL = "ALL",
@@ -33,6 +34,8 @@ export abstract class Crisis {
       : null;
   }
 
+  abstract effect(round: Round): void;
+
   get title(): string {
     return this._title;
   }
@@ -55,5 +58,9 @@ export abstract class Crisis {
 
   get isComplete(): boolean {
     return this._actionController?.isComplete ?? true;
+  }
+
+  get actions(): readonly string[] | null {
+    return this._actionController?.actions ?? null;
   }
 }

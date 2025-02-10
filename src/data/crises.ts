@@ -9,7 +9,7 @@ enum CRISIS_NAMES {
   FORCAS_OCULTAS = "FORCAS_OCULTAS",
   // REGIME_DE_URGENCIA = "REGIME_DE_URGENCIA",
   SESSAO_SECRETA = "SESSAO_SECRETA",
-  // GOLPE_DE_ESTADO = "GOLPE_DE_ESTADO",
+  GOLPE_DE_ESTADO = "GOLPE_DE_ESTADO",
   // VAZAMENTO_NO_WIKILEAKS = "VAZAMENTO_NO_WIKILEAKS",
   // CONGRESSO_TRANCADO = "CONGRESSO_TRANCADO",
   // PEGADINHA_DO_PARAGRAFO_47_INCISO_V = "PEGADINHA_DO_PARAGRAFO_47_INCISO_V",
@@ -36,7 +36,7 @@ const CRISES: Record<
   PLANO_COHEN: {
     titles: ["Plano Cohen", "Dossiê Fake do PCC", "Arquivo Secreto da CPI"],
     description:
-      "O Presidente descobre que o Dossiê dessa rodada contém informação falsificada ou manipulada estrategicamente. 'A verdade é um campo de batalha.'",
+      "O Presidente descobre que o Dossiê dessa rodada contém informação falsificada. 'A verdade é um campo de batalha.'",
     visibleTo: [CrisisVisibleTo.PRESIDENT],
   },
   // MENSALAO: {
@@ -98,17 +98,17 @@ const CRISES: Record<
       "A votação desta rodada é feita secretamente. 'Foi tudo resolvido em uma reunião discreta na calada da noite.'",
     visibleTo: [CrisisVisibleTo.ALL],
   },
-  // GOLPE_DE_ESTADO: {
-  //   titles: [
-  //     "Golpe de Estado",
-  //     "Pedalada Fiscal",
-  //     "Tudo por um Fiat Elba...",
-  //     "Lava Jato",
-  //   ],
-  //   description:
-  //     "O presidente foi pego com a boca na butija, a presidencia é passada para o próximo jogador na ordem de jogo. 'Agora sim, o Brasil vai pra frente!'",
-  //   visibleTo: [CrisisVisibleTo.ALL],
-  // },
+  GOLPE_DE_ESTADO: {
+    titles: [
+      "Golpe de Estado",
+      "Pedalada Fiscal",
+      "Tudo por um Fiat Elba...",
+      "Lava Jato",
+    ],
+    description:
+      "O presidente foi pego com a boca na butija, a presidencia é passada para o próximo jogador na ordem de jogo. 'Agora sim, o Brasil vai pra frente!'",
+    visibleTo: [CrisisVisibleTo.ALL],
+  },
   // VAZAMENTO_NO_WIKILEAKS: {
   //   titles: ["Vazamento no WikiLeaks", "Snowden Contra-Ataca", "Vaza Jato"],
   //   description:

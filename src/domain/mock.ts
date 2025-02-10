@@ -1,12 +1,14 @@
 import CRISES from "../data/crises";
 import { Law } from "../data/laws";
-import { PlanoCohenCrisis } from "./crisis/plano-cohen-crisis";
+import { PlanoCohen } from "./crisis/plano-cohen";
 import { Deck } from "./deck";
-import { LawType } from "./role";
+import { Player } from "./player";
+import { LawType, Role } from "./role";
+import { Round, RoundParams } from "./round";
 
 export const makeCrisesDeck = () => {
   const [error, deck] = Deck.create(
-    Object.values(CRISES).map(() => new PlanoCohenCrisis())
+    Object.values(CRISES).map(() => new PlanoCohen())
   );
   if (!deck) {
     throw new Error(error);
@@ -42,4 +44,14 @@ export const makeLawsDeck = (
     throw new Error(error);
   }
   return deck;
+};
+
+export const makeRound = (params: Partial<RoundParams> = {}) => {
+  return new Round({
+    ...params,
+    president: params.president ?? new Player("President", Role.CONSERVADOR),
+    nextPresident: params.nextPresident ?? new Player("Next President", Role.CONSERVADOR),
+    lawsDeck: params.lawsDeck ?? makeLawsDeck(),
+    crisesDeck: params.crisesDeck ?? makeCrisesDeck(),
+  });
 };

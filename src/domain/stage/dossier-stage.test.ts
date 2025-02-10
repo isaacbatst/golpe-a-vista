@@ -3,7 +3,7 @@ import { DossierStage } from "./dossier-stage";
 import { Player } from "../player";
 import { LawType, Role } from "../role";
 import { Law } from "../../data/laws";
-import { makeLawsDeck } from "../deck-factory";
+import { makeLawsDeck } from "../mock";
 
 describe("Estágio do Dossiê", () => {
   it("deve escolher o relator da próxima rodada", () => {

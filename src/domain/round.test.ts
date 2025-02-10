@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { PlanoCohenCrisis } from "./crisis/plano-cohen-crisis";
-import { makeCrisesDeck, makeLawsDeck } from "./deck-factory";
+import { PlanoCohen } from "./crisis/plano-cohen";
+import { makeCrisesDeck, makeLawsDeck } from "./mock";
 import { Player } from "./player";
 import { LawType, Role } from "./role";
 import { Round } from "./round";
@@ -9,10 +9,11 @@ import { ImpeachmentAction, ImpeachmentStage } from "./stage/impeachment-stage";
 import { LegislativeAction, LegislativeStage } from "./stage/legislative-stage";
 import { RadicalizationStage } from "./stage/radicalization-stage";
 import { SabotageAction, SabotageStage } from "./stage/sabotage-stage";
-import { CafeComAAbin } from "./crisis/cafe-com-a-abin-crisis";
-import { FmiMandouCrisis } from "./crisis/fmi-mandou-crisis";
-import { ForcasOcultasCrisis } from "./crisis/forcas-ocultas-crisis";
-import { SessaoSecretaCrisis } from "./crisis/sessao-secreta-crisis";
+import { CafeComAbin } from "./crisis/cafe-com-abin";
+import { FmiMandou } from "./crisis/fmi-mandou";
+import { ForcasOcultas } from "./crisis/forcas-ocultas";
+import { SessaoSecreta } from "./crisis/sessao-secreta";
+import { CrisisStage } from "./stage/crisis-stage";
 
 describe("Estágios", () => {
   it("Deve iniciar Estágio Legislativo", () => {
@@ -85,7 +86,10 @@ describe("Estágios", () => {
       lawsDeck,
       crisesDeck,
       stages: [
-        new LegislativeStage(lawsDeck, null, LegislativeAction.ADVANCE_STAGE),
+        new LegislativeStage({
+          lawsDeck,
+          currentAction: LegislativeAction.ADVANCE_STAGE,
+        }),
       ],
     });
     const [error, stage] = round.nextStage();
@@ -132,7 +136,9 @@ describe("Estágios", () => {
     );
     const crisesDeck = makeCrisesDeck();
     const players = ["p1", "p2", "p3", "p4", "p5", "p6"];
-    const legislativeStage = new LegislativeStage(lawsDeck);
+    const legislativeStage = new LegislativeStage({
+      lawsDeck,
+    });
     const [drawLawsError] = legislativeStage.drawLaws();
     expect(drawLawsError).toBeUndefined();
     const [vetoLawError] = legislativeStage.vetoLaw(0);
@@ -189,9 +195,13 @@ describe("Estágios", () => {
       minRadicalizationProgressiveLaws: 2,
       previouslyApprovedConservativeLaws: 2,
       previouslyApprovedProgressiveLaws: 2,
-      crisis: new PlanoCohenCrisis(),
+      crisis: new PlanoCohen(),
       stages: [
-        new LegislativeStage(lawsDeck, null, LegislativeAction.ADVANCE_STAGE),
+        new LegislativeStage({
+          lawsDeck,
+          mustVeto: null,
+          currentAction: LegislativeAction.ADVANCE_STAGE,
+        }),
         new DossierStage({
           currentPresident: president,
           nextPresident,
@@ -227,7 +237,7 @@ describe("Estágios", () => {
       minRadicalizationProgressiveLaws: 2,
       previouslyApprovedConservativeLaws: 2,
       previouslyApprovedProgressiveLaws: 2,
-      crisis: new PlanoCohenCrisis(),
+      crisis: new PlanoCohen(),
       stages: [new SabotageStage(crisesDeck, SabotageAction.ADVANCE_STAGE)],
       hasLastRoundBeenSabotaged: true,
     });
@@ -292,9 +302,13 @@ describe("Crises", () => {
         nextPresident,
         lawsDeck,
         crisesDeck,
-        crisis: new PlanoCohenCrisis(),
+        crisis: new PlanoCohen(),
       });
-      expect(round.fakeDossier).toBe(true);
+
+      expect(round.currentStage).toBeInstanceOf(CrisisStage);
+      const crisisStage = round.currentStage as CrisisStage;
+      crisisStage.executeEffect(round);
+      expect(round.isDossierFake).toBe(true);
     });
   });
 
@@ -309,15 +323,18 @@ describe("Crises", () => {
         nextPresident,
         lawsDeck,
         crisesDeck,
-        crisis: new CafeComAAbin(),
+        crisis: new CafeComAbin(),
       });
-      expect(round.rapporteurCanSeeDossier).toBe(false);
+      expect(round.currentStage).toBeInstanceOf(CrisisStage);
+      const crisisStage = round.currentStage as CrisisStage;
+      crisisStage.executeEffect(round);
+      expect(round.isDossierOmitted).toBe(true);
     });
   });
 
   describe.each([
-    { name: "FMI Mandou", factory: () => new FmiMandouCrisis() },
-    { name: "Forças Ocultas", factory: () => new ForcasOcultasCrisis() },
+    { name: "FMI Mandou", factory: () => new FmiMandou() },
+    { name: "Forças Ocultas", factory: () => new ForcasOcultas() },
   ])("$name", ({ factory }) => {
     it("Deve ser obrigatório vetar uma lei progressista", () => {
       const president = new Player("p1", Role.MODERADO);
@@ -336,14 +353,19 @@ describe("Crises", () => {
         crisesDeck,
         crisis: factory(),
       });
-      expect(round.mustVeto).toBe(LawType.PROGRESSISTAS);
+      expect(round.currentStage).toBeInstanceOf(CrisisStage);
+      const crisisStage = round.currentStage as CrisisStage;
+      crisisStage.executeEffect(round);
+      expect(round.requiredVeto).toBe(LawType.PROGRESSISTAS);
+      const [nextStageError] = round.nextStage();
+      expect(nextStageError).toBeUndefined();
       expect(round.currentStage).toBeInstanceOf(LegislativeStage);
       const legislativeStage = round.currentStage as LegislativeStage;
       expect(legislativeStage.mustVeto).toBe(LawType.PROGRESSISTAS);
     });
   });
 
-  describe('Sessão Secreta', () => {
+  describe("Sessão Secreta", () => {
     it("Deve fazer votação legislativa secreta", () => {
       const president = new Player("p1", Role.MODERADO);
       const nextPresident = new Player("p2", Role.MODERADO);
@@ -354,9 +376,12 @@ describe("Crises", () => {
         nextPresident,
         lawsDeck,
         crisesDeck,
-        crisis: new SessaoSecretaCrisis(),
+        crisis: new SessaoSecreta(),
       });
-      expect(round.secretLegislativeVoting).toBe(true);
-    })
-  })
+      expect(round.currentStage).toBeInstanceOf(CrisisStage);
+      const crisisStage = round.currentStage as CrisisStage;
+      crisisStage.executeEffect(round);
+      expect(round.isLegislativeVotingSecret).toBe(true);
+    });
+  });
 });

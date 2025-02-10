@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { PlanoCohenCrisis } from "./crisis/plano-cohen-crisis";
-import { makeCrisesDeck, makeLawsDeck } from "./deck-factory";
+import { PlanoCohen } from "./crisis/plano-cohen";
+import { makeCrisesDeck, makeLawsDeck } from "./mock";
 import { Game } from "./game";
 import { Role } from "./role";
 import { Round } from "./round";
@@ -62,7 +62,7 @@ describe("Rodadas", () => {
       currentRapporteur: null,
       lawsDeck,
       drawnLaws: [],
-    })
+    });
     dossierStage.chooseNextRapporteur(players[3]);
     dossierStage.passDossier();
     const [error, game] = Game.create({
@@ -86,7 +86,7 @@ describe("Rodadas", () => {
     const [errorNextRound] = game!.nextRound();
     expect(errorNextRound).toBeUndefined();
     expect(game!.currentRound!.rapporteur).toBe(players[3]);
-  })
+  });
 });
 
 describe("Distribuição de Papéis", () => {
@@ -129,7 +129,7 @@ describe("Crises", () => {
       );
 
       const rounds = Array.from({ length: n }, () => {
-        const legislativeStage = new LegislativeStage(lawsDeck);
+        const legislativeStage = new LegislativeStage({ lawsDeck });
         legislativeStage.drawLaws();
         legislativeStage.vetoLaw(0);
         legislativeStage.chooseLawForVoting(1);
@@ -171,7 +171,7 @@ describe("Crises", () => {
       const lawsDeck = makeLawsDeck("progressive");
 
       const rounds = Array.from({ length: n }, () => {
-        const legislativeStage = new LegislativeStage(lawsDeck);
+        const legislativeStage = new LegislativeStage({ lawsDeck });
         legislativeStage.drawLaws();
         legislativeStage.vetoLaw(0);
         legislativeStage.chooseLawForVoting(1);
@@ -243,37 +243,40 @@ describe("Crises", () => {
 });
 
 describe("Cassações", () => {
-  it.each([2,3,4,])("Deve iniciar o round com Cassação a cada %d crises", (n) => {
-    const crisesDeck = makeCrisesDeck();
-    const lawsDeck = makeLawsDeck("progressive");
-    const playersNames = ["p1", "p2", "p3", "p4", "p5", "p6"];
-    const players = Game.createPlayers(playersNames);
-    const rounds = Array.from({ length: n }, () => {
-      return new Round({
+  it.each([2, 3, 4])(
+    "Deve iniciar o round com Cassação a cada %d crises",
+    (n) => {
+      const crisesDeck = makeCrisesDeck();
+      const lawsDeck = makeLawsDeck("progressive");
+      const playersNames = ["p1", "p2", "p3", "p4", "p5", "p6"];
+      const players = Game.createPlayers(playersNames);
+      const rounds = Array.from({ length: n }, () => {
+        return new Round({
+          crisesDeck,
+          lawsDeck,
+          stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
+          crisis: new PlanoCohen(),
+          president: players[0],
+          nextPresident: players[1],
+        });
+      });
+
+      const [error, game] = Game.create({
+        players,
         crisesDeck,
         lawsDeck,
-        stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
-        crisis: new PlanoCohenCrisis(),
-        president: players[0],
-        nextPresident: players[1],
+        rounds,
+        crisesIntervalToImpeach: n,
       });
-    });
+      expect(error).toBeUndefined();
+      expect(game).toBeDefined();
 
-    const [error, game] = Game.create({
-      players,
-      crisesDeck,
-      lawsDeck,
-      rounds,
-      crisesIntervalToImpeach: n,
-    });
-    expect(error).toBeUndefined();
-    expect(game).toBeDefined();
+      const [errorNextRound] = game!.nextRound();
+      expect(errorNextRound).toBeUndefined();
 
-    const [errorNextRound] = game!.nextRound();
-    expect(errorNextRound).toBeUndefined();
-
-    expect(game!.currentRound!.hasImpeachment).toBe(true);
-  });
+      expect(game!.currentRound!.hasImpeachment).toBe(true);
+    }
+  );
 });
 
 describe("Presidência", () => {
@@ -319,15 +322,18 @@ describe("Presidência", () => {
     expect(game!.president).toBeDefined();
     expect(game!.president).not.toBe(firstPresident);
   });
+
   it("deve pular jogador cassado na fila de presidente", () => {
     const playersNames = ["p1", "p2", "p3", "p4", "p5", "p6"];
     const players = Game.createPlayers(playersNames);
+    players[1].impeached = true;
     const crisesDeck = makeCrisesDeck();
     const lawsDeck = makeLawsDeck();
     const [error, game] = Game.create({
       players,
       crisesDeck,
       lawsDeck,
+      presidentQueue: [...players],
       rounds: [
         new Round({
           crisesDeck,
@@ -335,24 +341,15 @@ describe("Presidência", () => {
           president: players[0],
           nextPresident: players[1],
           hasImpeachment: true,
+          stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
         }),
       ],
     });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
-    expect(game?.currentRound.currentStage).toBeInstanceOf(ImpeachmentStage);
-    const stage = game!.currentRound.currentStage as ImpeachmentStage;
-    const target = game!.players.find((p) => p !== game?.president);
-    stage.chooseTarget(target!);
-    stage.startVoting(playersNames);
-    for (const player of players) {
-      stage.vote(player.name, true);
-    }
-    expect(target?.impeached).toBe(true);
-
-    for (let i = 0; i < players.length; i++) {
-      expect(game?.getPresidentFromQueue(i)).not.toBe(target);
-    }
+    const [errorNextRound] = game!.nextRound();
+    expect(errorNextRound).toBeUndefined();
+    expect(game!.president).toBe(players[2]);
   });
 
   it("não deve permitir jogador cassado como relator do dossiê", () => {
@@ -401,7 +398,7 @@ describe("Condições de Vitória", () => {
           length: n,
         },
         (_, i) => {
-          const legislativeStage = new LegislativeStage(lawsDeck);
+          const legislativeStage = new LegislativeStage({ lawsDeck });
           legislativeStage.drawLaws();
           legislativeStage.vetoLaw(0);
           legislativeStage.chooseLawForVoting(1);
@@ -445,7 +442,7 @@ describe("Condições de Vitória", () => {
           length: n,
         },
         (_, i) => {
-          const legislativeStage = new LegislativeStage(lawsDeck);
+          const legislativeStage = new LegislativeStage({ lawsDeck });
           legislativeStage.drawLaws();
           legislativeStage.vetoLaw(0);
           legislativeStage.chooseLawForVoting(1);

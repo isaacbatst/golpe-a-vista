@@ -1,14 +1,10 @@
 import { Law } from "../data/laws";
-import { CafeComAAbin } from "./crisis/cafe-com-a-abin-crisis";
 import { Crisis } from "./crisis/crisis";
-import { FmiMandouCrisis } from "./crisis/fmi-mandou-crisis";
-import { ForcasOcultasCrisis } from "./crisis/forcas-ocultas-crisis";
-import { PlanoCohenCrisis } from "./crisis/plano-cohen-crisis";
-import { SessaoSecretaCrisis } from "./crisis/sessao-secreta-crisis";
 import { Deck } from "./deck";
 import { Either, left, right } from "./either";
 import { Player } from "./player";
 import { LawType } from "./role";
+import { CrisisStage } from "./stage/crisis-stage";
 import { DossierStage } from "./stage/dossier-stage";
 import { ImpeachmentStage } from "./stage/impeachment-stage";
 import { LegislativeStage } from "./stage/legislative-stage";
@@ -16,7 +12,7 @@ import { RadicalizationStage } from "./stage/radicalization-stage";
 import { SabotageStage } from "./stage/sabotage-stage";
 import { Stage } from "./stage/stage";
 
-type RoundParams = {
+export type RoundParams = {
   president: Player;
   nextPresident: Player;
   lawsDeck: Deck<Law>;
@@ -34,6 +30,10 @@ type RoundParams = {
 
 export class Round {
   public readonly president: Player;
+  public isDossierFake: boolean = false;
+  public isDossierOmitted: boolean = false;
+  public isLegislativeVotingSecret: boolean = false;
+  public requiredVeto: LawType | null = null;
 
   private readonly _lawsDeck: Deck<Law>;
   private readonly _nextPresident: Player;
@@ -47,6 +47,7 @@ export class Round {
   private readonly _previouslyApprovedConservativeLaws: number;
   private readonly _previouslyApprovedProgressiveLaws: number;
   private readonly _stages: Stage[];
+
 
   constructor(props: RoundParams) {
     this.president = props.president;
@@ -88,12 +89,28 @@ export class Round {
       return new ImpeachmentStage(this.president);
     }
 
-    return new LegislativeStage(this._lawsDeck, this.mustVeto);
+    if(this._crisis) {
+      return new CrisisStage(this._crisis);
+    }
+
+    return new LegislativeStage({
+      lawsDeck: this._lawsDeck,
+      mustVeto: this.requiredVeto,
+      isVotingSecret: this.isLegislativeVotingSecret,
+    });
   }
 
   private createNextStage(): Stage | null {
-    if (this.currentStage instanceof ImpeachmentStage) {
-      return new LegislativeStage(this._lawsDeck, this.mustVeto);
+    if (this.currentStage instanceof ImpeachmentStage && this._crisis) {
+      return new CrisisStage(this._crisis);
+    }
+    
+    if (this.currentStage instanceof ImpeachmentStage || this.currentStage instanceof CrisisStage) {
+      return new LegislativeStage({
+        lawsDeck: this._lawsDeck,
+        mustVeto: this.requiredVeto,
+        isVotingSecret: this.isLegislativeVotingSecret,
+      });
     }
 
     if (this.currentStage instanceof LegislativeStage) {
@@ -102,7 +119,7 @@ export class Round {
         currentRapporteur: this._rapporteur,
         drawnLaws: this.currentStage.drawnLaws,
         nextPresident: this._nextPresident,
-        fakeDossier: this.fakeDossier,
+        fakeDossier: this.isDossierFake,
         lawsDeck: this._lawsDeck,
       });
     }
@@ -247,28 +264,5 @@ export class Round {
 
   get rapporteur(): Player | null {
     return this._rapporteur;
-  }
-
-  get fakeDossier(): boolean {
-    return this.crisis instanceof PlanoCohenCrisis;
-  }
-
-  get rapporteurCanSeeDossier(): boolean {
-    return !(this.crisis instanceof CafeComAAbin);
-  }
-
-  get mustVeto(): LawType | null {
-    if (
-      this.crisis instanceof FmiMandouCrisis ||
-      this.crisis instanceof ForcasOcultasCrisis
-    ) {
-      return LawType.PROGRESSISTAS;
-    }
-
-    return null;
-  }
-
-  get secretLegislativeVoting(): boolean {
-    return this.crisis instanceof SessaoSecretaCrisis;
   }
 }

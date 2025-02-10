@@ -14,18 +14,30 @@ export enum LegislativeAction {
   ADVANCE_STAGE = "ADVANCE_STAGE",
 }
 
+type LegislativeStageParams = {
+  lawsDeck: Deck<Law>;
+  mustVeto?: LawType | null;
+  currentAction?: LegislativeAction;
+  isVotingSecret?: boolean;
+};
+
 export class LegislativeStage extends Stage {
   readonly type = StageType.LEGISLATIVE;
   private _drawnLaws: Law[] = [];
   private _vetoedLaw: Law | null = null;
   private _lawToVote: Law | null = null;
   private _voting: Voting | null = null;
+  private _isVotingSecret: boolean;
+  private _lawsDeck: Deck<Law>;
+  private _mustVeto: LawType | null = null;
 
-  constructor(
-    private _lawsDeck: Deck<Law>,
-    private _mustVeto: LawType | null = null,
-    currentAction?: LegislativeAction
-  ) {
+  constructor(params: LegislativeStageParams) {
+    const {
+      lawsDeck,
+      mustVeto = null,
+      currentAction = LegislativeAction.DRAW_LAWS,
+      isVotingSecret = false,
+    } = params;
     super(
       [
         LegislativeAction.DRAW_LAWS,
@@ -37,6 +49,9 @@ export class LegislativeStage extends Stage {
       ],
       currentAction
     );
+    this._lawsDeck = lawsDeck;
+    this._mustVeto = mustVeto;
+    this._isVotingSecret = isVotingSecret;
   }
 
   drawLaws(): Either<string, Law[]> {
@@ -156,5 +171,9 @@ export class LegislativeStage extends Stage {
       return this.drawnLaws;
     }
     return this._drawnLaws.filter((law) => law.type === this._mustVeto);
+  }
+
+  get isVotingSecret() {
+    return this._isVotingSecret;
   }
 }
