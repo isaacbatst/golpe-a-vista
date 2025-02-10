@@ -229,6 +229,24 @@ describe("Estágios", () => {
     expect(error).toBeUndefined();
     expect(stage).toBeInstanceOf(RadicalizationStage);
   });
+
+  it("Deve retornar a crise selecionada na sabotagem", () => {
+    const president = new Player("p1", Role.MODERADO);
+    const nextPresident = new Player("p2", Role.MODERADO);
+    const lawsDeck = makeLawsDeck();
+    const crisesDeck = makeCrisesDeck();
+    const sabotageStage = new SabotageStage(crisesDeck);
+    sabotageStage.drawCrises();
+    sabotageStage.chooseSabotageCrisis(0);
+    const round = new Round({
+      president,
+      nextPresident,
+      lawsDeck,
+      crisesDeck,
+      stages: [sabotageStage],
+    });
+    expect(round.sabotageCrisis).toBe(sabotageStage.selectedCrisis)
+  })
 });
 
 describe("Crises", () => {
@@ -248,4 +266,10 @@ describe("Crises", () => {
       expect(round.fakeDossier).toBe(true);
     });
   });
+
+  describe("Café Com a ABIN", () => {
+    it("Não deve permitir que relator veja o dossiê", () => {
+
+    })
+  })
 });
