@@ -1,5 +1,5 @@
 import CRISES from "../data/crises";
-import { Crisis } from "./crisis";
+import { Crisis } from "./crisis/crisis";
 import { Deck } from "./deck";
 import { Law } from "../data/laws";
 import { LawType } from "./role";

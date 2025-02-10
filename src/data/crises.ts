@@ -1,11 +1,10 @@
-import { CrisisVisibleTo } from "../domain/crisis";
+import { CrisisVisibleTo } from "../domain/crisis/crisis";
 
 const CRISES: {
   [key: string]: {
     titles: string[];
     description: string;
     type: CrisisVisibleTo[];
-    when?: "before_dossier";
   };
 } = {
   PLANO_COHEN: {
@@ -88,7 +87,6 @@ const CRISES: {
   //   titles: ["Vazamento no WikiLeaks", "Snowden Contra-Ataca", "Vaza Jato"],
   //   description:
   //     "Uma cópia parcial do Dossiê foi disponibilizada na internet. Todos verão uma das cartas que não foi vetada. 'Bem-vindo à era da informação.'",
-  //   when: "before_dossier",
   //   type: [CrisisVisibleTo.ALL],
   // },
   // CONGRESSO_TRANCADO: {

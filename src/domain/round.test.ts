@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Crisis, CrisisVisibleTo } from "./crisis";
+import { Crisis, CrisisVisibleTo } from "./crisis/crisis";
 import { Player } from "./player";
 import { LawType, Role } from "./role";
 import { Round } from "./round";

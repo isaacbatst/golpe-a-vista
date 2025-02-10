@@ -10,7 +10,7 @@ import {
   RadicalizationStage,
 } from "./stage/radicalization-stage";
 import { SabotageStage } from "./stage/sabotage-stage";
-import { Crisis, CrisisVisibleTo } from "./crisis";
+import { Crisis, CrisisVisibleTo } from "./crisis/crisis";
 
 describe("Rodadas", () => {
   it("não deve finalizar rodada se ainda houver estágios a serem jogados", () => {

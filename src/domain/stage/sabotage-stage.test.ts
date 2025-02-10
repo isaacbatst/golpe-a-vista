@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import CRISES from "../../data/crises";
 import { ActionController } from "../action-controller";
-import { Crisis } from "../crisis";
+import { Crisis } from "../crisis/crisis";
 import { Deck } from "../deck";
 import { SabotageAction, SabotageStage } from "./sabotage-stage";
 

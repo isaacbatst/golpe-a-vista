@@ -1,6 +1,6 @@
 import CRISES from "../data/crises";
 import { Law, LAWS } from "../data/laws";
-import { Crisis } from "./crisis";
+import { Crisis } from "./crisis/crisis";
 import { Deck } from "./deck";
 import { Either, left, right } from "./either";
 import { Game } from "./game";

@@ -1,4 +1,4 @@
-import { Crisis } from "../crisis";
+import { Crisis } from "../crisis/crisis";
 import { Deck } from "../deck";
 import { Either, left, right } from "../either";
 import { Stage, StageType } from "./stage";
