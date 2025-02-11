@@ -7,7 +7,7 @@ export default function useSocket() {
 
   useEffect(() => {
     const socketInstance = io("http://localhost:3001", {
-      path: "/api/socket",
+      path: "/ws/socket",
     });
 
     socketInstance.on("connect", () => {
