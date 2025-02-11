@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import { PlanoCohen } from './crisis/plano-cohen';
 import { makeCrisesDeck, makeLawsDeck } from './mock';
 import { Player } from './player';
@@ -14,25 +13,30 @@ import { FmiMandou } from './crisis/fmi-mandou';
 import { ForcasOcultas } from './crisis/forcas-ocultas';
 import { SessaoSecreta } from './crisis/sessao-secreta';
 import { CrisisStage } from './stage/crisis-stage';
+import { PresidentQueue } from './president-queue';
+import { describe, expect, it } from 'vitest';
 
 describe('Estágios', () => {
   it('Deve iniciar Estágio Legislativo', () => {
-    const president = new Player('p1', Role.MODERADO);
-    const nextPresident = new Player('p2', Role.MODERADO);
+    const presidentQueue = new PresidentQueue([
+      new Player('p1', Role.MODERADO),
+      new Player('p2', Role.MODERADO),
+    ]);
     const lawsDeck = makeLawsDeck();
     const crisesDeck = makeCrisesDeck();
-    const round = new Round({ president, nextPresident, lawsDeck, crisesDeck });
+    const round = new Round({ presidentQueue, lawsDeck, crisesDeck });
     expect(round.currentStage).toBeInstanceOf(LegislativeStage);
   });
 
   it('Deve iniciar com Cassação caso esteja ativa nesta rodada', () => {
-    const president = new Player('p1', Role.MODERADO);
-    const nextPresident = new Player('p2', Role.MODERADO);
+    const presidentQueue = new PresidentQueue([
+      new Player('p1', Role.MODERADO),
+      new Player('p2', Role.MODERADO),
+    ]);
     const lawsDeck = makeLawsDeck();
     const crisesDeck = makeCrisesDeck();
     const round = new Round({
-      president,
-      nextPresident,
+      presidentQueue,
       lawsDeck,
       crisesDeck,
       hasImpeachment: true,
@@ -41,18 +45,19 @@ describe('Estágios', () => {
   });
 
   it('Deve avançar de cassação para legislativo', () => {
-    const president = new Player('p1', Role.MODERADO);
-    const nextPresident = new Player('p2', Role.MODERADO);
+    const presidentQueue = new PresidentQueue([
+      new Player('p1', Role.MODERADO),
+      new Player('p2', Role.MODERADO),
+    ]);
     const lawsDeck = makeLawsDeck();
     const crisesDeck = makeCrisesDeck();
     const round = new Round({
-      president,
-      nextPresident,
+      presidentQueue,
       lawsDeck,
       crisesDeck,
       stages: [
         new ImpeachmentStage(
-          president,
+          presidentQueue.getByRoundNumber(0),
           false,
           false,
           ImpeachmentAction.ADVANCE_STAGE,
@@ -66,23 +71,26 @@ describe('Estágios', () => {
   });
 
   it('Não deve avançar para o Dossiê sem finalizar o Estágio Legislativo', () => {
-    const president = new Player('p1', Role.MODERADO);
-    const nextPresident = new Player('p2', Role.MODERADO);
+    const presidentQueue = new PresidentQueue([
+      new Player('p1', Role.MODERADO),
+      new Player('p2', Role.MODERADO),
+    ]);
     const lawsDeck = makeLawsDeck();
     const crisesDeck = makeCrisesDeck();
-    const round = new Round({ president, nextPresident, lawsDeck, crisesDeck });
+    const round = new Round({ presidentQueue, lawsDeck, crisesDeck });
     const [error] = round.nextStage();
     expect(error).toBe('Estágio atual não finalizado');
   });
 
   it('Deve avançar para o estágio do Dossiê', () => {
-    const president = new Player('p1', Role.MODERADO);
-    const nextPresident = new Player('p2', Role.MODERADO);
+    const presidentQueue = new PresidentQueue([
+      new Player('p1', Role.MODERADO),
+      new Player('p2', Role.MODERADO),
+    ]);
     const lawsDeck = makeLawsDeck();
     const crisesDeck = makeCrisesDeck();
     const round = new Round({
-      president,
-      nextPresident,
+      presidentQueue,
       lawsDeck,
       crisesDeck,
       stages: [
@@ -98,19 +106,20 @@ describe('Estágios', () => {
   });
 
   it('Deve finalizar round após o dossiê', () => {
-    const president = new Player('p1', Role.MODERADO);
-    const nextPresident = new Player('p2', Role.MODERADO);
+    const presidentQueue = new PresidentQueue([
+      new Player('p1', Role.MODERADO),
+      new Player('p2', Role.MODERADO),
+    ]);
     const lawsDeck = makeLawsDeck();
     const crisesDeck = makeCrisesDeck();
     const round = new Round({
-      president,
-      nextPresident,
+      presidentQueue,
       lawsDeck,
       crisesDeck,
       stages: [
         new DossierStage({
-          currentPresident: president,
-          nextPresident,
+          currentPresident: presidentQueue.getByRoundNumber(0),
+          nextPresident: presidentQueue.getByRoundNumber(1),
           currentRapporteur: null,
           drawnLaws: [],
           currentAction: DossierAction.ADVANCE_STAGE,
@@ -153,8 +162,7 @@ describe('Estágios', () => {
     }
     expect(legislativeStage.votingResult).toBe(true);
     const round = new Round({
-      president,
-      nextPresident,
+      presidentQueue: new PresidentQueue([president, nextPresident]),
       lawsDeck,
       crisesDeck,
       stages: [
@@ -187,8 +195,7 @@ describe('Estágios', () => {
     );
     const crisesDeck = makeCrisesDeck();
     const round = new Round({
-      president,
-      nextPresident,
+      presidentQueue: new PresidentQueue([president, nextPresident]),
       lawsDeck,
       crisesDeck,
       minRadicalizationConservativeLaws: 2,
@@ -229,8 +236,7 @@ describe('Estágios', () => {
     );
     const crisesDeck = makeCrisesDeck();
     const round = new Round({
-      president,
-      nextPresident,
+      presidentQueue: new PresidentQueue([president, nextPresident]),
       lawsDeck,
       crisesDeck,
       minRadicalizationConservativeLaws: 2,
@@ -255,8 +261,7 @@ describe('Estágios', () => {
     sabotageStage.drawCrises();
     sabotageStage.chooseSabotageCrisis(0);
     const round = new Round({
-      president,
-      nextPresident,
+      presidentQueue: new PresidentQueue([president, nextPresident]),
       lawsDeck,
       crisesDeck,
       stages: [sabotageStage],
@@ -279,8 +284,7 @@ describe('Estágios', () => {
     const nextRapporteur = new Player('p4', Role.MODERADO);
     dossierStage.chooseNextRapporteur(nextRapporteur);
     const round = new Round({
-      president,
-      nextPresident,
+      presidentQueue: new PresidentQueue([president, nextPresident]),
       lawsDeck,
       crisesDeck,
       stages: [dossierStage],
@@ -298,8 +302,7 @@ describe('Crises', () => {
       const lawsDeck = makeLawsDeck();
       const crisesDeck = makeCrisesDeck();
       const round = new Round({
-        president,
-        nextPresident,
+        presidentQueue: new PresidentQueue([president, nextPresident]),
         lawsDeck,
         crisesDeck,
         crisis: new PlanoCohen(),
@@ -319,8 +322,7 @@ describe('Crises', () => {
       const lawsDeck = makeLawsDeck();
       const crisesDeck = makeCrisesDeck();
       const round = new Round({
-        president,
-        nextPresident,
+        presidentQueue: new PresidentQueue([president, nextPresident]),
         lawsDeck,
         crisesDeck,
         crisis: new CafeComAbin(),
@@ -347,8 +349,7 @@ describe('Crises', () => {
       const lawsDeck = makeLawsDeck(cards);
       const crisesDeck = makeCrisesDeck();
       const round = new Round({
-        president,
-        nextPresident,
+        presidentQueue: new PresidentQueue([president, nextPresident]),
         lawsDeck,
         crisesDeck,
         crisis: factory(),
@@ -372,8 +373,7 @@ describe('Crises', () => {
       const lawsDeck = makeLawsDeck();
       const crisesDeck = makeCrisesDeck();
       const round = new Round({
-        president,
-        nextPresident,
+        presidentQueue: new PresidentQueue([president, nextPresident]),
         lawsDeck,
         crisesDeck,
         crisis: new SessaoSecreta(),

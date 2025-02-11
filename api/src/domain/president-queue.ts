@@ -12,6 +12,10 @@ export class PresidentQueue {
     return this._players;
   }
 
+  get offset(): number {
+    return this._offset;
+  }
+
   shift(): void {
     this._offset++;
   }

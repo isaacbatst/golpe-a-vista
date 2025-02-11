@@ -18,7 +18,7 @@ type GameParams = {
   minProgressiveLawsToFearCrisis?: number;
   rounds?: Round[];
   rejectedLawsIntervalToCrisis?: number;
-  presidentQueue?: Player[];
+  presidentQueue?: PresidentQueue;
   conservativesImpeachedToRadicalWin?: number;
 };
 
@@ -105,7 +105,7 @@ export class Game {
     progressiveLawsIntervalToCrisis: number,
     rejectedLawsIntervalToCrisis: number,
     conservativesImpeachedToRadicalWin: number,
-    presidentQueue?: Player[],
+    presidentQueue?: PresidentQueue,
     rounds?: Round[],
   ) {
     this._players = players;
@@ -113,9 +113,8 @@ export class Game {
     this._lawsToProgressiveWin = lawsToProgressiveWin;
     this._lawsToConservativeWin = lawsToConservativeWin;
     this._crisesIntervalToImpeach = crisesIntervalToImpeach;
-    this._presidentQueue = new PresidentQueue(
-      presidentQueue ?? [...Random.sort(this._players)],
-    );
+    this._presidentQueue =
+      presidentQueue ?? new PresidentQueue(Random.sort(players));
     this._crisesDeck = crisesDeck;
     this._progressiveLawsToFear = progressiveLawsIntervalToCrisis;
     this._rejectedLawsIntervalToCrisis = rejectedLawsIntervalToCrisis;
@@ -123,10 +122,10 @@ export class Game {
       conservativesImpeachedToRadicalWin;
     this._rounds = rounds ?? [
       new Round({
-        president: this.getPresidentFromQueue(0),
+        index: 0,
+        presidentQueue: this._presidentQueue,
         lawsDeck: this._lawsDeck,
         crisesDeck: this._crisesDeck,
-        nextPresident: this.getPresidentFromQueue(1),
       }),
     ];
   }
@@ -148,13 +147,20 @@ export class Game {
     }
 
     const round = new Round({
-      president: this.getPresidentFromQueue(this._rounds.length),
+      presidentQueue: this._presidentQueue,
+      index: this._rounds.length,
       lawsDeck: this._lawsDeck,
       crisesDeck: this._crisesDeck,
       crisis: this.nextRoundCrisis,
       hasImpeachment: this.nextRoundShouldImpeach,
-      nextPresident: this.getPresidentFromQueue(this._rounds.length + 1),
       rapporteur: this.currentRound.nextRapporteur,
+      hasLastRoundBeenSabotaged: Boolean(this.currentRound.sabotageCrisis),
+      previouslyApprovedConservativeLaws: this.approvedLaws.filter(
+        (law) => law.type === LawType.CONSERVADORES,
+      ).length,
+      previouslyApprovedProgressiveLaws: this.approvedLaws.filter(
+        (law) => law.type === LawType.PROGRESSISTAS,
+      ).length,
     });
 
     this._rounds.push(round);
@@ -289,5 +295,9 @@ export class Game {
 
   get crisesIntervalToImpeach() {
     return this._crisesIntervalToImpeach;
+  }
+
+  get presidentQueue() {
+    return this._presidentQueue;
   }
 }

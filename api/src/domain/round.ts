@@ -3,6 +3,7 @@ import { Crisis } from './crisis/crisis';
 import { Deck } from './deck';
 import { Either, left, right } from './either';
 import { Player } from './player';
+import { PresidentQueue } from './president-queue';
 import { LawType } from './role';
 import { CrisisStage } from './stage/crisis-stage';
 import { DossierStage } from './stage/dossier-stage';
@@ -13,8 +14,7 @@ import { SabotageStage } from './stage/sabotage-stage';
 import { Stage } from './stage/stage';
 
 export type RoundParams = {
-  president: Player;
-  nextPresident: Player;
+  index?: number;
   lawsDeck: Deck<Law>;
   crisesDeck: Deck<Crisis>;
   crisis?: Crisis | null;
@@ -26,17 +26,18 @@ export type RoundParams = {
   minRadicalizationProgressiveLaws?: number;
   previouslyApprovedConservativeLaws?: number;
   previouslyApprovedProgressiveLaws?: number;
+  presidentQueue: PresidentQueue;
 };
 
 export class Round {
-  public readonly president: Player;
+  public readonly presidentQueue: PresidentQueue;
+  public readonly index: number;
   public isDossierFake: boolean = false;
   public isDossierOmitted: boolean = false;
   public isLegislativeVotingSecret: boolean = false;
   public requiredVeto: LawType | null = null;
 
   private readonly _lawsDeck: Deck<Law>;
-  private readonly _nextPresident: Player;
   private readonly _crisesDeck: Deck<Crisis>;
   private readonly _crisis: Crisis | null;
   private readonly _rapporteur: Player | null;
@@ -49,13 +50,11 @@ export class Round {
   private readonly _stages: Stage[];
 
   constructor(props: RoundParams) {
-    this.president = props.president;
     this._crisesDeck = props.crisesDeck;
     this._crisis = props.crisis ?? null;
     this._lawsDeck = props.lawsDeck;
     this._hasImpeachment = props.hasImpeachment ?? false;
     this._rapporteur = props.rapporteur ?? null;
-    this._nextPresident = props.nextPresident;
     this._hasLastRoundBeenSabotaged = props.hasLastRoundBeenSabotaged ?? false;
     this._minRadicalizationConservativeLaws =
       props.minRadicalizationConservativeLaws ?? 4;
@@ -65,6 +64,8 @@ export class Round {
       props.previouslyApprovedConservativeLaws ?? 0;
     this._previouslyApprovedProgressiveLaws =
       props.previouslyApprovedProgressiveLaws ?? 0;
+    this.index = props.index ?? 0;
+    this.presidentQueue = props.presidentQueue;
     this._stages = props.stages ?? [this.createFirstStage()];
   }
 
@@ -120,7 +121,7 @@ export class Round {
         currentPresident: this.president,
         currentRapporteur: this._rapporteur,
         drawnLaws: this.currentStage.drawnLaws,
-        nextPresident: this._nextPresident,
+        nextPresident: this.nextPresident,
         fakeDossier: this.isDossierFake,
         lawsDeck: this._lawsDeck,
       });
@@ -266,5 +267,13 @@ export class Round {
 
   get rapporteur(): Player | null {
     return this._rapporteur;
+  }
+
+  get president(): Player {
+    return this.presidentQueue.getByRoundNumber(this.index);
+  }
+
+  get nextPresident(): Player {
+    return this.presidentQueue.getByRoundNumber(this.index + 1);
   }
 }

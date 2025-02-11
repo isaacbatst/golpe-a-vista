@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { PlanoCohen } from './crisis/plano-cohen';
-import { makeCrisesDeck, makeLawsDeck } from './mock';
 import { Game } from './game';
+import { makeCrisesDeck, makeLawsDeck } from './mock';
+import { PresidentQueue } from './president-queue';
 import { Role } from './role';
 import { Round } from './round';
+import { DossierStage } from './stage/dossier-stage';
 import { ImpeachmentStage } from './stage/impeachment-stage';
 import { LegislativeStage } from './stage/legislative-stage';
 import {
@@ -11,7 +13,6 @@ import {
   RadicalizationStage,
 } from './stage/radicalization-stage';
 import { SabotageStage } from './stage/sabotage-stage';
-import { DossierStage } from './stage/dossier-stage';
 
 describe('Rodadas', () => {
   it('não deve finalizar rodada se ainda houver estágios a serem jogados', () => {
@@ -32,16 +33,17 @@ describe('Rodadas', () => {
     const players = Game.createPlayers(['p1', 'p2', 'p3', 'p4', 'p5', 'p6']);
     const crisesDeck = makeCrisesDeck();
     const lawsDeck = makeLawsDeck();
+    const presidentQueue = new PresidentQueue([...players]);
     const [error, game] = Game.create({
       players,
       crisesDeck,
       lawsDeck,
+      presidentQueue,
       rounds: [
         new Round({
           crisesDeck,
           lawsDeck,
-          president: players[0],
-          nextPresident: players[1],
+          presidentQueue,
           stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
         }),
       ],
@@ -65,17 +67,17 @@ describe('Rodadas', () => {
     });
     dossierStage.chooseNextRapporteur(players[3]);
     dossierStage.passDossier();
+    const presidentQueue = new PresidentQueue([...players]);
     const [error, game] = Game.create({
       players,
       crisesDeck,
       lawsDeck,
-      presidentQueue: [...players],
+      presidentQueue,
       rounds: [
         new Round({
           crisesDeck,
           lawsDeck,
-          president: players[0],
-          nextPresident: players[1],
+          presidentQueue,
           stages: [dossierStage],
         }),
       ],
@@ -140,8 +142,7 @@ describe('Crises', () => {
         return new Round({
           crisesDeck,
           lawsDeck,
-          president: players[0],
-          nextPresident: players[1],
+          presidentQueue: new PresidentQueue([...players]),
           stages: [
             legislativeStage,
             new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE),
@@ -185,8 +186,7 @@ describe('Crises', () => {
         return new Round({
           crisesDeck,
           lawsDeck,
-          president: players[0],
-          nextPresident: players[1],
+          presidentQueue: new PresidentQueue([...players]),
           stages: [
             legislativeStage,
             new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE),
@@ -222,8 +222,7 @@ describe('Crises', () => {
       new Round({
         crisesDeck,
         lawsDeck,
-        president: players[0],
-        nextPresident: players[1],
+        presidentQueue: new PresidentQueue([...players]),
         stages: [sabotageStage],
       }),
     ];
@@ -256,8 +255,7 @@ describe('Cassações', () => {
           lawsDeck,
           stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
           crisis: new PlanoCohen(),
-          president: players[0],
-          nextPresident: players[1],
+          presidentQueue: new PresidentQueue([...players]),
         });
       });
 
@@ -298,17 +296,17 @@ describe('Presidência', () => {
     const players = Game.createPlayers(['p1', 'p2', 'p3', 'p4', 'p5', 'p6']);
     const crisesDeck = makeCrisesDeck();
     const lawsDeck = makeLawsDeck();
+    const presidentQueue = new PresidentQueue([...players]);
     const [error, game] = Game.create({
       players,
       crisesDeck,
       lawsDeck,
-      presidentQueue: [...players],
+      presidentQueue,
       rounds: [
         new Round({
           crisesDeck,
           lawsDeck,
-          president: players[0],
-          nextPresident: players[1],
+          presidentQueue,
           stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
         }),
       ],
@@ -329,18 +327,18 @@ describe('Presidência', () => {
     players[1].impeached = true;
     const crisesDeck = makeCrisesDeck();
     const lawsDeck = makeLawsDeck();
+    const presidentQueue = new PresidentQueue([...players]);
     const [error, game] = Game.create({
       players,
       crisesDeck,
       lawsDeck,
-      presidentQueue: [...players],
+      presidentQueue,
       rounds: [
         new Round({
           crisesDeck,
           lawsDeck,
-          president: players[0],
-          nextPresident: players[1],
           hasImpeachment: true,
+          presidentQueue,
           stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
         }),
       ],
@@ -365,8 +363,7 @@ describe('Presidência', () => {
         new Round({
           crisesDeck,
           lawsDeck,
-          president: players[0],
-          nextPresident: players[1],
+          presidentQueue: new PresidentQueue([...players]),
           hasImpeachment: true,
         }),
       ],
@@ -393,6 +390,7 @@ describe('Condições de Vitória', () => {
       const players = Game.createPlayers(playersNames);
       const lawsDeck = makeLawsDeck('progressive');
       const crisesDeck = makeCrisesDeck();
+      const presidentQueue = new PresidentQueue([...players]);
       const rounds = Array.from(
         {
           length: n,
@@ -409,8 +407,8 @@ describe('Condições de Vitória', () => {
           return new Round({
             crisesDeck,
             lawsDeck,
-            president: players[i % players.length],
-            nextPresident: players[i + (1 % players.length)],
+            index: i,
+            presidentQueue,
             stages: [legislativeStage],
           });
         },
@@ -419,8 +417,8 @@ describe('Condições de Vitória', () => {
         crisesDeck,
         lawsDeck,
         players,
+        presidentQueue,
         lawsToProgressiveWin: n,
-        presidentQueue: [...players],
         rounds,
       });
       expect(error).toBeUndefined();
@@ -437,6 +435,7 @@ describe('Condições de Vitória', () => {
       const players = Game.createPlayers(playersNames);
       const lawsDeck = makeLawsDeck('conservative');
       const crisesDeck = makeCrisesDeck();
+      const presidentQueue = new PresidentQueue([...players]);
       const rounds = Array.from(
         {
           length: n,
@@ -453,8 +452,8 @@ describe('Condições de Vitória', () => {
           return new Round({
             crisesDeck,
             lawsDeck,
-            president: players[i % players.length],
-            nextPresident: players[i + (1 % players.length)],
+            presidentQueue,
+            index: i,
             stages: [legislativeStage],
           });
         },
@@ -464,7 +463,7 @@ describe('Condições de Vitória', () => {
         lawsDeck,
         players,
         lawsToConservativeWin: n,
-        presidentQueue: [...players],
+        presidentQueue,
         rounds,
       });
       expect(error).toBeUndefined();
@@ -487,12 +486,12 @@ describe('Condições de Vitória', () => {
     for (const player of players) {
       impeachmentStage.vote(player.name, true);
     }
+    const presidentQueue = new PresidentQueue([...players]);
     const rounds = [
       new Round({
         crisesDeck,
         lawsDeck,
-        president: players[0],
-        nextPresident: players[1],
+        presidentQueue,
         stages: [impeachmentStage],
       }),
     ];
@@ -500,7 +499,7 @@ describe('Condições de Vitória', () => {
       crisesDeck,
       lawsDeck,
       players,
-      presidentQueue: [...players],
+      presidentQueue,
       rounds,
     });
     expect(error).toBeUndefined();
@@ -515,6 +514,7 @@ describe('Condições de Vitória', () => {
     const crisesDeck = makeCrisesDeck();
     const conservatives = players.filter((p) => p.role === Role.CONSERVADOR);
     const accuser = players.find((p) => p.role !== Role.CONSERVADOR)!;
+    const presidentQueue = new PresidentQueue([...players]);
 
     const stages = conservatives.map((target) => {
       const impeachmentStage = new ImpeachmentStage(accuser);
@@ -530,8 +530,7 @@ describe('Condições de Vitória', () => {
       new Round({
         crisesDeck,
         lawsDeck,
-        president: players[0],
-        nextPresident: players[1],
+        presidentQueue,
         stages,
       }),
     ];
@@ -540,7 +539,7 @@ describe('Condições de Vitória', () => {
       lawsDeck,
       players,
       conservativesImpeachedToRadicalWin: 2,
-      presidentQueue: [...players],
+      presidentQueue,
       rounds,
     });
     expect(error).toBeUndefined();
