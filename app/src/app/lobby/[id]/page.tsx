@@ -1,17 +1,34 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { useLobby } from "@/hooks/api/useLobby";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Home } from "lucide-react";
+import { useLobby } from "@/hooks/api/useLobby";
+import { Home, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { toast } from "sonner";
+import { cn } from "../../../lib/utils";
 
 export default function LobbyPage() {
   const params = useParams();
   const lobbyId = params.id as string;
   const { data: lobby, isLoading } = useLobby(lobbyId);
+
+  // copy link to /join/[id]
+  const copyLink = () => {
+    const link = `${window.location.origin}/join/${lobbyId}`;
+    navigator.clipboard.writeText(link);
+    toast("Link copiado para a área de transferência", {
+      closeButton: true,
+    });
+  };
 
   if (isLoading) {
     return (
@@ -60,33 +77,46 @@ export default function LobbyPage() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
       <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-center">Lobby: {lobbyId}</CardTitle>
+        <CardHeader className="space-y-4">
+          <CardTitle className="text-center text-2xl">
+            Código do Lobby: #{lobbyId}
+          </CardTitle>
+          <CardDescription className="flex items-center justify-center">
+            <Button variant="ghost" onClick={copyLink}>
+              <LinkIcon />
+              Convide seus amigos para jogar
+            </Button>
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
+          <ul className="space-y-2">
             {[...Array(6)].map((_, index) => {
-              const player = lobby?.players[index];
+              const player = lobby?.users[index];
               return (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-2 bg-white rounded-lg shadow"
+                <li
+                  key={player?.id || index}
+                  className="flex items-center justify-between py-2 px-4 bg-white rounded-lg shadow"
                 >
                   {player ? (
                     <>
-                      <span>{player}</span>
-                      <span className="text-green-500 font-semibold">Conectado</span>
+                      <span>{player.name}</span>
+                      <span
+                        className={
+                          cn('text-sm', player.isConnected ? "text-green-500" : "text-red-500")
+                        }
+                      >
+                        {player.isConnected ? "Conectado" : "Desconectado"}
+                      </span>
                     </>
                   ) : (
                     <>
                       <span className="text-gray-400">Vaga disponível</span>
-                      <Button size="sm">Entrar</Button>
                     </>
                   )}
-                </div>
+                </li>
               );
             })}
-          </div>
+          </ul>
         </CardContent>
       </Card>
     </div>

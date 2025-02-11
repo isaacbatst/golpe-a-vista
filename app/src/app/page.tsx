@@ -1,20 +1,21 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
 } from "@/components/ui/card";
-import { DoorOpen, LoaderCircle, PlusCircle } from "lucide-react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createLobby } from "../lib/api";
+import { LoaderCircle, PlusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import JoinLobbyForm from "../components/forms/join-lobby-form";
+import { createLobby } from "../lib/api";
 
 const createLobbySchema = z.object({
   name: z.string().min(2),
@@ -22,27 +23,17 @@ const createLobbySchema = z.object({
 
 type CreateLobbyForm = z.infer<typeof createLobbySchema>;
 
-const joinLobbySchema = z.object({
-  name: z.string(),
-  code: z.string(),
-});
-
-type JoinLobbyForm = z.infer<typeof joinLobbySchema>;
-
 export default function HomePage() {
   const router = useRouter();
 
   const createLobbyForm = useForm<CreateLobbyForm>({
     resolver: zodResolver(createLobbySchema),
   });
-  const joinLobbyForm = useForm<JoinLobbyForm>({
-    resolver: zodResolver(joinLobbySchema),
-  });
 
   const submitCreateLobby = createLobbyForm.handleSubmit(async (values) => {
     const created = await createLobby(values.name);
     if (!created)
-      createLobbyForm.setError("root", { message: "Erro ao criar lobby" });
+      return createLobbyForm.setError("root", { message: "Erro ao criar lobby" });
     router.push(`/lobby/${created.id}`);
   });
 
@@ -94,45 +85,7 @@ export default function HomePage() {
             </CardFooter>
           </Card>
         </form>
-
-        <form>
-          <Card>
-            <CardHeader>
-              <CardTitle>Entrar em jogo existente</CardTitle>
-              <CardDescription>
-                Entre em um lobby já criado por outro jogador
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <label htmlFor="join-form-code" className="text-sm font-medium">
-                  Código do lobby
-                </label>
-                <Input
-                  {...joinLobbyForm.register("code")}
-                  id="join-form-code"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="join-form-name" className="text-sm font-medium">
-                  Seu nome
-                </label>
-                <Input
-                  {...joinLobbyForm.register("name")}
-                  id="join-form-name"
-                  placeholder=""
-                />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full">
-                <DoorOpen />
-                Entrar no Lobby
-              </Button>
-            </CardFooter>
-          </Card>
-        </form>
+        <JoinLobbyForm />
       </div>
 
       <footer className="mt-8 text-center text-sm text-gray-500">
