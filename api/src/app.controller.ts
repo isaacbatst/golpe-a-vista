@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Get,
   InternalServerErrorException,
+  Param,
   Post,
 } from '@nestjs/common';
 import { Lobby } from './domain/lobby';
@@ -18,13 +20,22 @@ export class AppController {
       throw new InternalServerErrorException(error);
     }
     const lobbyId = crypto.randomUUID();
-    this.lobbies.set(lobbyId, lobby);
     const [addPlayerError] = lobby.addPlayer(body.name);
     if (addPlayerError) {
       throw new InternalServerErrorException(addPlayerError);
     }
+    this.lobbies.set(lobbyId, lobby);
     return {
       id: lobbyId,
     };
+  }
+
+  @Get('lobbies/:id')
+  getLobby(@Param('id') id: string) {
+    const lobby = this.lobbies.get(id);
+    if (!lobby) {
+      return null;
+    }
+    return lobby;
   }
 }

@@ -14,3 +14,12 @@ export const createLobby = async (name: string) => {
     return null;
   }
 }
+
+export const getLobby = async (id: string) => {
+  try {
+    const response = await api.get(`/lobbies/${id}`)
+    return response.data;
+  } catch {
+    return null;
+  }
+}

@@ -67,4 +67,11 @@ export class Lobby {
   get games() {
     return Array.from(this._games.values());
   }
+
+  toJSON() {
+    return {
+      players: this._players,
+      // games: this._games.map((game) => game.toJSON()),
+    };
+  }
 }

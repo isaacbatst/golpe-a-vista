@@ -17,7 +17,7 @@ import { createLobby } from "../lib/api";
 import { useRouter } from "next/navigation";
 
 const createLobbySchema = z.object({
-  name: z.string(),
+  name: z.string().min(2),
 });
 
 type CreateLobbyForm = z.infer<typeof createLobbySchema>;
@@ -29,7 +29,7 @@ const joinLobbySchema = z.object({
 
 type JoinLobbyForm = z.infer<typeof joinLobbySchema>;
 
-export default function Home() {
+export default function HomePage() {
   const router = useRouter();
 
   const createLobbyForm = useForm<CreateLobbyForm>({
@@ -77,7 +77,7 @@ export default function Home() {
             <CardFooter className="flex flex-col gap-2">
               <Button
                 className="w-full"
-                disabled={createLobbyForm.formState.isSubmitting}
+                disabled={createLobbyForm.formState.isSubmitting || !createLobbyForm.formState.isValid}
               >
                 {createLobbyForm.formState.isSubmitting ? (
                   <LoaderCircle />
