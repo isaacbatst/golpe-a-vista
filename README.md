@@ -39,24 +39,22 @@ Cada rodada segue a seguinte estrutura:
    - ✅ **Se a maioria aprovar** → A lei entra em vigor e conta para a vitória do time correspondente.  
    - ❌ **Se a maioria rejeitar** → Nenhuma das duas leis entra em vigor e a rodada segue.  
 
-📌 **Cada duas leis rejeitadas geram uma crise.**  
-
 ---
 
 ## **4️⃣ Crises**
 
 Crises são eventos adversos gerados pela situação instável que o país se encontra. As crises são ativadas das seguintes formas:
 
-📌 **Ativação**
+📌 **Rejeição de Leis**
+   - A cada **duas leis rejeitadas**, uma crise é ativada, pois o governo parece que não vai para frente.
 
-   ✅  **"Receio"** dos Moderados  
-   
-      - Se um **moderado** aprovar a partir da **segunda lei progressista consecutiva**, uma **crise** é ativada.
+📌  **"Receio"** dos Moderados  
+   - Se um **moderado** aprovar a partir da **segunda lei progressista consecutiva**, uma **crise** é ativada, pois o país está indo rápido demais.
 
-   ✅  **Sabotagem** dos Conservadores  
-
-      - Sempre que uma lei progressista for aprovada, os **conservadores podem ativar uma crise**
-      - Os conservadores **não podem sabotar duas rodadas seguidas**.
+📌  **Sabotagem** dos Conservadores  
+   - Sempre que uma lei progressista for aprovada, os **conservadores podem ativar uma crise**, pois o governo está indo rápido demais.
+   - Regras:
+      - Os conservadores **não podem** sabotar **duas rodadas seguidas**.
       - Os conservadores **recebem 3 cartas de crise** e **escolhem uma** para ativar.
       - Caso uma crise fosse ser ativada pelo receio de um moderado, a crise escolhida pelos conservadores é priorizada.
 
