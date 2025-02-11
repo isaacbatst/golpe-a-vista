@@ -64,6 +64,8 @@ Crises são eventos adversos gerados pela situação instável que o país se en
 
 📌 **Efeito das Crises:**  
    - ✅ A crise tem efeito apenas **na próxima rodada.**
+   - ✅ Toda crise tem um **efeito único**.
+   - ✅ Crises são reveladas para jogadores diferentes de acordo com seu efeito.
 
 ---
 
@@ -75,24 +77,24 @@ Crises são eventos adversos gerados pela situação instável que o país se en
 ---
 
 ## **6️⃣ Dossiê**
-- 📌 Antes de finalizar a rodada, **o Presidente escolhe** quem **receberá um Dossiê no próximo turno**.  
-- 📌 O jogador escolhido recebe **informação privilegiada** sobre as leis do Presidente atual, ele terá acesso às leis sacadas pelo presidente.  
-- 📌 O Presidente não pode escolher a si mesmo, um jogador que tenha recebido o Dossiê na rodada anterior ou o Presidente da rodada seguinte.
+- 📌 Antes de finalizar a rodada, **o Presidente escolhe** quem **receberá um Dossiê** no próximo turno.  
+- 📌 O jogador escolhido será o **Relator do Dossiê**. Ele receberá **informação privilegiada** sobre as leis do Presidente daquele turno após a votação.
+- 📌 O Presidente **não pode** escolher a si mesmo, o Relator do Dossiê da rodada atual ou o Presidente da rodada seguinte.
 
 ---
 
 ## **7️⃣ Poderes do Radical**
 
-📌 **Revolução Armada**
-   - **Efeito:** A cassação é aprovada automaticamente, sem votação.
-   - **Restrição:**
-      - O alvo da cassação deve ser um conservador e um conservador já deve ter sido cassado
-
 📌 **Radicalização**
    - **Efeito:** O jogador radicalizado passa a jogar do lado do radical, sem revelar sua identidade. Se o radicalizado for um conservador, nada acontece. Apenas o radical e o radicalizado sabem da mudança.
    - **Restrição:** 
-      - Deve haver uma **crise ativa**
-      - São necessárias **4 leis progressistas aprovadas** ou **4 leis conservadoras aprovadas**. 
+      - Deve haver uma **crise ativa** na rodada.
+      - São necessárias **4 leis progressistas aprovadas** ou **4 leis conservadoras aprovadas**.
+
+📌 **Revolução Armada**
+   - **Efeito:** A cassação é aprovada automaticamente, sem votação.
+   - **Restrição:**
+      - O alvo da cassação deve ser um conservador e um conservador já deve ter sido cassado.
    
 ---
 
