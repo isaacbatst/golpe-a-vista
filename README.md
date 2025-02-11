@@ -59,43 +59,32 @@ Crises são eventos adversos gerados pela situação instável que o país se en
       - Caso uma crise fosse ser ativada pelo receio de um moderado, a crise escolhida pelos conservadores é priorizada.
 
 📌 **Efeito das Crises:**  
+   - ✅ A crise tem efeito apenas **na próxima rodada.**
 
-✅ **A crise tem efeito apenas na próxima rodada.**
-
-✅ **Alguns efeitos são públicos, outros apenas os jogadores envolvidos sabem.**
 ---
 
 ## **5️⃣ Cassação**
-
-📌 A cada 3 crises, o próximo presidente deverá propor uma cassação.
-📌 A cassação é realizada mediante votação. Caso aprovada, o jogador cassado **sai do jogo sem revelar sua identidade**.  
-📌 Se a cassação for rejeitada, uma lei conservadora é aprovada, pois o establishment não está do nosso lado.
-
+- 📌 A cada 3 crises, o próximo presidente deverá propor uma cassação.
+- 📌 A cassação é realizada mediante votação. Caso aprovada, o jogador cassado **sai do jogo sem revelar sua identidade**.  
+- 📌 Se a cassação for rejeitada, uma lei conservadora é aprovada, pois o establishment não está do nosso lado.
 
 ---
 
 ## **6️⃣ Dossiê**
-
-📌 Antes de finalizar a rodada, **o Presidente escolhe** quem **receberá um Dossiê no próximo turno**.  
-📌 O Presidente não pode escolher a si mesmo, um jogador que tenha recebido o Dossiê na rodada anterior ou o Presidente da rodada seguinte.
-📌 O jogador escolhido recebe **informação privilegiada** sobre as leis do Presidente atual, ele verá as leis sacadas pelo presidente.  
-📌 O jogador pode **falar a verdade ou mentir** sobre o conteúdo do Dossiê.  
+- 📌 Antes de finalizar a rodada, **o Presidente escolhe** quem **receberá um Dossiê no próximo turno**.  
+- 📌 O jogador escolhido recebe **informação privilegiada** sobre as leis do Presidente atual, ele terá acesso às leis sacadas pelo presidente.  
+- 📌 O Presidente não pode escolher a si mesmo, um jogador que tenha recebido o Dossiê na rodada anterior ou o Presidente da rodada seguinte.
 
 ---
 
 ## **7️⃣ Poderes do Radical**
 
 📌 **Revolução Armada**
-
-   - **Ativação:** O radical pode ativar a Revolução Armada
    - **Efeito:** A cassação é aprovada automaticamente, sem votação.
    - **Restrição:**
-      - o alvo da cassação deve ser um conservador
-      - um conservador já deve ter sido cassado
+      - O alvo da cassação deve ser um conservador e um conservador já deve ter sido cassado
 
 📌 **Radicalização**
-
-   - **Ativação:** O radical tentar radicalizar um jogador
    - **Efeito:** O jogador radicalizado passa a jogar do lado do radical, sem revelar sua identidade. Se o radicalizado for um conservador, nada acontece. Apenas o radical e o radicalizado sabem da mudança.
    - **Restrição:** 
       - Deve haver uma **crise ativa**
@@ -110,18 +99,22 @@ Crises são eventos adversos gerados pela situação instável que o país se en
 ---
 
 ## **9️⃣ Fluxo Completo de Rodada**  
-1. **Seleciona Presidente Interino**
-2. **Cassação**
-   a. **Presidente propõe cassação, se aplicável**
-   b. **Jogadores votam, se aprovada, jogador é cassado**
-3. **Presidente recebe crise, se aplicável**
+
+1. **Presidente assume**
+2. **Crises**
+   - Crise é ativada e jogadores envolvidos ficam cientes, se aplicável
+3. **Cassação**
+   - Presidente propõe cassação, se aplicável
+   - Jogadores votam, se aprovada, jogador é cassado
 4. **Legislação**
-   a. **Presidente recebe 3 leis, veta uma e escolhe outra para votação**
-   b. **Todos votam publicamente**  
-   c. **Se aprovada, incrementa contador de leis**
+   - Presidente recebe 3 leis, veta uma e escolhe outra para votação
+   - Todos votam publicamente  
+   - Se aprovada, incrementa contador de leis
 5. **Dossiê**
-   a. **Presidente escolhe Relator da próxima rodada**
-   b. **Se houver Relator, recebe Dossiê**
-6. **Conservadores podem sabotar, ativando crise**
-7. **Radical pode radicalizar jogador, se aplicável**
+   - Presidente escolhe Relator da próxima rodada
+   - Se houver Relator, recebe Dossiê
+6. **Sabotagem**
+   - Conservadores podem sabotar, se aplicável
+7. **Radicalização**
+   - Radical pode radicalizar jogador, se aplicável
 8. **Próxima rodada**
