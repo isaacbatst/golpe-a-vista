@@ -1,7 +1,7 @@
 import CRISES from '../data/crises';
 import { Law, LAWS } from '../data/laws';
 import { Crisis } from './crisis/crisis';
-import { PlanoCohen } from './crisis/plano-cohen';
+import { CrisisFactory } from './crisis/crisis-factory';
 import { Deck } from './deck';
 import { Either, left, right } from './either';
 import { Game } from './game';
@@ -19,7 +19,9 @@ export class Lobby {
     const [lawsDeckError, lawsDeck] = Deck.create(LAWS);
     if (!lawsDeck) return left(lawsDeckError);
     const [crisesDeckError, crisesDeck] = Deck.create(
-      Object.values(CRISES).map(() => new PlanoCohen()),
+      Object.keys(CRISES).map((key: keyof typeof CRISES) =>
+        CrisisFactory.createCrisis(key),
+      ),
     );
     if (!crisesDeck) return left(crisesDeckError);
 

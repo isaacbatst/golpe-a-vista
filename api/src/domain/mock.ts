@@ -3,6 +3,7 @@ import { Law } from '../data/laws';
 import { PlanoCohen } from './crisis/plano-cohen';
 import { Deck } from './deck';
 import { Player } from './player';
+import { PresidentQueue } from './president-queue';
 import { LawType, Role } from './role';
 import { Round, RoundParams } from './round';
 
@@ -49,9 +50,12 @@ export const makeLawsDeck = (
 export const makeRound = (params: Partial<RoundParams> = {}) => {
   return new Round({
     ...params,
-    president: params.president ?? new Player('President', Role.CONSERVADOR),
-    nextPresident:
-      params.nextPresident ?? new Player('Next President', Role.CONSERVADOR),
+    presidentQueue:
+      params.presidentQueue ??
+      new PresidentQueue([
+        new Player('p1', Role.CONSERVADOR),
+        new Player('p2', Role.CONSERVADOR),
+      ]),
     lawsDeck: params.lawsDeck ?? makeLawsDeck(),
     crisesDeck: params.crisesDeck ?? makeCrisesDeck(),
   });

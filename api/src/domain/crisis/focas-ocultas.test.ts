@@ -3,7 +3,7 @@ import { makeRound } from '../mock';
 import { LawType } from '../role';
 import { ForcasOcultas } from './forcas-ocultas';
 
-describe('Café com a Abin', () => {
+describe('Forças Ocultas', () => {
   it('não deve permitir que o relator veja o dossiê', () => {
     const forcasOcultas = new ForcasOcultas();
     const round = makeRound();
