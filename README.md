@@ -1,6 +1,10 @@
 # 🏛️ Golpe à Vista
 
-Neste jogo, os jogadores assumem papéis de **radical**, **moderados** e **conservadores** em um cenário político fictício. O objetivo é aprovar leis progressistas ou conservadoras e cassar os oponentes para vencer o jogo.
+O país está em crise. As facções políticas disputam o controle do governo enquanto escândalos, conchavos e traições acontecem longe dos olhos do povo. 
+
+Neste jogo de blefe e estratégia, você assumirá um dos papéis de **Moderado**, **Conservador** ou **Radical**. A cada rodada, um novo Presidente assume o poder, enfrentando crises e decisões difíceis. Mas será que ele governa de fato ou apenas segue as ordens de quem realmente puxa as cordas?
+
+Seja sutil como um operador de gabinete ou implacável como um líder autoritário—mas lembre-se: **quem controla o poder nem sempre joga limpo.**
 
 ## **1️⃣ Estrutura Básica do Jogo**
 ✅ **Número de Jogadores:** 6 jogadores  
