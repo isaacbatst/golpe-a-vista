@@ -1,4 +1,4 @@
-# 🎜 Requisitos para Implementação do Jogo
+# 🏛️ Golpe à Vista
 
 Neste jogo, os jogadores assumem papéis de **radical**, **moderados** e **conservadores** em um cenário político fictício. O objetivo é aprovar leis progressistas ou conservadoras e cassar os oponentes para vencer o jogo.
 
