@@ -37,7 +37,7 @@ Cada rodada segue a seguinte estrutura:
 4️⃣ **Votação Pública**  
    - Todos os jogadores **votam publicamente** se aprovam ou rejeitam a lei.  
    - ✅ **Se a maioria aprovar** → A lei entra em vigor e conta para a vitória do time correspondente.  
-   - ❌ **Se a maioria rejeitar** → Nenhuma das duas leis entra em vigor e a rodada termina.  
+   - ❌ **Se a maioria rejeitar** → Nenhuma das duas leis entra em vigor e a rodada segue.  
 
 📌 **Cada duas leis rejeitadas geram uma crise.**  
 
