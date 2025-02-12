@@ -17,8 +17,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const joinLobbySchema = z.object({
-  name: z.string(),
-  code: z.string(),
+  name: z.string().min(2),
+  code: z.string().min(4),
 });
 
 type JoinLobbyFormInputs = z.infer<typeof joinLobbySchema>;
