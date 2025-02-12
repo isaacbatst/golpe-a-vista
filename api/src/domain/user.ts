@@ -6,15 +6,19 @@ type UserParams = {
 };
 
 export class User {
-  readonly id: string;
-  readonly name: string;
-  readonly isHost: boolean;
-  readonly isConnected: boolean;
-  constructor({ id, name, isHost, isConnected }: UserParams) {
+  public readonly id: string;
+  public readonly name: string;
+  public readonly isHost: boolean;
+  public socketId: string | null = null;
+
+  constructor({ id, name, isHost }: UserParams) {
     this.id = id;
     this.name = name;
     this.isHost = isHost ?? false;
-    this.isConnected = isConnected ?? true;
+  }
+
+  get isConnected() {
+    return this.socketId !== null;
   }
 
   toJSON() {

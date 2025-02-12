@@ -38,7 +38,7 @@ it('deve adicionar um jogador ao lobby', () => {
     lawsDeck,
   });
   expect(error).toBeUndefined();
-  const [addPlayerError] = lobby!.addPlayer(new User({ id: 'p1', name: 'p1' }));
+  const [addPlayerError] = lobby!.addUser(new User({ id: 'p1', name: 'p1' }));
   expect(addPlayerError).toBeUndefined();
 });
 
@@ -48,8 +48,8 @@ it('não deve adicionar o mesmo jogador duas vezes', () => {
     lawsDeck,
   });
   expect(error).toBeUndefined();
-  lobby!.addPlayer(new User({ id: 'p1', name: 'p1' }));
-  const [addPlayerError] = lobby!.addPlayer(new User({ id: 'p1', name: 'p1' }));
+  lobby!.addUser(new User({ id: 'p1', name: 'p1' }));
+  const [addPlayerError] = lobby!.addUser(new User({ id: 'p1', name: 'p1' }));
   expect(addPlayerError).toBe('Jogador p1 já está no lobby');
 });
 
@@ -77,13 +77,13 @@ it('deve iniciar um jogo com 7 jogadores', () => {
     lawsDeck,
   });
   expect(error).toBeUndefined();
-  lobby!.addPlayer(new User({ id: 'p1', name: 'p1' }));
-  lobby!.addPlayer(new User({ id: 'p2', name: 'p2' }));
-  lobby!.addPlayer(new User({ id: 'p3', name: 'p3' }));
-  lobby!.addPlayer(new User({ id: 'p4', name: 'p4' }));
-  lobby!.addPlayer(new User({ id: 'p5', name: 'p5' }));
-  lobby!.addPlayer(new User({ id: 'p6', name: 'p6' }));
-  lobby!.addPlayer(new User({ id: 'p7', name: 'p7' }));
+  lobby!.addUser(new User({ id: 'p1', name: 'p1' }));
+  lobby!.addUser(new User({ id: 'p2', name: 'p2' }));
+  lobby!.addUser(new User({ id: 'p3', name: 'p3' }));
+  lobby!.addUser(new User({ id: 'p4', name: 'p4' }));
+  lobby!.addUser(new User({ id: 'p5', name: 'p5' }));
+  lobby!.addUser(new User({ id: 'p6', name: 'p6' }));
+  lobby!.addUser(new User({ id: 'p7', name: 'p7' }));
   const [startGameError, game] = lobby!.startGame();
   expect(startGameError).toBeUndefined();
   expect(game).toBeDefined();
@@ -99,9 +99,49 @@ it.each([6, 7, 8, 9])(
     });
     expect(error).toBeUndefined();
     for (let i = 1; i < n; i++) {
-      lobby!.addPlayer(new User({ id: `p${i}`, name: `p${i}` }));
+      lobby!.addUser(new User({ id: `p${i}`, name: `p${i}` }));
     }
     const [startGameError] = lobby!.startGame();
     expect(startGameError).toBe(`Mínimo de ${n} jogadores para iniciar o jogo`);
   },
 );
+
+it('deve conectar um jogador a um lobby', () => {
+  const [error, lobby] = Lobby.create({
+    crisesDeck,
+    lawsDeck,
+  });
+  expect(error).toBeUndefined();
+  const user = new User({ id: 'p1', name: 'p1-name' });
+  lobby!.addUser(user);
+  expect(lobby!.isUserConnected('p1')).toBe(false);
+  lobby!.connectUser('p1', 'socket-id');
+  expect(lobby!.isUserConnected('p1')).toBe(true);
+});
+
+it('deve desconectar um jogador de um lobby', () => {
+  const [error, lobby] = Lobby.create({
+    crisesDeck,
+    lawsDeck,
+  });
+  expect(error).toBeUndefined();
+  const user = new User({ id: 'p1', name: 'p1-name' });
+  lobby!.addUser(user);
+  lobby!.connectUser('p1', 'socket-id');
+  expect(lobby!.isUserConnected('p1')).toBe(true);
+  lobby!.disconnectUser('p1');
+  expect(lobby!.isUserConnected('p1')).toBe(false);
+});
+
+it('deve remover um jogador de um lobby', () => {
+  const [error, lobby] = Lobby.create({
+    crisesDeck,
+    lawsDeck,
+  });
+  expect(error).toBeUndefined();
+  const user = new User({ id: 'p1', name: 'p1-name' });
+  lobby!.addUser(user);
+  expect(lobby!.users.length).toBe(1);
+  lobby!.removeUser('p1');
+  expect(lobby!.users.length).toBe(0);
+});

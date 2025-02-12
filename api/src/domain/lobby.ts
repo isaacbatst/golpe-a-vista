@@ -28,13 +28,40 @@ export class Lobby {
     return right(new Lobby(crisesDeck, lawsDeck, id, minPlayers));
   }
 
-  addPlayer(user: User): Either<string, void> {
+  addUser(user: User): Either<string, void> {
     const users = Array.from(this._users.values());
     if (users.some((u) => u.name === user.name)) {
       return left(`Jogador ${user.name} já está no lobby`);
     }
-    this._users.set(user.name, user);
+    this._users.set(user.id, user);
     return right(undefined);
+  }
+
+  removeUser(userId: string): Either<string, void> {
+    if (!this._users.has(userId)) {
+      return left('Jogador não encontrado');
+    }
+    this._users.delete(userId);
+    return right();
+  }
+
+  connectUser(userId: string, socketId: string): Either<string, void> {
+    const user = this._users.get(userId);
+    if (!user) return left('Jogador não encontrado');
+    user.socketId = socketId;
+    return right();
+  }
+
+  disconnectUser(userId: string): Either<string, void> {
+    const user = this._users.get(userId);
+    if (!user) return left('Jogador não encontrado');
+    user.socketId = '';
+    return right();
+  }
+
+  isUserConnected(userId: string): boolean {
+    const user = this._users.get(userId);
+    return !!user && !!user.socketId;
   }
 
   startGame(): Either<string, Game> {
