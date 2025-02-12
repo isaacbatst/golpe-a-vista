@@ -57,13 +57,13 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: Socket) {
-    console.log(
-      '🔴 Cliente desconectado:',
-      client.id,
-      client.request.session.userId,
-    );
-    const { userId, lobbyId } = client.request.session;
+    console.log('🔴 Cliente desconectado:', client.id);
 
+    if (!client.request.session) {
+      return;
+    }
+
+    const { userId, lobbyId } = client.request.session;
     if (!userId || !lobbyId) {
       return;
     }
@@ -75,6 +75,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(lobby.id).emit('lobby:updated', lobby);
   }
 
+  @SubscribeMessage('kick')
   kickUser(client: Socket, data: { lobbyId: string; userId: string }) {
     if (!client.request.session.userId) {
       return this.handleSocketError(client, 'Usuário não reconhecido');
@@ -87,6 +88,15 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (error) {
       return this.handleSocketError(client, error.message);
     }
+    const kickedUserSocket = Array.from(
+      this.server.sockets.sockets.values(),
+    ).find((s) => s.request.session?.userId === data.userId);
+    if (kickedUserSocket) {
+      kickedUserSocket.request.session.destroy(() => {
+        kickedUserSocket.disconnect(true);
+      });
+    }
+
     this.server.to(data.lobbyId).emit('lobby:updated', lobby);
   }
 

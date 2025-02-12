@@ -47,11 +47,16 @@ export class AppService {
     });
   }
 
-  getLobby(id: string): Either<Error, Lobby> {
+  getLobby(id: string, userId: string): Either<Error, Lobby> {
     const lobby = this.lobbies.get(id);
     if (!lobby) {
       return left(new NotFoundException());
     }
+
+    if (!lobby.hasUser(userId)) {
+      return left(new NotFoundException());
+    }
+
     return right(lobby);
   }
 

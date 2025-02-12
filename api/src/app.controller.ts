@@ -31,11 +31,7 @@ export class AppController {
   }
 
   @Get('lobbies/:id')
-  getLobby(
-    @Param('id') id: string,
-    @Session() session: SessionData,
-    @Req() req: Request,
-  ) {
+  getLobby(@Param('id') id: string, @Session() session: SessionData) {
     if (!session) {
       throw new ForbiddenException();
     }
@@ -44,7 +40,8 @@ export class AppController {
       throw new UnauthorizedException();
     }
 
-    const [error, lobby] = this.service.getLobby(id);
+    const [error, lobby] = this.service.getLobby(id, session.userId);
+
     if (!lobby) {
       throw error;
     }

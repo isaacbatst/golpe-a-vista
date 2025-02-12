@@ -1,33 +1,43 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
+import { mutate } from "swr";
+import { API_URL } from "../constants";
+import { getUseLobbyKey } from "./api/useLobby";
 
-export default function useSocket() {
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const [messages, setMessages] = useState<string[]>([]);
+export default function useSocket(lobbyId: string) {
+  const socket = useRef<Socket | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const socketInstance = io("http://localhost:3001", {
-      path: "/ws/socket",
-    });
+    const connect = async () => {
+      setError(null);
+      if (socket.current) {
+        return;
+      }
 
-    socketInstance.on("connect", () => {
-      console.log("🟢 Conectado ao WebSocket:", socketInstance.id);
-    });
+      socket.current = io(API_URL, {
+        path: "/ws/socket",
+        withCredentials: true,
+      });
 
-    socketInstance.on("message", (message) => {
-      setMessages((prev) => [...prev, message]);
-    });
+      socket.current.on("connect", () => {
+        socket.current?.emit("join", { lobbyId });
+      });
 
-    socketInstance.on("disconnect", () => {
-      console.log("🔴 Desconectado do WebSocket");
-    });
+      socket.current.on("lobby:updated", (lobby) => {
+        mutate(getUseLobbyKey(lobbyId), lobby);
+      });
+    };
 
-    setSocket(socketInstance);
+    connect();
 
     return () => {
-      socketInstance.disconnect();
+      if (socket.current) {
+        socket.current.disconnect();
+        socket.current = null;
+      }
     };
-  }, []);
+  }, [socket, lobbyId]);
 
-  return { socket, messages };
+  return { socket: socket.current, error };
 }

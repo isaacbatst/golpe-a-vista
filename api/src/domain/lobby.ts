@@ -93,6 +93,10 @@ export class Lobby {
     return right(game);
   }
 
+  hasUser(userId: string): boolean {
+    return this._users.has(userId);
+  }
+
   get currentGame() {
     return this._games[this._games.length - 1];
   }
