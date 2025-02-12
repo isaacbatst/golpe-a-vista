@@ -50,4 +50,15 @@ export class AppController {
     req.session.userId = user.id;
     return lobby;
   }
+
+  @Get('me')
+  getMe(@Session() session: SessionData) {
+    if (!session) {
+      throw new ForbiddenException();
+    }
+
+    return {
+      id: session.userId,
+    };
+  }
 }

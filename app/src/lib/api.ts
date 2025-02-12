@@ -1,11 +1,20 @@
 import axios from "axios";
+import { API_URL } from "../constants";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: API_URL,
   withCredentials: true,
 })
+
+export const getMe = async () => {
+  try {
+    const response = await api.get<{ id: string }>('/me')
+    return response.data;
+  } catch {
+    return null;
+  }
+}
 
 export const createLobby = async (name: string) => {
   try {

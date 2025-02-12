@@ -31,10 +31,9 @@ export class AppService {
     const lobbyMember = new User({
       id: crypto.randomUUID(),
       name: body.name,
-      isConnected: true,
       isHost: true,
     });
-    const [addPlayerError] = lobby.addPlayer(lobbyMember);
+    const [addPlayerError] = lobby.addUser(lobbyMember);
     if (addPlayerError) {
       throw new InternalServerErrorException(addPlayerError);
     }
@@ -61,9 +60,8 @@ export class AppService {
     const lobbyMember = new User({
       id: crypto.randomUUID(),
       name: body.name,
-      isConnected: true,
     });
-    const [error] = lobby.addPlayer(lobbyMember);
+    const [error] = lobby.addUser(lobbyMember);
     if (error) {
       throw new InternalServerErrorException(error);
     }
@@ -71,5 +69,27 @@ export class AppService {
       lobby: lobby,
       user: lobbyMember,
     };
+  }
+
+  connectUser(lobbyId: string, userId: string, socketId: string) {
+    const lobby = this.lobbies.get(lobbyId);
+    if (!lobby) {
+      throw new NotFoundException();
+    }
+    const [error] = lobby.connectUser(userId, socketId);
+    if (error) {
+      throw new NotFoundException(error);
+    }
+  }
+
+  disconnectUser(lobbyId: string, userId: string) {
+    const lobby = this.lobbies.get(lobbyId);
+    if (!lobby) {
+      throw new NotFoundException();
+    }
+    const [error] = lobby.disconnectUser(userId);
+    if (error) {
+      throw new NotFoundException(error);
+    }
   }
 }
