@@ -99,7 +99,6 @@ export class AppService {
     userId: string,
     socketId: string,
   ): Either<Error, Lobby> {
-    console.log('connecting SOCKET ID', socketId);
     const lobby = this.lobbies.get(lobbyId);
     if (!lobby) {
       return left(new NotFoundException());
