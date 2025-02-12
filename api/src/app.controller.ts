@@ -19,16 +19,23 @@ export class AppController {
 
   @Post('lobbies')
   createLobby(@Req() req: Request, @Body() body: { name: string }) {
-    const { lobby, user } = this.service.createLobby(body);
-    req.session.lobbyId = lobby.id;
-    req.session.userId = user.id;
+    const [error, created] = this.service.createLobby(body);
+    if (!created) {
+      throw error;
+    }
+    req.session.lobbyId = created.lobby.id;
+    req.session.userId = created.user.id;
     return {
-      id: lobby.id,
+      id: created.lobby.id,
     };
   }
 
   @Get('lobbies/:id')
-  getLobby(@Param('id') id: string, @Session() session: SessionData) {
+  getLobby(
+    @Param('id') id: string,
+    @Session() session: SessionData,
+    @Req() req: Request,
+  ) {
     if (!session) {
       throw new ForbiddenException();
     }
@@ -36,7 +43,12 @@ export class AppController {
     if (session.lobbyId !== id) {
       throw new UnauthorizedException();
     }
-    return this.service.getLobby(id);
+
+    const [error, lobby] = this.service.getLobby(id);
+    if (!lobby) {
+      throw error;
+    }
+    return lobby;
   }
 
   @Post('lobbies/:id/join')
@@ -44,11 +56,18 @@ export class AppController {
     @Param('id') id: string,
     @Req() req: Request,
     @Body() body: { name: string },
+    @Session() session: SessionData,
   ) {
-    const { lobby, user } = this.service.joinLobby(id, body);
+    const [error, joined] = this.service.joinLobby(id, {
+      name: body.name,
+      session: session,
+    });
+    if (!joined) {
+      throw error;
+    }
     req.session.lobbyId = id;
-    req.session.userId = user.id;
-    return lobby;
+    req.session.userId = joined.user.id;
+    return joined.lobby;
   }
 
   @Get('me')

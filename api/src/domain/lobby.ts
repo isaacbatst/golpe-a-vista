@@ -37,7 +37,16 @@ export class Lobby {
     return right(undefined);
   }
 
-  removeUser(userId: string): Either<string, void> {
+  removeUser(userId: string, issuerId: string): Either<string, void> {
+    if (issuerId === userId) {
+      return left('Não é possível remover a si mesmo');
+    }
+
+    const issuer = this._users.get(issuerId);
+    if (!issuer || !issuer.isHost) {
+      return left('Apenas o anfitrião pode remover jogadores');
+    }
+
     if (!this._users.has(userId)) {
       return left('Jogador não encontrado');
     }
@@ -55,13 +64,13 @@ export class Lobby {
   disconnectUser(userId: string): Either<string, void> {
     const user = this._users.get(userId);
     if (!user) return left('Jogador não encontrado');
-    user.socketId = '';
+    user.socketId = null;
     return right();
   }
 
   isUserConnected(userId: string): boolean {
     const user = this._users.get(userId);
-    return !!user && !!user.socketId;
+    return Boolean(user?.isConnected);
   }
 
   startGame(): Either<string, Game> {

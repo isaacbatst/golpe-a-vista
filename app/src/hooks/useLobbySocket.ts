@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
+import { mutate } from "swr";
 import { API_URL } from "../constants";
-import { getMe } from "../lib/api";
+import { getUseLobbyKey } from "./api/useLobby";
 
 export default function useSocket(lobbyId: string) {
   const socket = useRef<Socket | null>(null);
@@ -10,33 +11,25 @@ export default function useSocket(lobbyId: string) {
   useEffect(() => {
     const connect = async () => {
       setError(null);
-      const me = await getMe();
-      if (!me) {
-        setError("Usuário não entrou no lobby");
-        return;
-      }
-
       if (socket.current) {
-        console.log("socket already exists");
         return;
       }
 
       socket.current = io(API_URL, {
         path: "/ws/socket",
+        withCredentials: true,
       });
 
       socket.current.on("connect", () => {
-        console.log("🟢 Conectado ao WebSocket");
-        socket.current?.emit("join", { lobbyId, userId: me.id });
+        socket.current?.emit("join", { lobbyId });
       });
 
-      socket.current.on("disconnect", () => {
-        console.log("🔴 Desconectado do WebSocket");
+      socket.current.on("lobby:updated", (lobby) => {
+        mutate(getUseLobbyKey(lobbyId), lobby);
       });
     };
 
-      console.log("connecting");
-      connect();
+    connect();
 
     return () => {
       if (socket.current) {

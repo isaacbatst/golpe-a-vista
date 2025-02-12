@@ -140,8 +140,40 @@ it('deve remover um jogador de um lobby', () => {
   });
   expect(error).toBeUndefined();
   const user = new User({ id: 'p1', name: 'p1-name' });
+  const host = new User({ id: 'p2', name: 'p2-name', isHost: true });
   lobby!.addUser(user);
+  lobby!.addUser(host);
+  expect(lobby!.users.length).toBe(2);
+  lobby!.removeUser('p1', 'p2');
   expect(lobby!.users.length).toBe(1);
-  lobby!.removeUser('p1');
-  expect(lobby!.users.length).toBe(0);
+});
+
+it('não deve remover o próprio jogador de um lobby', () => {
+  const [error, lobby] = Lobby.create({
+    crisesDeck,
+    lawsDeck,
+  });
+  expect(error).toBeUndefined();
+  const user = new User({ id: 'p1', name: 'p1-name' });
+  const host = new User({ id: 'p2', name: 'p2-name', isHost: true });
+  lobby!.addUser(user);
+  lobby!.addUser(host);
+  expect(lobby!.users.length).toBe(2);
+  const [removeError] = lobby!.removeUser('p2', 'p2');
+  expect(removeError).toBe('Não é possível remover a si mesmo');
+});
+
+it('não deve remover se não for o anfitrião', () => {
+  const [error, lobby] = Lobby.create({
+    crisesDeck,
+    lawsDeck,
+  });
+  expect(error).toBeUndefined();
+  const user = new User({ id: 'p1', name: 'p1-name' });
+  const host = new User({ id: 'p2', name: 'p2-name' });
+  lobby!.addUser(user);
+  lobby!.addUser(host);
+  expect(lobby!.users.length).toBe(2);
+  const [removeError] = lobby!.removeUser('p1', 'p2');
+  expect(removeError).toBe('Apenas o anfitrião pode remover jogadores');
 });

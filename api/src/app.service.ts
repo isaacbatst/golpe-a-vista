@@ -7,6 +7,7 @@ import crypto from 'crypto';
 import { AppRepository } from './app.repository';
 import { Lobby } from './domain/lobby';
 import { User } from './domain/user';
+import { Either, left, right } from './domain/either';
 
 @Injectable()
 export class AppService {
@@ -14,7 +15,9 @@ export class AppService {
 
   constructor(private readonly repository: AppRepository) {}
 
-  createLobby(body: { name: string }) {
+  createLobby(body: {
+    name: string;
+  }): Either<Error, { lobby: Lobby; user: User }> {
     let id = Math.random().toString(36).slice(2, 6).toUpperCase();
     while (this.lobbies.has(id)) {
       id = Math.random().toString(36).slice(2, 6).toUpperCase();
@@ -26,7 +29,7 @@ export class AppService {
       crisesDeck: this.repository.cloneCrisesDeck(),
     });
     if (!lobby) {
-      throw new InternalServerErrorException(error);
+      return left(new InternalServerErrorException(error));
     }
     const lobbyMember = new User({
       id: crypto.randomUUID(),
@@ -35,61 +38,104 @@ export class AppService {
     });
     const [addPlayerError] = lobby.addUser(lobbyMember);
     if (addPlayerError) {
-      throw new InternalServerErrorException(addPlayerError);
+      return left(new InternalServerErrorException(addPlayerError));
     }
     this.lobbies.set(id, lobby);
-    return {
+    return right({
       lobby: lobby,
       user: lobbyMember,
-    };
-  }
-
-  getLobby(id: string) {
-    const lobby = this.lobbies.get(id);
-    if (!lobby) {
-      return null;
-    }
-    return lobby;
-  }
-
-  joinLobby(id: string, body: { name: string }) {
-    const lobby = this.lobbies.get(id);
-    if (!lobby) {
-      throw new NotFoundException();
-    }
-    const lobbyMember = new User({
-      id: crypto.randomUUID(),
-      name: body.name,
     });
-    const [error] = lobby.addUser(lobbyMember);
-    if (error) {
-      throw new InternalServerErrorException(error);
-    }
-    return {
-      lobby: lobby,
-      user: lobbyMember,
-    };
   }
 
-  connectUser(lobbyId: string, userId: string, socketId: string) {
+  getLobby(id: string): Either<Error, Lobby> {
+    const lobby = this.lobbies.get(id);
+    if (!lobby) {
+      return left(new NotFoundException());
+    }
+    return right(lobby);
+  }
+
+  joinLobby(
+    id: string,
+    body: { name: string; session?: { lobbyId: string; userId: string } },
+  ): Either<Error, { lobby: Lobby; user: User }> {
+    const lobby = this.lobbies.get(id);
+    if (!lobby) {
+      return left(new NotFoundException());
+    }
+
+    const userInLobby = lobby.users.find(
+      (user) => user.id === body.session?.userId,
+    );
+
+    if (!body.session || !userInLobby) {
+      const lobbyMember = new User({
+        id: crypto.randomUUID(),
+        name: body.name,
+      });
+      const [error] = lobby.addUser(lobbyMember);
+      if (error) {
+        return left(new InternalServerErrorException(error));
+      }
+      return right({
+        lobby: lobby,
+        user: lobbyMember,
+      });
+    }
+
+    return right({
+      lobby: lobby,
+      user: userInLobby,
+    });
+  }
+
+  connectUser(
+    lobbyId: string,
+    userId: string,
+    socketId: string,
+  ): Either<Error, Lobby> {
+    console.log('connecting SOCKET ID', socketId);
     const lobby = this.lobbies.get(lobbyId);
     if (!lobby) {
-      throw new NotFoundException();
+      return left(new NotFoundException());
     }
     const [error] = lobby.connectUser(userId, socketId);
     if (error) {
-      throw new NotFoundException(error);
+      return left(new NotFoundException(error));
     }
+    return right(lobby);
   }
 
-  disconnectUser(lobbyId: string, userId: string) {
+  disconnectUser(userId: string, lobbyId: string): Either<Error, Lobby> {
     const lobby = this.lobbies.get(lobbyId);
     if (!lobby) {
-      throw new NotFoundException();
+      return left(new NotFoundException());
     }
+
     const [error] = lobby.disconnectUser(userId);
+
     if (error) {
-      throw new NotFoundException(error);
+      return left(new NotFoundException(error));
     }
+
+    return right(lobby);
+  }
+
+  kickUser(input: {
+    lobbyId: string;
+    userId: string;
+    issuerId: string;
+  }): Either<Error, Lobby> {
+    const lobby = this.lobbies.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException());
+    }
+
+    const [error] = lobby.removeUser(input.userId, input.issuerId);
+    if (error) {
+      return left(new NotFoundException(error));
+    }
+
+    return right(lobby);
   }
 }
