@@ -94,6 +94,23 @@ export class AppService {
     });
   }
 
+  startGame(input: {
+    lobbyId: string;
+    issuerId: string;
+  }): Either<Error, Lobby> {
+    const lobby = this.lobbies.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException());
+    }
+
+    const [error] = lobby.startGame(input.issuerId);
+    if (error) {
+      return left(new InternalServerErrorException(error));
+    }
+
+    return right(lobby);
+  }
+
   connectUser(
     lobbyId: string,
     userId: string,

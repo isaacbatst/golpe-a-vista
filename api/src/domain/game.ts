@@ -62,7 +62,7 @@ export class Game {
   private _presidentQueue: PresidentQueue;
   private _rounds: Round[];
   private _crisesDeck: Deck<Crisis>;
-  private _progressiveLawsToFear;
+  private _progressiveLawsToFear: number;
   private _rejectedLawsIntervalToCrisis: number;
   private _conservativesImpeachedToRadicalWin: number;
 
@@ -300,5 +300,23 @@ export class Game {
 
   get presidentQueue() {
     return this._presidentQueue;
+  }
+
+  toJSON() {
+    return {
+      players: this._players.map((player) => player.toJSON()),
+      lawsDeck: this._lawsDeck.toJSON(),
+      crisesDeck: this._crisesDeck.toJSON(),
+      president: this.president.toJSON(),
+      winner: this.winner,
+      lawsToProgressiveWin: this._lawsToProgressiveWin,
+      lawsToConservativeWin: this._lawsToConservativeWin,
+      crisesIntervalToImpeach: this._crisesIntervalToImpeach,
+      rounds: this._rounds,
+      progressiveLawsToFear: this._progressiveLawsToFear,
+      rejectedLawsIntervalToCrisis: this._rejectedLawsIntervalToCrisis,
+      conservativesImpeachedToRadicalWin:
+        this._conservativesImpeachedToRadicalWin,
+    };
   }
 }

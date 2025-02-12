@@ -73,7 +73,11 @@ export class Lobby {
     return Boolean(user?.isConnected);
   }
 
-  startGame(): Either<string, Game> {
+  startGame(userId: string): Either<string, Game> {
+    if (userId !== this.host?.id) {
+      return left('Apenas o anfitrião pode iniciar o jogo');
+    }
+
     if (this._users.size < this.minPlayers) {
       return left(`Mínimo de ${this.minPlayers} jogadores para iniciar o jogo`);
     }
@@ -117,11 +121,16 @@ export class Lobby {
     return this._minPlayers;
   }
 
+  get host() {
+    return Array.from(this._users.values()).find((u) => u.isHost);
+  }
+
   toJSON() {
     return {
       users: Array.from(this._users.values()).map((user) => user.toJSON()),
       id: this._id,
       minPlayers: this.minPlayers,
+      currentGame: this.currentGame?.toJSON(),
       // games: this._games.map((game) => game.toJSON()),
     };
   }

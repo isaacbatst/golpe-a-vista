@@ -63,4 +63,16 @@ export abstract class Crisis {
   get actions(): readonly string[] | null {
     return this._actionController?.actions ?? null;
   }
+
+  toJSON() {
+    return {
+      title: this.title,
+      description: this.description,
+      visibleTo: this.visibleTo,
+      notVisibleTo: this.notVisibleTo,
+      currentAction: this.currentAction,
+      isComplete: this.isComplete,
+      actions: this.actions,
+    };
+  }
 }

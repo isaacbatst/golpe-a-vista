@@ -1,4 +1,4 @@
-import { Crown, LinkIcon, Trash, Wifi } from "lucide-react";
+import { Crown, LinkIcon, Play, Trash, Wifi } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "../../../components/ui/button";
 import {
@@ -22,7 +22,7 @@ const Lobby = ({ lobby }: Props) => {
   const myPlayer = lobby.users.find(
     (u: { id: string }) => u.id === me.data?.id
   );
-  const { kickUser } = useLobbySocket();
+  const { kickUser, error, startGame } = useLobbySocket();
 
   const copyLink = () => {
     const link = `${window.location.origin}/join/${lobby.id}`;
@@ -31,6 +31,7 @@ const Lobby = ({ lobby }: Props) => {
       closeButton: true,
     });
   };
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -45,9 +46,9 @@ const Lobby = ({ lobby }: Props) => {
             </Button>
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col">
           <ul className="space-y-2">
-            {[...Array(6)].map((_, index) => {
+            {[...Array(7)].map((_, index) => {
               const player = lobby.users[index];
               const isMe = player?.id === myPlayer?.id;
               const canKick = myPlayer?.isHost && !isMe;
@@ -75,7 +76,11 @@ const Lobby = ({ lobby }: Props) => {
                         <Button
                           variant="ghost"
                           onClick={() => {
-                            if(window.confirm(`Deseja remover ${player.name} do lobby?`)){
+                            if (
+                              window.confirm(
+                                `Deseja remover ${player.name} do lobby?`
+                              )
+                            ) {
                               kickUser(player.id);
                             }
                           }}
@@ -86,6 +91,7 @@ const Lobby = ({ lobby }: Props) => {
                       <span
                         className={cn("text-sm", {
                           "text-green-500": player.isConnected,
+                          "text-red-500": !player.isConnected,
                         })}
                       >
                         <Wifi className="h-4" />
@@ -98,6 +104,21 @@ const Lobby = ({ lobby }: Props) => {
               );
             })}
           </ul>
+          <Button
+            className="mt-4"
+            disabled={lobby.users.length < 7}
+            onClick={() => {
+              startGame();
+            }}
+          >
+            <Play />
+            Iniciar Jogo
+          </Button>
+          {error && (
+            <div className="mt-4 p-4 bg-red-100 text-red-500 rounded-lg">
+              {error}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

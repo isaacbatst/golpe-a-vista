@@ -40,4 +40,13 @@ export class Player {
   get radicalized() {
     return this._radicalized;
   }
+
+  toJSON() {
+    return {
+      name: this._name,
+      role: this._role,
+      impeached: this.impeached,
+      radicalized: this._radicalized,
+    };
+  }
 }

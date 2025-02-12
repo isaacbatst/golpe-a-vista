@@ -27,6 +27,11 @@ export default function useSocket(lobbyId: string) {
       socket.current.on("lobby:updated", (lobby) => {
         mutate(getUseLobbyKey(lobbyId), lobby);
       });
+
+      socket.current.on("error", (error: { message: string }) => { 
+        console.log('message', error.message);
+        setError(error.message);
+      });
     };
 
     connect();

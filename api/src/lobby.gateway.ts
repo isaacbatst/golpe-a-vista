@@ -100,6 +100,22 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(data.lobbyId).emit('lobby:updated', lobby);
   }
 
+  @SubscribeMessage('start')
+  startGame(client: Socket, data: { lobbyId: string }) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] = this.service.startGame({
+      lobbyId: data.lobbyId,
+      issuerId: client.request.session.userId,
+    });
+    if (error) {
+      console.log(error);
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
+  }
+
   private handleSocketError(client: Socket, error: string) {
     console.error('❌ WebSocket Error:', error);
     client.emit('error', { message: error });

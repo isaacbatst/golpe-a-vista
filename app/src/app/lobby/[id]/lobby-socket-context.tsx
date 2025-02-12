@@ -4,6 +4,7 @@ import useSocket from "../../../hooks/useSocket";
 type LobbySocketContextType = {
   error: string | null;
   kickUser: (userId: string) => void;
+  startGame: () => void;
 };
 
 export const LobbySocketContext = createContext<LobbySocketContextType>(
@@ -16,14 +17,17 @@ export const LobbySocketProvider = ({
 }: PropsWithChildren<{
   lobbyId: string;
 }>) => {
-  const socket = useSocket(lobbyId);
+  const { socket, error } = useSocket(lobbyId);
 
   return (
     <LobbySocketContext.Provider
       value={{
-        error: socket.error,
+        error: error,
         kickUser: (userId: string) => {
-          socket.socket?.emit("kick", { lobbyId, userId });
+          socket?.emit("kick", { lobbyId, userId });
+        },
+        startGame: () => {
+          socket?.emit("start", { lobbyId });
         },
       }}
     >

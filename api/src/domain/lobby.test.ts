@@ -77,14 +77,14 @@ it('deve iniciar um jogo com 7 jogadores', () => {
     lawsDeck,
   });
   expect(error).toBeUndefined();
-  lobby!.addUser(new User({ id: 'p1', name: 'p1' }));
+  lobby!.addUser(new User({ id: 'p1', name: 'p1', isHost: true }));
   lobby!.addUser(new User({ id: 'p2', name: 'p2' }));
   lobby!.addUser(new User({ id: 'p3', name: 'p3' }));
   lobby!.addUser(new User({ id: 'p4', name: 'p4' }));
   lobby!.addUser(new User({ id: 'p5', name: 'p5' }));
   lobby!.addUser(new User({ id: 'p6', name: 'p6' }));
   lobby!.addUser(new User({ id: 'p7', name: 'p7' }));
-  const [startGameError, game] = lobby!.startGame();
+  const [startGameError, game] = lobby!.startGame('p1');
   expect(startGameError).toBeUndefined();
   expect(game).toBeDefined();
 });
@@ -99,9 +99,9 @@ it.each([6, 7, 8, 9])(
     });
     expect(error).toBeUndefined();
     for (let i = 1; i < n; i++) {
-      lobby!.addUser(new User({ id: `p${i}`, name: `p${i}` }));
+      lobby!.addUser(new User({ id: `p${i}`, name: `p${i}`, isHost: i === 1 }));
     }
-    const [startGameError] = lobby!.startGame();
+    const [startGameError] = lobby!.startGame('p1');
     expect(startGameError).toBe(`Mínimo de ${n} jogadores para iniciar o jogo`);
   },
 );

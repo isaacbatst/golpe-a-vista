@@ -1,7 +1,8 @@
 import { Either, left, right } from './either';
 import { Random } from './random';
+import { InferSerialized, Serializable } from './serializable';
 
-export class Deck<T> {
+export class Deck<T extends Serializable<InferSerialized<T>>> {
   private _cards: T[];
   private _allCards: T[];
 
@@ -11,7 +12,9 @@ export class Deck<T> {
     this.shuffle();
   }
 
-  static create<T>(cards: T[]): Either<string, Deck<T>> {
+  static create<T extends Serializable<InferSerialized<T>>>(
+    cards: T[],
+  ): Either<string, Deck<T>> {
     if (cards.length === 0) {
       return left('O baralho não pode ser vazio');
     }
@@ -45,5 +48,9 @@ export class Deck<T> {
 
   get allCards(): T[] {
     return this._allCards;
+  }
+
+  toJSON(): InferSerialized<T>[] {
+    return this._cards.map((card) => card.toJSON());
   }
 }
