@@ -6,7 +6,7 @@ import { Game } from './game';
 import { User } from './user';
 
 type LobbyParams = {
-  code?: string;
+  id?: string;
   minPlayers?: number;
   lawsDeck: Deck<Law>;
   crisesDeck: Deck<Crisis>;
@@ -19,13 +19,13 @@ export class Lobby {
   private constructor(
     private _crisesDeck: Deck<Crisis>,
     private _lawsDeck: Deck<Law>,
-    private _code: string,
+    private _id: string,
     private _minPlayers: number,
   ) {}
 
   static create(params: LobbyParams): Either<string, Lobby> {
-    const { code = '00000', minPlayers = 7, crisesDeck, lawsDeck } = params;
-    return right(new Lobby(crisesDeck, lawsDeck, code, minPlayers));
+    const { id = '00000', minPlayers = 7, crisesDeck, lawsDeck } = params;
+    return right(new Lobby(crisesDeck, lawsDeck, id, minPlayers));
   }
 
   addPlayer(user: User): Either<string, void> {
@@ -69,8 +69,8 @@ export class Lobby {
     return Array.from(this._games.values());
   }
 
-  get code() {
-    return this._code;
+  get id() {
+    return this._id;
   }
 
   get minPlayers() {
@@ -80,7 +80,7 @@ export class Lobby {
   toJSON() {
     return {
       users: Array.from(this._users.values()).map((user) => user.toJSON()),
-      code: this._code,
+      id: this._id,
       minPlayers: this.minPlayers,
       // games: this._games.map((game) => game.toJSON()),
     };

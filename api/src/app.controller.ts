@@ -3,48 +3,27 @@ import {
   Controller,
   ForbiddenException,
   Get,
-  InternalServerErrorException,
   Param,
   Post,
   Req,
   Session,
   UnauthorizedException,
 } from '@nestjs/common';
-import crypto from 'crypto';
 import { Request } from 'express';
 import { SessionData } from 'express-session';
-import { Lobby } from './domain/lobby';
-import { User } from './domain/user';
+import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
-  lobbies = new Map<string, Lobby>();
+  constructor(private readonly service: AppService) {}
 
   @Post('lobbies')
   createLobby(@Req() req: Request, @Body() body: { name: string }) {
-    let id = Math.random().toString(36).slice(2, 6).toUpperCase();
-    while (this.lobbies.has(id)) {
-      id = Math.random().toString(36).slice(2, 6).toUpperCase();
-    }
-    const [error, lobby] = Lobby.create(id);
-    if (!lobby) {
-      throw new InternalServerErrorException(error);
-    }
-    const lobbyMember = new User({
-      id: crypto.randomUUID(),
-      name: body.name,
-      isConnected: true,
-      isHost: true,
-    });
-    const [addPlayerError] = lobby.addPlayer(lobbyMember);
-    if (addPlayerError) {
-      throw new InternalServerErrorException(addPlayerError);
-    }
-    this.lobbies.set(id, lobby);
-    req.session.lobbyId = id;
-    req.session.userId = lobbyMember.id;
+    const { lobby, user } = this.service.createLobby(body);
+    req.session.lobbyId = lobby.id;
+    req.session.userId = user.id;
     return {
-      id,
+      id: lobby.id,
     };
   }
 
@@ -57,11 +36,7 @@ export class AppController {
     if (session.lobbyId !== id) {
       throw new UnauthorizedException();
     }
-    const lobby = this.lobbies.get(id);
-    if (!lobby) {
-      return null;
-    }
-    return lobby;
+    return this.service.getLobby(id);
   }
 
   @Post('lobbies/:id/join')
@@ -70,21 +45,9 @@ export class AppController {
     @Req() req: Request,
     @Body() body: { name: string },
   ) {
-    const lobby = this.lobbies.get(id);
-    if (!lobby) {
-      throw new ForbiddenException();
-    }
-    const lobbyMember = new User({
-      id: crypto.randomUUID(),
-      name: body.name,
-      isConnected: true,
-    });
-    const [error] = lobby.addPlayer(lobbyMember);
-    if (error) {
-      throw new InternalServerErrorException(error);
-    }
+    const { lobby, user } = this.service.joinLobby(id, body);
     req.session.lobbyId = id;
-    req.session.userId = lobbyMember.id;
+    req.session.userId = user.id;
     return lobby;
   }
 }
