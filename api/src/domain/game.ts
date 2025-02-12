@@ -36,13 +36,14 @@ export class Game {
 
   static rolesByPlayersLength(length: number) {
     const map: Record<number, Role[]> = {
-      6: [
+      7: [
         Role.RADICAL,
         Role.MODERADO,
         Role.MODERADO,
         Role.MODERADO,
         Role.CONSERVADOR,
         Role.CONSERVADOR,
+        Role.MODERADO,
       ],
     };
 

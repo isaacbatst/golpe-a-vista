@@ -1,11 +1,16 @@
-import CRISES from '../data/crises';
-import { Law, LAWS } from '../data/laws';
+import { Law } from '../data/laws';
 import { Crisis } from './crisis/crisis';
-import { CrisisFactory } from './crisis/crisis-factory';
 import { Deck } from './deck';
 import { Either, left, right } from './either';
 import { Game } from './game';
 import { User } from './user';
+
+type LobbyParams = {
+  code?: string;
+  minPlayers?: number;
+  lawsDeck: Deck<Law>;
+  crisesDeck: Deck<Crisis>;
+};
 
 export class Lobby {
   private _users: Map<string, User> = new Map();
@@ -15,19 +20,12 @@ export class Lobby {
     private _crisesDeck: Deck<Crisis>,
     private _lawsDeck: Deck<Law>,
     private _code: string,
+    private _minPlayers: number,
   ) {}
 
-  static create(code: string = '0000'): Either<string, Lobby> {
-    const [lawsDeckError, lawsDeck] = Deck.create(LAWS);
-    if (!lawsDeck) return left(lawsDeckError);
-    const [crisesDeckError, crisesDeck] = Deck.create(
-      Object.keys(CRISES).map((key: keyof typeof CRISES) =>
-        CrisisFactory.createCrisis(key),
-      ),
-    );
-    if (!crisesDeck) return left(crisesDeckError);
-
-    return right(new Lobby(crisesDeck, lawsDeck, code));
+  static create(params: LobbyParams): Either<string, Lobby> {
+    const { code = '00000', minPlayers = 7, crisesDeck, lawsDeck } = params;
+    return right(new Lobby(crisesDeck, lawsDeck, code, minPlayers));
   }
 
   addPlayer(user: User): Either<string, void> {
@@ -40,8 +38,8 @@ export class Lobby {
   }
 
   startGame(): Either<string, Game> {
-    if (this._users.size < 6) {
-      return left('Mínimo de 6 jogadores para iniciar o jogo');
+    if (this._users.size < this.minPlayers) {
+      return left(`Mínimo de ${this.minPlayers} jogadores para iniciar o jogo`);
     }
     const players = Array.from(this._users.values()).map((m) => m.name);
     const [error, game] = Game.create({
@@ -75,10 +73,15 @@ export class Lobby {
     return this._code;
   }
 
+  get minPlayers() {
+    return this._minPlayers;
+  }
+
   toJSON() {
     return {
       users: Array.from(this._users.values()).map((user) => user.toJSON()),
       code: this._code,
+      minPlayers: this.minPlayers,
       // games: this._games.map((game) => game.toJSON()),
     };
   }
