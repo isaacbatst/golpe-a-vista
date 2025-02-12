@@ -7,9 +7,9 @@ Neste jogo de blefe e estratégia, você assumirá um dos papéis de **Moderado*
 Seja sutil como um operador de gabinete ou implacável como um líder autoritário—mas lembre-se: **quem controla o poder nem sempre joga limpo.**
 
 ## **1️⃣ Estrutura Básica do Jogo**
-✅ **Número de Jogadores:** 6 jogadores  
+✅ **Número de Jogadores:** 7 jogadores  
 ✅ **Papéis no jogo:**  
-   - **Moderados (3x)** → Seu objetivo é aprovar leis progressistas, mas tem receio de gerar crises caso muitas leis progressistas sejam aprovadas em sequência.
+   - **Moderados (4x)** → Seu objetivo é aprovar leis progressistas, mas tem receio de gerar crises caso muitas leis progressistas sejam aprovadas em sequência.
    - **Conservadores (2x)** → Seu objetivo é aprovar leis conservadoras e cassar o radical. Sabem quem são os outros conservadores.
    - **Radical (1x)** → Seu objetivo é tomar o controle do governo, cassando os conservadores ou radicalizando os moderados.
 
