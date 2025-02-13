@@ -9,7 +9,7 @@ import { LawType, Role } from './role';
 import { Round } from './round';
 
 type GameParams = {
-  players: Player[];
+  players: Map<string, Player>;
   lawsToProgressiveWin?: number;
   lawsToConservativeWin?: number;
   crisesIntervalToImpeach?: number;
@@ -24,14 +24,16 @@ type GameParams = {
 
 export class Game {
   static createPlayers(
-    players: string[],
+    players: [string, string][],
     roles: Role[] = Game.rolesByPlayersLength(players.length),
-  ): Player[] {
+  ): Map<string, Player> {
     const rolesToDistribute = [...roles];
-    return players.map((playerName) => {
-      const role = Random.extractFromArray(rolesToDistribute);
-      return new Player(playerName, role);
-    });
+    return new Map(
+      players.map(([id, name]) => {
+        const role = Random.extractFromArray(rolesToDistribute);
+        return [id, new Player(name, role)];
+      }),
+    );
   }
 
   static rolesByPlayersLength(length: number) {
@@ -54,7 +56,7 @@ export class Game {
     return roles;
   }
 
-  private _players: Player[] = [];
+  private _players: Map<string, Player>;
   private _lawsDeck: Deck<Law>;
   private _lawsToProgressiveWin: number;
   private _lawsToConservativeWin: number;
@@ -97,7 +99,7 @@ export class Game {
   }
 
   private constructor(
-    players: Player[],
+    players: Map<string, Player>,
     lawsDeck: Deck<Law>,
     lawsToProgressiveWin: number,
     lawsToConservativeWin: number,
@@ -115,7 +117,8 @@ export class Game {
     this._lawsToConservativeWin = lawsToConservativeWin;
     this._crisesIntervalToImpeach = crisesIntervalToImpeach;
     this._presidentQueue =
-      presidentQueue ?? new PresidentQueue(Random.sort(players));
+      presidentQueue ??
+      new PresidentQueue(Random.sort(Array.from(players.values())));
     this._crisesDeck = crisesDeck;
     this._progressiveLawsToFear = progressiveLawsIntervalToCrisis;
     this._rejectedLawsIntervalToCrisis = rejectedLawsIntervalToCrisis;
@@ -227,7 +230,7 @@ export class Game {
   }
 
   get hasConservativeWon() {
-    const areEveryRadicalImpeached = this._players
+    const areEveryRadicalImpeached = Array.from(this._players.values())
       .filter((player) => player.role === Role.RADICAL)
       .every((player) => player.impeached);
 
@@ -238,7 +241,7 @@ export class Game {
   }
 
   get hasRadicalWon() {
-    const impeachedConservatives = this._players.filter(
+    const impeachedConservatives = Array.from(this._players.values()).filter(
       (player) => player.role === Role.CONSERVADOR && player.impeached,
     );
     return (
@@ -291,7 +294,7 @@ export class Game {
   }
 
   get players() {
-    return [...this._players];
+    return Array.from(this._players.values());
   }
 
   get crisesIntervalToImpeach() {
@@ -303,14 +306,28 @@ export class Game {
   }
 
   toJSON() {
+    const approvedLaws = this.approvedLaws;
     return {
-      players: this._players.map((player) => player.toJSON()),
+      players: Array.from(this._players.entries()).map(([id, player]) => ({
+        ...player.toJSON(),
+        id,
+        isPresident: player === this.president,
+        isRapporteur: player === this.currentRound.rapporteur,
+        isNextPresident:
+          player === this.getPresidentFromQueue(this.currentRoundIndex + 1),
+      })),
       lawsDeck: this._lawsDeck.toJSON(),
       crisesDeck: this._crisesDeck.toJSON(),
       president: this.president.toJSON(),
       winner: this.winner,
       lawsToProgressiveWin: this._lawsToProgressiveWin,
       lawsToConservativeWin: this._lawsToConservativeWin,
+      approvedConservativeLaws: approvedLaws.filter(
+        (law) => law.type === LawType.CONSERVADORES,
+      ),
+      approvedProgressiveLaws: approvedLaws.filter(
+        (law) => law.type === LawType.PROGRESSISTAS,
+      ),
       crisesIntervalToImpeach: this._crisesIntervalToImpeach,
       rounds: this._rounds,
       progressiveLawsToFear: this._progressiveLawsToFear,

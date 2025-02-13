@@ -19,27 +19,24 @@ export const makeCrisesDeck = () => {
 
 export const makeLawsDeck = (
   laws: Law[] | 'progressive' | 'conservative' = [
-    { description: 'Lei 1', type: LawType.CONSERVADORES, name: 'L1' },
-    { description: 'Lei 2', type: LawType.CONSERVADORES, name: 'L2' },
-    { description: 'Lei 3', type: LawType.CONSERVADORES, name: 'L3' },
-    { description: 'Lei 4', type: LawType.CONSERVADORES, name: 'L4' },
+    new Law('Lei 1', LawType.CONSERVADORES, 'L1'),
+    new Law('Lei 2', LawType.CONSERVADORES, 'L2'),
+    new Law('Lei 3', LawType.CONSERVADORES, 'L3'),
+    new Law('Lei 4', LawType.CONSERVADORES, 'L4'),
   ],
 ) => {
   if (laws === 'progressive') {
-    laws = Array.from({ length: 5 }, (_, i) => ({
-      description: `Lei ${i + 1}`,
-      type: LawType.PROGRESSISTAS,
-      name: `L${i + 1}`,
-    }));
+    laws = Array.from(
+      { length: 5 },
+      (_, i) => new Law(`Lei ${i + 1}`, LawType.PROGRESSISTAS, `L${i + 1}`),
+    );
   }
   if (laws === 'conservative') {
-    laws = Array.from({ length: 5 }, (_, i) => ({
-      description: `Lei ${i + 1}`,
-      type: LawType.CONSERVADORES,
-      name: `L${i + 1}`,
-    }));
+    laws = Array.from(
+      { length: 5 },
+      (_, i) => new Law(`Lei ${i + 1}`, LawType.CONSERVADORES, `L${i + 1}`),
+    );
   }
-
   const [error, deck] = Deck.create(laws);
   if (!deck) {
     throw new Error(error);

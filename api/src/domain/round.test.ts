@@ -15,6 +15,7 @@ import { SessaoSecreta } from './crisis/sessao-secreta';
 import { CrisisStage } from './stage/crisis-stage';
 import { PresidentQueue } from './president-queue';
 import { describe, expect, it } from 'vitest';
+import { Law } from '../data/laws';
 
 describe('Estágios', () => {
   it('Deve iniciar Estágio Legislativo', () => {
@@ -136,13 +137,7 @@ describe('Estágios', () => {
   it('Deve avançar do Dossiê para o estágio da Sabotagem se uma lei progressista foi aprovada e a rodada anterior não foi sabotada', () => {
     const president = new Player('p1', Role.MODERADO);
     const nextPresident = new Player('p2', Role.MODERADO);
-    const lawsDeck = makeLawsDeck(
-      Array.from({ length: 5 }, (_, i) => ({
-        description: `Lei ${i + 1}`,
-        type: LawType.PROGRESSISTAS,
-        name: `L${i + 1}`,
-      })),
-    );
+    const lawsDeck = makeLawsDeck('progressive');
     const crisesDeck = makeCrisesDeck();
     const players = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6'];
     const legislativeStage = new LegislativeStage({
@@ -186,13 +181,7 @@ describe('Estágios', () => {
   it('Deve avançar do Dossiê para o estágio de Radicalização se não houver Sabotagem, pelo menos X leis progressistas ou Y leis conservadoras foram ativadas e a rodada atual tiver uma crise', () => {
     const president = new Player('p1', Role.MODERADO);
     const nextPresident = new Player('p2', Role.MODERADO);
-    const lawsDeck = makeLawsDeck(
-      Array.from({ length: 5 }, (_, i) => ({
-        description: `Lei ${i + 1}`,
-        type: LawType.PROGRESSISTAS,
-        name: `L${i + 1}`,
-      })),
-    );
+    const lawsDeck = makeLawsDeck('progressive');
     const crisesDeck = makeCrisesDeck();
     const round = new Round({
       presidentQueue: new PresidentQueue([president, nextPresident]),
@@ -227,13 +216,7 @@ describe('Estágios', () => {
   it('Deve avançar do estágio de Sabotagem para o estágio de Radicalização se a rodada anterior foi sabotada e cumprir as condições de radicalização', () => {
     const president = new Player('p1', Role.MODERADO);
     const nextPresident = new Player('p2', Role.MODERADO);
-    const lawsDeck = makeLawsDeck(
-      Array.from({ length: 5 }, (_, i) => ({
-        description: `Lei ${i + 1}`,
-        type: LawType.PROGRESSISTAS,
-        name: `L${i + 1}`,
-      })),
-    );
+    const lawsDeck = makeLawsDeck('progressive');
     const crisesDeck = makeCrisesDeck();
     const round = new Round({
       presidentQueue: new PresidentQueue([president, nextPresident]),
@@ -341,11 +324,15 @@ describe('Crises', () => {
     it('Deve ser obrigatório vetar uma lei progressista', () => {
       const president = new Player('p1', Role.MODERADO);
       const nextPresident = new Player('p2', Role.MODERADO);
-      const cards = Array.from({ length: 3 }, (_, i) => ({
-        description: `Lei ${i + 1}`,
-        type: i === 0 ? LawType.PROGRESSISTAS : LawType.CONSERVADORES,
-        name: `L${i + 1}`,
-      }));
+      const cards = Array.from(
+        { length: 3 },
+        (_, i) =>
+          new Law(
+            `Lei ${i + 1}`,
+            i === 0 ? LawType.PROGRESSISTAS : LawType.CONSERVADORES,
+            `L${i + 1}`,
+          ),
+      );
       const lawsDeck = makeLawsDeck(cards);
       const crisesDeck = makeCrisesDeck();
       const round = new Round({

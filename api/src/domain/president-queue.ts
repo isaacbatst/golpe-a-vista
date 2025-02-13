@@ -5,7 +5,7 @@ export class PresidentQueue {
   private _offset: number = 0;
 
   constructor(_players: Player[]) {
-    this._players = [..._players];
+    this._players = _players;
   }
 
   get players(): Player[] {
