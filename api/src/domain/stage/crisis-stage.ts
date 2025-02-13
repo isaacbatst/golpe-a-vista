@@ -1,4 +1,5 @@
 import { Crisis } from '../crisis/crisis';
+import { CrisisFactory } from '../crisis/crisis-factory';
 import { Round } from '../round';
 import { Stage, StageType } from './stage';
 
@@ -10,8 +11,14 @@ enum CrisisStageAction {
 export class CrisisStage extends Stage {
   readonly type = StageType.CRISIS;
 
-  constructor(readonly crisis: Crisis) {
-    super([CrisisStageAction.EFFECT, CrisisStageAction.ADVANCE_STAGE]);
+  constructor(
+    readonly crisis: Crisis,
+    currentAction?: CrisisStageAction,
+  ) {
+    super(
+      [CrisisStageAction.EFFECT, CrisisStageAction.ADVANCE_STAGE],
+      currentAction,
+    );
   }
 
   executeEffect(round: Round): void {
@@ -27,7 +34,13 @@ export class CrisisStage extends Stage {
   toJSON() {
     return {
       ...super.toJSON(),
+      type: this.type,
+      currentAction: this.currentAction as CrisisStageAction,
       crisis: this.crisis.toJSON(),
-    };
+    } as const;
+  }
+
+  static fromJSON(data: ReturnType<CrisisStage['toJSON']>): CrisisStage {
+    return new CrisisStage(Crisis.fromJSON(data.crisis, CrisisFactory));
   }
 }

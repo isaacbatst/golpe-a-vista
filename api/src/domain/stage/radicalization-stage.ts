@@ -9,13 +9,14 @@ export enum RadicalizationAction {
 
 export class RadicalizationStage extends Stage {
   readonly type = StageType.RADICALIZATION;
-  private _target: Player | null = null;
+  private _targetId: string | null;
 
-  constructor(currentAction?: RadicalizationAction) {
+  constructor(currentAction?: RadicalizationAction, target?: string) {
     super(
       [RadicalizationAction.RADICALIZE, RadicalizationAction.ADVANCE_STAGE],
       currentAction,
     );
+    this._targetId = target ?? null;
   }
 
   radicalize(target: Player): Either<string, boolean> {
@@ -25,23 +26,35 @@ export class RadicalizationStage extends Stage {
     if (actionError) {
       return left(actionError);
     }
-    this._target = target;
     const [error, radicalized] = target.radicalize();
     if (error) {
       return left(error);
     }
+    this._targetId = target.id;
     this.advanceAction();
     return right(radicalized);
   }
 
-  get target(): Player | null {
-    return this._target;
+  get target(): string | null {
+    return this._targetId;
   }
 
   toJSON() {
     return {
       ...super.toJSON(),
-      target: this._target?.toJSON(),
-    };
+      type: this.type,
+      currentAction: this.currentAction as RadicalizationAction,
+      targetId: this._targetId,
+    } as const;
+  }
+
+  static fromJSON(
+    data: ReturnType<RadicalizationStage['toJSON']>,
+  ): RadicalizationStage {
+    const stage = new RadicalizationStage(
+      data.currentAction,
+      data.targetId ?? undefined,
+    );
+    return stage;
   }
 }

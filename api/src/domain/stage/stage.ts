@@ -26,8 +26,8 @@ export abstract class Stage {
     return this.actionController.assertCurrentAction(action);
   }
 
-  protected advanceAction(): void {
-    this.actionController.advanceAction();
+  protected advanceAction(to?: string): void {
+    this.actionController.advanceAction(to);
   }
 
   get isComplete(): boolean {
@@ -36,8 +36,6 @@ export abstract class Stage {
 
   toJSON() {
     return {
-      type: this.type,
-      currentAction: this.currentAction,
       isComplete: this.isComplete,
     };
   }

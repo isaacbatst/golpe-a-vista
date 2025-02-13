@@ -7,10 +7,10 @@ import { LegislativeAction, LegislativeStage } from './legislative-stage';
 
 const makeLawsDeck = (
   laws: Law[] = [
-    { description: 'Lei 1', type: LawType.CONSERVADORES, name: 'L1' },
-    { description: 'Lei 2', type: LawType.CONSERVADORES, name: 'L2' },
-    { description: 'Lei 3', type: LawType.CONSERVADORES, name: 'L3' },
-    { description: 'Lei 4', type: LawType.CONSERVADORES, name: 'L4' },
+    new Law('Lei 1', LawType.CONSERVADORES, 'L1'),
+    new Law('Lei 2', LawType.CONSERVADORES, 'L2'),
+    new Law('Lei 3', LawType.CONSERVADORES, 'L3'),
+    new Law('Lei 4', LawType.CONSERVADORES, 'L4'),
   ],
 ) => {
   const [error, deck] = Deck.create(laws);
@@ -22,18 +22,14 @@ const makeLawsDeck = (
 
 describe('Estágio Legislativo', () => {
   it('deve comprar 3 cartas do deck de leis', () => {
-    const stage = new LegislativeStage({
-      lawsDeck: makeLawsDeck(),
-    });
-    stage.drawLaws();
+    const stage = new LegislativeStage();
+    stage.drawLaws(makeLawsDeck());
     expect(stage.drawnLaws).toHaveLength(3);
   });
 
   it('deve vetar uma das leis', () => {
-    const stage = new LegislativeStage({
-      lawsDeck: makeLawsDeck(),
-    });
-    const [, laws] = stage.drawLaws();
+    const stage = new LegislativeStage();
+    const [, laws] = stage.drawLaws(makeLawsDeck());
     expect(laws).toBeDefined();
     stage.vetoLaw(0);
     const law = laws![0];
@@ -41,20 +37,16 @@ describe('Estágio Legislativo', () => {
   });
 
   it('não deve escolher uma das leis vetadas', () => {
-    const stage = new LegislativeStage({
-      lawsDeck: makeLawsDeck(),
-    });
-    stage.drawLaws();
+    const stage = new LegislativeStage();
+    stage.drawLaws(makeLawsDeck());
     stage.vetoLaw(0);
     const [error] = stage.chooseLawForVoting(0);
     expect(error).toBe('Essa lei foi vetada.');
   });
 
   it('deve escolher uma das leis para votação', () => {
-    const stage = new LegislativeStage({
-      lawsDeck: makeLawsDeck(),
-    });
-    const [, laws] = stage.drawLaws();
+    const stage = new LegislativeStage();
+    const [, laws] = stage.drawLaws(makeLawsDeck());
     expect(laws).toBeDefined();
     const law = laws![0];
     stage.vetoLaw(1);
@@ -63,9 +55,7 @@ describe('Estágio Legislativo', () => {
   });
 
   it('não deve iniciar votação sem escolher uma lei', () => {
-    const stage = new LegislativeStage({
-      lawsDeck: makeLawsDeck(),
-    });
+    const stage = new LegislativeStage();
     const [error] = stage.startVoting(['p1', 'p2', 'p3', 'p4', 'p5', 'p6']);
     expect(error).toBe(
       ActionController.unexpectedActionMessage(
@@ -76,10 +66,8 @@ describe('Estágio Legislativo', () => {
   });
 
   it('não deve iniciar votação duas vezes', () => {
-    const stage = new LegislativeStage({
-      lawsDeck: makeLawsDeck(),
-    });
-    stage.drawLaws();
+    const stage = new LegislativeStage();
+    stage.drawLaws(makeLawsDeck());
     stage.vetoLaw(1);
     stage.chooseLawForVoting(0);
     stage.startVoting(['p1', 'p2', 'p3', 'p4', 'p5', 'p6']);
@@ -93,10 +81,8 @@ describe('Estágio Legislativo', () => {
   });
 
   it('deve realizar a votação rejeitando a lei sem maioria', () => {
-    const stage = new LegislativeStage({
-      lawsDeck: makeLawsDeck(),
-    });
-    stage.drawLaws();
+    const stage = new LegislativeStage();
+    stage.drawLaws(makeLawsDeck());
     stage.vetoLaw(1);
     stage.chooseLawForVoting(0);
     stage.startVoting(['p1', 'p2', 'p3', 'p4', 'p5', 'p6']);
@@ -132,10 +118,8 @@ describe('Estágio Legislativo', () => {
   });
 
   it('deve realizar a votação aprovando a lei com maioria', () => {
-    const stage = new LegislativeStage({
-      lawsDeck: makeLawsDeck(),
-    });
-    stage.drawLaws();
+    const stage = new LegislativeStage();
+    stage.drawLaws(makeLawsDeck());
     stage.vetoLaw(1);
     stage.chooseLawForVoting(0);
     stage.startVoting(['p1', 'p2', 'p3', 'p4', 'p5', 'p6']);
@@ -170,10 +154,8 @@ describe('Estágio Legislativo', () => {
   });
 
   it('deve finalizar votação automaticamente com todos os votos', () => {
-    const stage = new LegislativeStage({
-      lawsDeck: makeLawsDeck(),
-    });
-    stage.drawLaws();
+    const stage = new LegislativeStage();
+    stage.drawLaws(makeLawsDeck());
     stage.vetoLaw(1);
     stage.chooseLawForVoting(0);
     stage.startVoting(['p1', 'p2', 'p3', 'p4', 'p5', 'p6']);
@@ -195,16 +177,19 @@ describe('Estágio Legislativo', () => {
   });
 
   it('deve configurar veto obrigatório para um tipo de lei', () => {
-    const cards = Array.from({ length: 3 }, (_, i) => ({
-      description: `Lei ${i + 1}`,
-      type: i === 0 ? LawType.PROGRESSISTAS : LawType.CONSERVADORES,
-      name: `L${i + 1}`,
-    }));
+    const cards = Array.from(
+      { length: 3 },
+      (_, i) =>
+        new Law(
+          `Lei ${i + 1}`,
+          i === 0 ? LawType.PROGRESSISTAS : LawType.CONSERVADORES,
+          `L${i + 1}`,
+        ),
+    );
     const stage = new LegislativeStage({
-      lawsDeck: makeLawsDeck(cards),
       mustVeto: LawType.PROGRESSISTAS,
     });
-    stage.drawLaws();
+    stage.drawLaws(makeLawsDeck(cards));
     stage.chooseLawForVoting(0);
     expect(stage.mustVeto).toBe(LawType.PROGRESSISTAS);
     expect(stage.vetoableLaws).toHaveLength(1);
@@ -217,16 +202,10 @@ describe('Estágio Legislativo', () => {
   });
 
   it('deve permitir veto em outro tipo de lei se o tipo obrigatório não for sorteado', () => {
-    const cards = Array.from({ length: 3 }, (_, i) => ({
-      description: `Lei ${i + 1}`,
-      type: LawType.CONSERVADORES,
-      name: `L${i + 1}`,
-    }));
     const stage = new LegislativeStage({
-      lawsDeck: makeLawsDeck(cards),
       mustVeto: LawType.PROGRESSISTAS,
     });
-    stage.drawLaws();
+    stage.drawLaws(makeLawsDeck());
     stage.chooseLawForVoting(0);
     expect(stage.mustVeto).toBe(LawType.PROGRESSISTAS);
     expect(stage.vetoableLaws).toHaveLength(3);

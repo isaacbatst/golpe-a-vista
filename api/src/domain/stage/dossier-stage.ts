@@ -11,24 +11,17 @@ export enum DossierAction {
 }
 
 type DossierStageParams = {
-  currentPresident: Player;
-  nextPresident: Player;
-  currentRapporteur: Player | null;
   drawnLaws: Law[];
-  lawsDeck: Deck<Law>;
   fakeDossier?: boolean;
   currentAction?: DossierAction;
+  isDossierVisibleToRapporteur?: boolean;
 };
 
 export class DossierStage extends Stage {
   readonly type = StageType.REPORT_DOSSIER;
-  private _nextRapporteur: Player | null = null;
-  private _isDossierVisibleToRapporteur = false;
-  private _currentPresident: Player;
-  private _nextPresident: Player;
-  private _currentRapporteur: Player | null;
-  private _drawnLaws: Law[];
-  private _lawsDeck: Deck<Law>;
+  private _nextRapporteurId: string | null = null;
+  private _isDossierVisibleToRapporteur: boolean;
+  private _dossier: Law[];
   private _fakeDossier: boolean;
 
   constructor(params: DossierStageParams) {
@@ -36,45 +29,61 @@ export class DossierStage extends Stage {
       ['SELECT_RAPPORTEUR', 'PASS_DOSSIER', 'ADVANCE_STAGE'],
       params.currentAction,
     );
-    this._currentPresident = params.currentPresident;
-    this._nextPresident = params.nextPresident;
-    this._currentRapporteur = params.currentRapporteur;
-    this._drawnLaws = params.drawnLaws;
-    this._lawsDeck = params.lawsDeck;
+    this._dossier = params.drawnLaws;
     this._fakeDossier = params.fakeDossier ?? false;
+    this._isDossierVisibleToRapporteur =
+      params.isDossierVisibleToRapporteur ?? false;
   }
 
-  chooseNextRapporteur(player: Player): Either<string, void> {
+  chooseNextRapporteur(params: {
+    chosen: Player;
+    currentPresident: Player;
+    currentRapporteur: Player | null;
+    nextPresident: Player;
+  }): Either<string, void> {
     const [error] = this.assertCurrentAction('SELECT_RAPPORTEUR');
     if (error) return left(error);
 
-    if (this._currentPresident === player) {
+    if (params.currentPresident.id === params.chosen.id) {
       return left('O presidente não pode ser o próximo relator');
     }
 
-    if (this._currentRapporteur === player) {
+    if (params.currentRapporteur?.id === params.chosen.id) {
       return left('O relator anterior não pode ser o relator');
     }
 
-    if (this._nextPresident === player) {
+    if (params.nextPresident.id === params.chosen.id) {
       return left('O próximo presidente não pode ser o relator');
     }
 
-    if (player.impeached) {
+    if (params.chosen.impeached) {
       return left('O relator não pode ter sido cassado');
     }
 
-    this._nextRapporteur = player;
+    this._nextRapporteurId = params.chosen.id;
+
+    if (!params.currentRapporteur) {
+      this.advanceAction(DossierAction.ADVANCE_STAGE);
+      return right();
+    }
+
     this.advanceAction();
     return right();
   }
 
-  passDossier(): Either<string, void> {
+  passDossier(
+    lawsDeck: Deck<Law>,
+    currentRapporteur: Player | null,
+  ): Either<string, void> {
     const [error] = this.assertCurrentAction('PASS_DOSSIER');
     if (error) return left(error);
 
-    if (!this._nextRapporteur) {
+    if (!currentRapporteur) {
       return left('Nenhum relator foi escolhido.');
+    }
+
+    if (this._fakeDossier) {
+      this._dossier = lawsDeck.show(3);
     }
 
     this._isDossierVisibleToRapporteur = true;
@@ -82,28 +91,34 @@ export class DossierStage extends Stage {
     return right();
   }
 
-  get dossier(): Law[] {
-    if (this._fakeDossier) {
-      return this._lawsDeck.show(3);
-    }
-
-    return this._drawnLaws;
-  }
-
-  get nextRapporteur(): Player | null {
-    return this._nextRapporteur;
+  get nextRapporteur(): string | null {
+    return this._nextRapporteurId;
   }
 
   get isDossierVisibleToRapporteur(): boolean {
     return this._isDossierVisibleToRapporteur;
   }
 
+  get dossier(): Law[] {
+    return this._dossier;
+  }
+
   toJSON() {
     return {
       ...super.toJSON(),
-      dossier: this.dossier.map((law) => law.toJSON()),
-      nextRapporteur: this._nextRapporteur?.toJSON(),
+      type: this.type,
+      currentAction: this.currentAction as DossierAction,
+      nextRapporteurId: this._nextRapporteurId,
       isDossierVisibleToRapporteur: this._isDossierVisibleToRapporteur,
-    };
+      dossier: this._dossier.map((law) => law.toJSON()),
+      drawnLaws: this._dossier.map((law) => law.toJSON()),
+    } as const;
+  }
+
+  static fromJSON(data: ReturnType<DossierStage['toJSON']>) {
+    return new DossierStage({
+      ...data,
+      drawnLaws: data.dossier.map((law) => Law.fromJSON(law)),
+    });
   }
 }

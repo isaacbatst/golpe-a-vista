@@ -1,6 +1,8 @@
 import { LawType } from '../domain/role';
 
 export class Law {
+  readonly cardType = 'LAW';
+
   constructor(
     readonly name: string,
     readonly type: LawType,
@@ -12,6 +14,9 @@ export class Law {
       type: this.type,
       description: this.description,
     };
+  }
+  static fromJSON(data: { name: string; type: LawType; description: string }) {
+    return new Law(data.name, data.type, data.description);
   }
 }
 

@@ -1,6 +1,6 @@
 import { Law } from '../data/laws';
 import { Crisis } from './crisis/crisis';
-import { Deck } from './deck';
+import { CrisisFactory } from './crisis/crisis-factory';
 import { Either, left, right } from './either';
 import { Player } from './player';
 import { PresidentQueue } from './president-queue';
@@ -12,13 +12,12 @@ import { LegislativeStage } from './stage/legislative-stage';
 import { RadicalizationStage } from './stage/radicalization-stage';
 import { SabotageStage } from './stage/sabotage-stage';
 import { Stage } from './stage/stage';
+import { StageFactory, StageJSON } from './stage/stage.factory';
 
 export type RoundParams = {
   index?: number;
-  lawsDeck: Deck<Law>;
-  crisesDeck: Deck<Crisis>;
   crisis?: Crisis | null;
-  rapporteur?: Player | null;
+  rapporteurId?: string | null;
   hasImpeachment?: boolean;
   stages?: Stage[];
   hasLastRoundBeenSabotaged?: boolean;
@@ -27,6 +26,10 @@ export type RoundParams = {
   previouslyApprovedConservativeLaws?: number;
   previouslyApprovedProgressiveLaws?: number;
   presidentQueue: PresidentQueue;
+  isDossierFake?: boolean;
+  isDossierOmitted?: boolean;
+  isLegislativeVotingSecret?: boolean;
+  requiredVeto?: LawType | null;
 };
 
 export class Round {
@@ -37,10 +40,8 @@ export class Round {
   public isLegislativeVotingSecret: boolean = false;
   public requiredVeto: LawType | null = null;
 
-  private readonly _lawsDeck: Deck<Law>;
-  private readonly _crisesDeck: Deck<Crisis>;
   private readonly _crisis: Crisis | null;
-  private readonly _rapporteur: Player | null;
+  private readonly _rapporteurId: string | null;
   private readonly _hasImpeachment: boolean;
   private readonly _hasLastRoundBeenSabotaged: boolean;
   private readonly _minRadicalizationConservativeLaws: number;
@@ -50,11 +51,9 @@ export class Round {
   private readonly _stages: Stage[];
 
   constructor(props: RoundParams) {
-    this._crisesDeck = props.crisesDeck;
     this._crisis = props.crisis ?? null;
-    this._lawsDeck = props.lawsDeck;
     this._hasImpeachment = props.hasImpeachment ?? false;
-    this._rapporteur = props.rapporteur ?? null;
+    this._rapporteurId = props.rapporteurId ?? null;
     this._hasLastRoundBeenSabotaged = props.hasLastRoundBeenSabotaged ?? false;
     this._minRadicalizationConservativeLaws =
       props.minRadicalizationConservativeLaws ?? 4;
@@ -94,7 +93,6 @@ export class Round {
     }
 
     return new LegislativeStage({
-      lawsDeck: this._lawsDeck,
       mustVeto: this.requiredVeto,
       isVotingSecret: this.isLegislativeVotingSecret,
     });
@@ -110,7 +108,6 @@ export class Round {
       this.currentStage instanceof CrisisStage
     ) {
       return new LegislativeStage({
-        lawsDeck: this._lawsDeck,
         mustVeto: this.requiredVeto,
         isVotingSecret: this.isLegislativeVotingSecret,
       });
@@ -118,12 +115,8 @@ export class Round {
 
     if (this.currentStage instanceof LegislativeStage) {
       return new DossierStage({
-        currentPresident: this.president,
-        currentRapporteur: this._rapporteur,
         drawnLaws: this.currentStage.drawnLaws,
-        nextPresident: this.nextPresident,
         fakeDossier: this.isDossierFake,
-        lawsDeck: this._lawsDeck,
       });
     }
 
@@ -132,7 +125,7 @@ export class Round {
       this.hasApprovedLaw(LawType.PROGRESSISTAS) &&
       !this._hasLastRoundBeenSabotaged
     ) {
-      return new SabotageStage(this._crisesDeck);
+      return new SabotageStage();
     }
 
     if (
@@ -257,7 +250,7 @@ export class Round {
       .flatMap((stage) => stage.drawnLaws);
   }
 
-  get nextRapporteur(): Player | null {
+  get nextRapporteur(): string | null {
     const dossierStage = this._stages.find(
       (stage): stage is DossierStage => stage instanceof DossierStage,
     );
@@ -265,8 +258,8 @@ export class Round {
     return dossierStage?.nextRapporteur ?? null;
   }
 
-  get rapporteur(): Player | null {
-    return this._rapporteur;
+  get rapporteurId(): string | null {
+    return this._rapporteurId;
   }
 
   get president(): Player {
@@ -280,18 +273,41 @@ export class Round {
   toJSON() {
     return {
       index: this.index,
-      stages: this._stages.map((stage) => stage.toJSON()),
+      stages: this._stages.map((stage) => stage.toJSON() as StageJSON),
       isDossierFake: this.isDossierFake,
       isDossierOmitted: this.isDossierOmitted,
       isLegislativeVotingSecret: this.isLegislativeVotingSecret,
       requiredVeto: this.requiredVeto,
       hasImpeachment: this._hasImpeachment,
       crisis: this._crisis?.toJSON(),
-      rapporteur: this._rapporteur?.toJSON(),
+      rapporteur: this._rapporteurId,
       president: this.president.toJSON(),
       nextPresident: this.nextPresident.toJSON(),
       finished: this.finished,
       currentStage: this.currentStage.toJSON(),
+      hasLastRoundBeenSabotaged: this._hasLastRoundBeenSabotaged,
+      minRadicalizationConservativeLaws:
+        this._minRadicalizationConservativeLaws,
+      minRadicalizationProgressiveLaws: this._minRadicalizationProgressiveLaws,
+      previouslyApprovedConservativeLaws:
+        this._previouslyApprovedConservativeLaws,
+      previouslyApprovedProgressiveLaws:
+        this._previouslyApprovedProgressiveLaws,
+      presidentQueue: this.presidentQueue.toJSON(),
     };
+  }
+
+  static fromJSON(
+    json: ReturnType<Round['toJSON']>,
+    presidentQueue: PresidentQueue,
+  ): Round {
+    const round = new Round({
+      ...json,
+      crisis: json.crisis ? Crisis.fromJSON(json.crisis, CrisisFactory) : null,
+      presidentQueue,
+      rapporteurId: json.rapporteur ?? null,
+      stages: json.stages.map((stage) => StageFactory.fromJSON(stage)),
+    });
+    return round;
   }
 }

@@ -1,4 +1,5 @@
 import { Crisis } from '../crisis/crisis';
+import { CrisisFactory } from '../crisis/crisis-factory';
 import { Deck } from '../deck';
 import { Either, left, right } from '../either';
 import { Stage, StageType } from './stage';
@@ -11,21 +12,24 @@ export enum SabotageAction {
 
 export class SabotageStage extends Stage {
   readonly type = StageType.SABOTAGE;
-  private _crisesDrawn: Crisis[] | null = null;
-  private _selectedCrisis: Crisis | null = null;
+  private _crisesDrawn: Crisis[] | null;
+  private _selectedCrisis: Crisis | null;
 
   constructor(
-    private _crisesDeck: Deck<Crisis>,
     currentAction?: SabotageAction,
+    crisesDrawn?: Crisis[],
+    selectedCrisis?: Crisis,
   ) {
     super(['DRAW_CRISIS', 'CHOOSE_CRISIS', 'ADVANCE_STAGE'], currentAction);
+    this._crisesDrawn = crisesDrawn ?? null;
+    this._selectedCrisis = selectedCrisis ?? null;
   }
 
-  drawCrises(): Either<string, Crisis[]> {
+  drawCrises(crisesDeck: Deck<Crisis>): Either<string, Crisis[]> {
     const [error] = this.assertCurrentAction('DRAW_CRISIS');
     if (error) return left(error);
 
-    this._crisesDrawn = this._crisesDeck.draw(3);
+    this._crisesDrawn = crisesDeck.draw(3);
     this.advanceAction();
     return right(this._crisesDrawn);
   }
@@ -54,8 +58,21 @@ export class SabotageStage extends Stage {
   toJSON() {
     return {
       ...super.toJSON(),
+      type: this.type,
+      currentAction: this.currentAction as SabotageAction,
       selectedCrisis: this._selectedCrisis?.toJSON(),
       drawnCrises: this._crisesDrawn?.map((crisis) => crisis.toJSON()),
-    };
+    } as const;
+  }
+
+  static fromJSON(data: ReturnType<SabotageStage['toJSON']>): SabotageStage {
+    const stage = new SabotageStage(
+      data.currentAction,
+      data.drawnCrises?.map((crisis) => Crisis.fromJSON(crisis, CrisisFactory)),
+      data.selectedCrisis
+        ? Crisis.fromJSON(data.selectedCrisis, CrisisFactory)
+        : undefined,
+    );
+    return stage;
   }
 }

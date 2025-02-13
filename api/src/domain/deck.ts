@@ -2,19 +2,26 @@ import { Either, left, right } from './either';
 import { Random } from './random';
 import { InferSerialized, Serializable } from './serializable';
 
-export class Deck<T extends Serializable<InferSerialized<T>>> {
+type Card<T> = Serializable<InferSerialized<T>> & {
+  cardType: 'LAW' | 'CRISIS';
+};
+
+type DeckJSON<T> = {
+  cards: T[];
+  allCards: T[];
+};
+
+export class Deck<T extends Card<T>> {
   private _cards: T[];
   private _allCards: T[];
 
-  private constructor(cards: T[]) {
+  private constructor(cards: T[], allCards?: T[]) {
     this._cards = cards;
-    this._allCards = cards;
+    this._allCards = allCards ?? cards;
     this.shuffle();
   }
 
-  static create<T extends Serializable<InferSerialized<T>>>(
-    cards: T[],
-  ): Either<string, Deck<T>> {
+  static create<T extends Card<T>>(cards: T[]): Either<string, Deck<T>> {
     if (cards.length === 0) {
       return left('O baralho não pode ser vazio');
     }
@@ -34,7 +41,12 @@ export class Deck<T extends Serializable<InferSerialized<T>>> {
     return this._cards.splice(0, n);
   }
 
-  show(n = 1): T[] {
+  show(n = 1, random = true): T[] {
+    if (random) {
+      const cards = Random.sort(this._cards);
+      return cards.slice(0, n);
+    }
+
     return this._cards.slice(0, n);
   }
 
@@ -50,7 +62,19 @@ export class Deck<T extends Serializable<InferSerialized<T>>> {
     return this._allCards;
   }
 
-  toJSON(): InferSerialized<T>[] {
-    return this._cards.map((card) => card.toJSON());
+  toJSON(): DeckJSON<ReturnType<Card<T>['toJSON']>> {
+    return {
+      cards: this._cards.map((card) => card.toJSON()),
+      allCards: this._allCards.map((card) => card.toJSON()),
+    };
+  }
+
+  static fromJSON<T extends Card<T>>(
+    json: DeckJSON<ReturnType<Card<T>['toJSON']>>,
+    factory: { fromJSON: (params: ReturnType<Card<T>['toJSON']>) => T },
+  ): Deck<T> {
+    const cards = json.cards.map((card) => factory.fromJSON(card));
+    const allCards = json.allCards.map((card) => factory.fromJSON(card));
+    return new Deck(cards, allCards);
   }
 }

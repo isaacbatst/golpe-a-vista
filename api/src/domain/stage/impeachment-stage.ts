@@ -13,19 +13,23 @@ export enum ImpeachmentAction {
 }
 export class ImpeachmentStage extends Stage {
   readonly type = StageType.IMPEACHMENT;
-  private _target: Player | null = null;
-  private _voting: Voting | null = null;
+  private _target: Player | null;
+  private _voting: Voting | null;
 
   constructor(
     readonly accuser: Player,
     private _isSomeConservativeImpeached: boolean = false,
     private _isRadicalImpeached: boolean = false,
     currentAction?: ImpeachmentAction,
+    target?: Player,
+    voting?: Voting,
   ) {
     super(
       ['SELECT_TARGET', 'START_VOTING', 'VOTING', 'EXECUTION', 'ADVANCE_STAGE'],
       currentAction,
     );
+    this._target = target ?? null;
+    this._voting = voting ?? null;
   }
 
   chooseTarget(target: Player): Either<string, void> {
@@ -112,9 +116,27 @@ export class ImpeachmentStage extends Stage {
   toJSON() {
     return {
       ...super.toJSON(),
+      type: this.type,
+      currentAction: this.currentAction as ImpeachmentAction,
       target: this._target?.toJSON(),
       voting: this._voting?.toJSON(),
       shouldSkipVoting: this.shouldSkipVoting,
-    };
+      accuser: this.accuser.toJSON(),
+      isSomeConservativeImpeached: this._isSomeConservativeImpeached,
+      isRadicalImpeached: this._isRadicalImpeached,
+    } as const;
+  }
+
+  static fromJSON(
+    data: ReturnType<ImpeachmentStage['toJSON']>,
+  ): ImpeachmentStage {
+    return new ImpeachmentStage(
+      Player.fromJSON(data.accuser),
+      data.isSomeConservativeImpeached,
+      data.isRadicalImpeached,
+      data.currentAction,
+      data.target ? Player.fromJSON(data.target) : undefined,
+      data.voting ? Voting.fromJSON(data.voting) : undefined,
+    );
   }
 }

@@ -1,24 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import CRISES from '../../data/crises';
 import { ActionController } from '../action-controller';
-import { PlanoCohen } from '../crisis/plano-cohen';
-import { Deck } from '../deck';
+import { makeCrisesDeck } from '../mock';
 import { SabotageAction, SabotageStage } from './sabotage-stage';
-
-const makeCrisesDeck = () => {
-  const [error, deck] = Deck.create(
-    Object.values(CRISES).map(() => new PlanoCohen()),
-  );
-  if (!deck) {
-    throw new Error(error);
-  }
-  return deck;
-};
 
 describe('Estágio de Sabotagem', () => {
   it('deve sacar crises e escolher uma', () => {
-    const stage = new SabotageStage(makeCrisesDeck());
-    const [drawCrisesError] = stage.drawCrises();
+    const stage = new SabotageStage();
+    const [drawCrisesError] = stage.drawCrises(makeCrisesDeck());
     expect(drawCrisesError).toBeUndefined();
     expect(stage.drawnCrises).toBeDefined();
     const [chooseCrisisError] = stage.chooseSabotageCrisis(0);
@@ -26,7 +14,7 @@ describe('Estágio de Sabotagem', () => {
   });
 
   it('não deve escolher uma crise sem sacar', () => {
-    const stage = new SabotageStage(makeCrisesDeck());
+    const stage = new SabotageStage();
     const [chooseCrisisError] = stage.chooseSabotageCrisis(0);
     expect(chooseCrisisError).toBe(
       ActionController.unexpectedActionMessage(

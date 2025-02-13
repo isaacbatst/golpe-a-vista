@@ -1,15 +1,27 @@
 import { Either, left, right } from './either';
 
+type VotingParams = {
+  votes: { player: string; vote: boolean | null }[];
+  hasEnded: boolean;
+};
+
 export class Voting {
   private _votes: Map<string, boolean | null>;
   private _hasEnded = false;
 
-  private constructor(players: string[]) {
-    this._votes = new Map();
+  private constructor(
+    players: string[],
+    votes?: Map<string, boolean | null>,
+    hasEnded?: boolean,
+  ) {
+    this._hasEnded = hasEnded ?? false;
+    this._votes = votes ?? new Map<string, boolean | null>();
 
-    players.forEach((player) => {
-      this._votes.set(player, null);
-    });
+    if (this._votes.size === 0) {
+      players.forEach((player) => {
+        this._votes.set(player, null);
+      });
+    }
   }
 
   static create(players: string[]): Either<string, Voting> {
@@ -70,5 +82,13 @@ export class Voting {
       result: this.result,
       count: this.count,
     };
+  }
+
+  static fromJSON(data: VotingParams) {
+    return new Voting(
+      data.votes.map(({ player }) => player),
+      new Map(data.votes.map(({ player, vote }) => [player, vote])),
+      data.hasEnded,
+    );
   }
 }

@@ -53,7 +53,5 @@ export const makeRound = (params: Partial<RoundParams> = {}) => {
         new Player('p1', 'p1', Role.CONSERVADOR),
         new Player('p2', 'p2', Role.CONSERVADOR),
       ]),
-    lawsDeck: params.lawsDeck ?? makeLawsDeck(),
-    crisesDeck: params.crisesDeck ?? makeCrisesDeck(),
   });
 };

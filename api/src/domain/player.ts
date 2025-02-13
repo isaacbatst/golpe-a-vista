@@ -1,6 +1,14 @@
 import { Either, left, right } from './either';
 import { Role } from './role';
 
+export type PlayerParams = {
+  id: string;
+  name: string;
+  role: Role;
+  impeached?: boolean;
+  radicalized?: boolean;
+};
+
 export class Player {
   constructor(
     private readonly _id: string,
@@ -59,5 +67,15 @@ export class Player {
       radicalized: this._radicalized,
       canSeeTeamMembers: this.canSeeTeamMembers,
     };
+  }
+
+  static fromJSON(data: PlayerParams) {
+    return new Player(
+      data.id,
+      data.name,
+      data.role,
+      data.impeached,
+      data.radicalized,
+    );
   }
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DossierStage } from './dossier-stage';
+import { DossierAction, DossierStage } from './dossier-stage';
 import { Player } from '../player';
 import { LawType, Role } from '../role';
 import { Law } from '../../data/laws';
@@ -8,32 +8,34 @@ import { makeLawsDeck } from '../mock';
 describe('Estágio do Dossiê', () => {
   it('deve escolher o relator da próxima rodada', () => {
     const stage = new DossierStage({
-      currentPresident: new Player('p1', 'p1', Role.MODERADO),
-      nextPresident: new Player('p2', 'p2', Role.MODERADO),
-      currentRapporteur: new Player('p3', 'p3', Role.MODERADO),
       drawnLaws: [],
-      lawsDeck: makeLawsDeck(),
     });
 
     const nextRapporteur = new Player('p4', 'p4', Role.MODERADO);
 
-    const [error] = stage.chooseNextRapporteur(nextRapporteur);
+    const [error] = stage.chooseNextRapporteur({
+      chosen: nextRapporteur,
+      currentPresident: new Player('p1', 'p1', Role.MODERADO),
+      nextPresident: new Player('p2', 'p2', Role.MODERADO),
+      currentRapporteur: new Player('p3', 'p3', Role.MODERADO),
+    });
     expect(error).toBeUndefined();
-    expect(stage.nextRapporteur).toBe(nextRapporteur);
+    expect(stage.nextRapporteur).toBe(nextRapporteur.id);
   });
 
   it('não deve permitir que o relator da próxima rodada seja o presidente atual', () => {
     const president = new Player('p1', 'p1', Role.MODERADO);
 
     const stage = new DossierStage({
+      drawnLaws: [],
+    });
+
+    const [error] = stage.chooseNextRapporteur({
+      chosen: president,
       currentPresident: president,
       nextPresident: new Player('p2', 'p2', Role.MODERADO),
       currentRapporteur: new Player('p3', 'p3', Role.MODERADO),
-      drawnLaws: [],
-      lawsDeck: makeLawsDeck(),
     });
-
-    const [error] = stage.chooseNextRapporteur(president);
     expect(error).toBe('O presidente não pode ser o próximo relator');
   });
 
@@ -41,14 +43,15 @@ describe('Estágio do Dossiê', () => {
     const currentRapporteur = new Player('p3', 'p3', Role.MODERADO);
 
     const stage = new DossierStage({
+      drawnLaws: [],
+    });
+
+    const [error] = stage.chooseNextRapporteur({
       currentPresident: new Player('p1', 'p1', Role.MODERADO),
       nextPresident: new Player('p2', 'p2', Role.MODERADO),
       currentRapporteur,
-      drawnLaws: [],
-      lawsDeck: makeLawsDeck(),
+      chosen: currentRapporteur,
     });
-
-    const [error] = stage.chooseNextRapporteur(currentRapporteur);
     expect(error).toBe('O relator anterior não pode ser o relator');
   });
 
@@ -56,14 +59,15 @@ describe('Estágio do Dossiê', () => {
     const nextPresident = new Player('p2', 'p2', Role.MODERADO);
 
     const stage = new DossierStage({
+      drawnLaws: [],
+    });
+
+    const [error] = stage.chooseNextRapporteur({
       currentPresident: new Player('p1', 'p1', Role.MODERADO),
       nextPresident,
       currentRapporteur: new Player('p3', 'p3', Role.MODERADO),
-      drawnLaws: [],
-      lawsDeck: makeLawsDeck(),
+      chosen: nextPresident,
     });
-
-    const [error] = stage.chooseNextRapporteur(nextPresident);
     expect(error).toBe('O próximo presidente não pode ser o relator');
   });
 
@@ -71,28 +75,31 @@ describe('Estágio do Dossiê', () => {
     const impeachedRapporteur = new Player('p3', 'p3', Role.MODERADO, true);
 
     const stage = new DossierStage({
+      drawnLaws: [],
+    });
+
+    const [error] = stage.chooseNextRapporteur({
+      chosen: impeachedRapporteur,
       currentPresident: new Player('p1', 'p1', Role.MODERADO),
       nextPresident: new Player('p2', 'p2', Role.MODERADO),
       currentRapporteur: new Player('p4', 'p4', Role.MODERADO),
-      drawnLaws: [],
-      lawsDeck: makeLawsDeck(),
     });
-
-    const [error] = stage.chooseNextRapporteur(impeachedRapporteur);
     expect(error).toBe('O relator não pode ter sido cassado');
   });
 
   it('deve passar o dossiê para o relator', () => {
     const stage = new DossierStage({
+      drawnLaws: [],
+    });
+    const currentRapporteur = new Player('p3', 'p3', Role.MODERADO);
+
+    stage.chooseNextRapporteur({
       currentPresident: new Player('p1', 'p1', Role.MODERADO),
       nextPresident: new Player('p2', 'p2', Role.MODERADO),
-      currentRapporteur: new Player('p3', 'p3', Role.MODERADO),
-      drawnLaws: [],
-      lawsDeck: makeLawsDeck(),
+      currentRapporteur,
+      chosen: new Player('p4', 'p4', Role.MODERADO),
     });
-
-    stage.chooseNextRapporteur(new Player('p4', 'p4', Role.MODERADO));
-    const [error] = stage.passDossier();
+    const [error] = stage.passDossier(makeLawsDeck(), currentRapporteur);
     expect(error).toBeUndefined();
     expect(stage.isDossierVisibleToRapporteur).toBe(true);
   });
@@ -105,11 +112,7 @@ describe('Estágio do Dossiê', () => {
     ];
 
     const stage = new DossierStage({
-      currentPresident: new Player('p1', 'p1', Role.MODERADO),
-      nextPresident: new Player('p2', 'p2', Role.MODERADO),
-      currentRapporteur: new Player('p3', 'p3', Role.MODERADO),
       drawnLaws,
-      lawsDeck: makeLawsDeck(),
     });
 
     expect(stage.dossier).toEqual(drawnLaws);
@@ -123,13 +126,12 @@ describe('Estágio do Dossiê', () => {
     ];
 
     const stage = new DossierStage({
-      currentPresident: new Player('p1', 'p1', Role.MODERADO),
-      nextPresident: new Player('p2', 'p2', Role.MODERADO),
-      currentRapporteur: new Player('p3', 'p3', Role.MODERADO),
       drawnLaws,
-      lawsDeck: makeLawsDeck(),
       fakeDossier: true,
+      currentAction: DossierAction.PASS_DOSSIER,
     });
+
+    stage.passDossier(makeLawsDeck(), new Player('p3', 'p3', Role.MODERADO));
 
     expect(stage.dossier).not.toEqual(drawnLaws);
   });

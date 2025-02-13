@@ -6,7 +6,7 @@ import CRISES from './data/crises';
 import { CrisisFactory } from './domain/crisis/crisis-factory';
 
 @Injectable()
-export class AppRepository {
+export class DeckRepository {
   private lawsDeck: Deck<Law>;
   private crisesDeck: Deck<Crisis>;
 
@@ -19,7 +19,7 @@ export class AppRepository {
 
     const [crisesDeckError, crisesDeck] = Deck.create(
       Object.keys(CRISES).map((key: keyof typeof CRISES) =>
-        CrisisFactory.createCrisis(key),
+        CrisisFactory.create({ name: key }),
       ),
     );
     if (!crisesDeck) {

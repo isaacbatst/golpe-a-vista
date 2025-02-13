@@ -29,4 +29,8 @@ export class User {
       isConnected: this.isConnected,
     };
   }
+
+  static fromJSON(data: UserParams) {
+    return new User(data);
+  }
 }

@@ -15,38 +15,26 @@ beforeEach(() => {
 });
 
 it('deve criar um lobby', () => {
-  const [error, lobby] = Lobby.create({
-    crisesDeck,
-    lawsDeck,
-  });
+  const [error, lobby] = Lobby.create();
   expect(error).toBeUndefined();
   expect(lobby).toBeDefined();
 });
 
 it('deve criar um lobby sem jogadores', () => {
-  const [error, lobby] = Lobby.create({
-    crisesDeck,
-    lawsDeck,
-  });
+  const [error, lobby] = Lobby.create();
   expect(error).toBeUndefined();
   expect(lobby!.users).toEqual([]);
 });
 
 it('deve adicionar um jogador ao lobby', () => {
-  const [error, lobby] = Lobby.create({
-    crisesDeck,
-    lawsDeck,
-  });
+  const [error, lobby] = Lobby.create();
   expect(error).toBeUndefined();
   const [addPlayerError] = lobby!.addUser(new User({ id: 'p1', name: 'p1' }));
   expect(addPlayerError).toBeUndefined();
 });
 
 it('não deve adicionar o mesmo jogador duas vezes', () => {
-  const [error, lobby] = Lobby.create({
-    crisesDeck,
-    lawsDeck,
-  });
+  const [error, lobby] = Lobby.create();
   expect(error).toBeUndefined();
   lobby!.addUser(new User({ id: 'p1', name: 'p1' }));
   const [addPlayerError] = lobby!.addUser(new User({ id: 'p1', name: 'p1' }));
@@ -54,28 +42,19 @@ it('não deve adicionar o mesmo jogador duas vezes', () => {
 });
 
 it('deve criar um lobby sem jogo', () => {
-  const [error, lobby] = Lobby.create({
-    crisesDeck,
-    lawsDeck,
-  });
+  const [error, lobby] = Lobby.create();
   expect(error).toBeUndefined();
   expect(lobby!.games.length).toBe(0);
 });
 
 it('deve retornar o mínimo de jogadores para iniciar o jogo', () => {
-  const [error, lobby] = Lobby.create({
-    crisesDeck,
-    lawsDeck,
-  });
+  const [error, lobby] = Lobby.create();
   expect(error).toBeUndefined();
   expect(lobby!.minPlayers).toBe(7);
 });
 
 it('deve iniciar um jogo com 7 jogadores', () => {
-  const [error, lobby] = Lobby.create({
-    crisesDeck,
-    lawsDeck,
-  });
+  const [error, lobby] = Lobby.create({});
   expect(error).toBeUndefined();
   lobby!.addUser(new User({ id: 'p1', name: 'p1', isHost: true }));
   lobby!.addUser(new User({ id: 'p2', name: 'p2' }));
@@ -84,7 +63,7 @@ it('deve iniciar um jogo com 7 jogadores', () => {
   lobby!.addUser(new User({ id: 'p5', name: 'p5' }));
   lobby!.addUser(new User({ id: 'p6', name: 'p6' }));
   lobby!.addUser(new User({ id: 'p7', name: 'p7' }));
-  const [startGameError, game] = lobby!.startGame('p1');
+  const [startGameError, game] = lobby!.startGame('p1', crisesDeck, lawsDeck);
   expect(startGameError).toBeUndefined();
   expect(game).toBeDefined();
 });
@@ -94,23 +73,18 @@ it.each([6, 7, 8, 9])(
   (n) => {
     const [error, lobby] = Lobby.create({
       minPlayers: n,
-      crisesDeck,
-      lawsDeck,
     });
     expect(error).toBeUndefined();
     for (let i = 1; i < n; i++) {
       lobby!.addUser(new User({ id: `p${i}`, name: `p${i}`, isHost: i === 1 }));
     }
-    const [startGameError] = lobby!.startGame('p1');
+    const [startGameError] = lobby!.startGame('p1', crisesDeck, lawsDeck);
     expect(startGameError).toBe(`Mínimo de ${n} jogadores para iniciar o jogo`);
   },
 );
 
 it('deve conectar um jogador a um lobby', () => {
-  const [error, lobby] = Lobby.create({
-    crisesDeck,
-    lawsDeck,
-  });
+  const [error, lobby] = Lobby.create();
   expect(error).toBeUndefined();
   const user = new User({ id: 'p1', name: 'p1-name' });
   lobby!.addUser(user);
@@ -120,10 +94,7 @@ it('deve conectar um jogador a um lobby', () => {
 });
 
 it('deve desconectar um jogador de um lobby', () => {
-  const [error, lobby] = Lobby.create({
-    crisesDeck,
-    lawsDeck,
-  });
+  const [error, lobby] = Lobby.create();
   expect(error).toBeUndefined();
   const user = new User({ id: 'p1', name: 'p1-name' });
   lobby!.addUser(user);
@@ -134,10 +105,7 @@ it('deve desconectar um jogador de um lobby', () => {
 });
 
 it('deve remover um jogador de um lobby', () => {
-  const [error, lobby] = Lobby.create({
-    crisesDeck,
-    lawsDeck,
-  });
+  const [error, lobby] = Lobby.create();
   expect(error).toBeUndefined();
   const user = new User({ id: 'p1', name: 'p1-name' });
   const host = new User({ id: 'p2', name: 'p2-name', isHost: true });
@@ -149,10 +117,7 @@ it('deve remover um jogador de um lobby', () => {
 });
 
 it('não deve remover o próprio jogador de um lobby', () => {
-  const [error, lobby] = Lobby.create({
-    crisesDeck,
-    lawsDeck,
-  });
+  const [error, lobby] = Lobby.create();
   expect(error).toBeUndefined();
   const user = new User({ id: 'p1', name: 'p1-name' });
   const host = new User({ id: 'p2', name: 'p2-name', isHost: true });
@@ -164,10 +129,7 @@ it('não deve remover o próprio jogador de um lobby', () => {
 });
 
 it('não deve remover se não for o anfitrião', () => {
-  const [error, lobby] = Lobby.create({
-    crisesDeck,
-    lawsDeck,
-  });
+  const [error, lobby] = Lobby.create();
   expect(error).toBeUndefined();
   const user = new User({ id: 'p1', name: 'p1-name' });
   const host = new User({ id: 'p2', name: 'p2-name' });

@@ -8,24 +8,23 @@ import { User } from './user';
 type LobbyParams = {
   id?: string;
   minPlayers?: number;
-  lawsDeck: Deck<Law>;
-  crisesDeck: Deck<Crisis>;
+  games?: Game[];
+  users?: Map<string, User>;
 };
 
-export class Lobby {
-  private _users: Map<string, User> = new Map();
-  private _games: Game[] = [];
+export type LobbyJSON = ReturnType<Lobby['toJSON']>;
 
+export class Lobby {
   private constructor(
-    private _crisesDeck: Deck<Crisis>,
-    private _lawsDeck: Deck<Law>,
     private _id: string,
     private _minPlayers: number,
+    private _games: Game[] = [],
+    private _users: Map<string, User> = new Map(),
   ) {}
 
-  static create(params: LobbyParams): Either<string, Lobby> {
-    const { id = '00000', minPlayers = 7, crisesDeck, lawsDeck } = params;
-    return right(new Lobby(crisesDeck, lawsDeck, id, minPlayers));
+  static create(params: LobbyParams = {}): Either<string, Lobby> {
+    const { id = '00000', minPlayers = 7 } = params;
+    return right(new Lobby(id, minPlayers));
   }
 
   addUser(user: User): Either<string, void> {
@@ -73,7 +72,11 @@ export class Lobby {
     return Boolean(user?.isConnected);
   }
 
-  startGame(userId: string): Either<string, Game> {
+  startGame(
+    userId: string,
+    crisesDeck: Deck<Crisis>,
+    lawsDeck: Deck<Law>,
+  ): Either<string, Game> {
     if (userId !== this.host?.id) {
       return left('Apenas o anfitrião pode iniciar o jogo');
     }
@@ -86,8 +89,8 @@ export class Lobby {
     );
     const [error, game] = Game.create({
       players: Game.createPlayers(players),
-      crisesDeck: this._crisesDeck.clone(),
-      lawsDeck: this._lawsDeck.clone(),
+      crisesDeck,
+      lawsDeck,
     });
 
     if (!game) {
@@ -133,7 +136,18 @@ export class Lobby {
       id: this._id,
       minPlayers: this.minPlayers,
       currentGame: this.currentGame?.toJSON(),
-      // games: this._games.map((game) => game.toJSON()),
+      games: this._games.map((game) => game.toJSON()),
     };
+  }
+
+  static fromJSON(data: LobbyJSON): Lobby {
+    const lobby = new Lobby(
+      data.id,
+      data.minPlayers,
+      data.games.map((game) => Game.fromJSON(game)),
+      new Map(data.users.map((user) => [user.id, User.fromJSON(user)])),
+    );
+
+    return lobby;
   }
 }

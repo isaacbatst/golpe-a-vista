@@ -1,5 +1,6 @@
 import { Law } from '../data/laws';
 import { Crisis } from './crisis/crisis';
+import { CrisisFactory } from './crisis/crisis-factory';
 import { Deck } from './deck';
 import { Either, left, right } from './either';
 import { Player } from './player';
@@ -128,8 +129,6 @@ export class Game {
       new Round({
         index: 0,
         presidentQueue: this._presidentQueue,
-        lawsDeck: this._lawsDeck,
-        crisesDeck: this._crisesDeck,
       }),
     ];
   }
@@ -153,11 +152,9 @@ export class Game {
     const round = new Round({
       presidentQueue: this._presidentQueue,
       index: this._rounds.length,
-      lawsDeck: this._lawsDeck,
-      crisesDeck: this._crisesDeck,
       crisis: this.nextRoundCrisis,
       hasImpeachment: this.nextRoundShouldImpeach,
-      rapporteur: this.currentRound.nextRapporteur,
+      rapporteurId: this.currentRound.nextRapporteur,
       hasLastRoundBeenSabotaged: Boolean(this.currentRound.sabotageCrisis),
       previouslyApprovedConservativeLaws: this.approvedLaws.filter(
         (law) => law.type === LawType.CONSERVADORES,
@@ -309,7 +306,7 @@ export class Game {
     return {
       ...player.toJSON(),
       isPresident: player === this.president,
-      isRapporteur: player === this.currentRound.rapporteur,
+      isRapporteur: player.id === this.currentRound.rapporteurId,
       isNextPresident:
         player === this.getPresidentFromQueue(this.currentRoundIndex + 1),
     };
@@ -322,10 +319,12 @@ export class Game {
         ...player.toJSON(),
         id,
         isPresident: player === this.president,
-        isRapporteur: player === this.currentRound.rapporteur,
+        isRapporteur: player.id === this.currentRound.rapporteurId,
         isNextPresident:
           player === this.getPresidentFromQueue(this.currentRoundIndex + 1),
       })),
+      rounds: this._rounds.map((round) => round.toJSON()),
+      presidentQueue: this._presidentQueue.toJSON(),
       lawsDeck: this._lawsDeck.toJSON(),
       crisesDeck: this._crisesDeck.toJSON(),
       president: this.president.toJSON(),
@@ -339,12 +338,34 @@ export class Game {
         (law) => law.type === LawType.PROGRESSISTAS,
       ),
       crisesIntervalToImpeach: this._crisesIntervalToImpeach,
-      rounds: this._rounds,
       currentRound: this.currentRound,
       progressiveLawsToFear: this._progressiveLawsToFear,
       rejectedLawsIntervalToCrisis: this._rejectedLawsIntervalToCrisis,
       conservativesImpeachedToRadicalWin:
         this._conservativesImpeachedToRadicalWin,
     };
+  }
+
+  static fromJSON(json: ReturnType<Game['toJSON']>): Game {
+    const players = new Map(
+      json.players.map((player) => [player.id, Player.fromJSON(player)]),
+    );
+
+    const crisesDeck = Deck.fromJSON(json.crisesDeck, CrisisFactory);
+    const lawsDeck = Deck.fromJSON(json.lawsDeck, Law);
+    const presidentQueue = PresidentQueue.fromJSON({
+      offset: json.presidentQueue.offset,
+      players: Array.from(players.values()),
+    });
+
+    const [, game] = Game.create({
+      ...json,
+      players,
+      crisesDeck,
+      lawsDeck,
+      presidentQueue,
+      rounds: json.rounds.map((round) => Round.fromJSON(round, presidentQueue)),
+    });
+    return game!;
   }
 }

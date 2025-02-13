@@ -15,25 +15,30 @@ export enum LegislativeAction {
 }
 
 type LegislativeStageParams = {
-  lawsDeck: Deck<Law>;
   mustVeto?: LawType | null;
   currentAction?: LegislativeAction;
   isVotingSecret?: boolean;
+  drawnLaws?: Law[];
+  vetoedLaw?: Law | null;
+  lawToVote?: Law | null;
+  voting?: Voting | null;
 };
 
 export class LegislativeStage extends Stage {
   readonly type = StageType.LEGISLATIVE;
   private _drawnLaws: Law[] = [];
-  private _vetoedLaw: Law | null = null;
-  private _lawToVote: Law | null = null;
-  private _voting: Voting | null = null;
+  private _vetoedLaw: Law | null;
+  private _lawToVote: Law | null;
+  private _voting: Voting | null;
   private _isVotingSecret: boolean;
-  private _lawsDeck: Deck<Law>;
-  private _mustVeto: LawType | null = null;
+  private _mustVeto: LawType | null;
 
-  constructor(params: LegislativeStageParams) {
+  constructor(params: LegislativeStageParams = {}) {
     const {
-      lawsDeck,
+      drawnLaws = [],
+      lawToVote = null,
+      vetoedLaw = null,
+      voting = null,
       mustVeto = null,
       currentAction = LegislativeAction.DRAW_LAWS,
       isVotingSecret = false,
@@ -49,15 +54,18 @@ export class LegislativeStage extends Stage {
       ],
       currentAction,
     );
-    this._lawsDeck = lawsDeck;
     this._mustVeto = mustVeto;
     this._isVotingSecret = isVotingSecret;
+    this._drawnLaws = drawnLaws;
+    this._vetoedLaw = vetoedLaw;
+    this._lawToVote = lawToVote;
+    this._voting = voting;
   }
 
-  drawLaws(): Either<string, Law[]> {
+  drawLaws(lawsDeck: Deck<Law>): Either<string, Law[]> {
     const [error] = this.assertCurrentAction(LegislativeAction.DRAW_LAWS);
     if (error) return left(error);
-    this._drawnLaws = this._lawsDeck.draw(3);
+    this._drawnLaws = lawsDeck.draw(3);
     this.advanceAction();
     return right(this._drawnLaws);
   }
@@ -180,6 +188,8 @@ export class LegislativeStage extends Stage {
   toJSON() {
     return {
       ...super.toJSON(),
+      type: this.type,
+      currentAction: this.currentAction as LegislativeAction,
       drawnLaws: this._drawnLaws.map((law) => law.toJSON()),
       vetoedLaw: this._vetoedLaw?.toJSON(),
       lawToVote: this._lawToVote?.toJSON(),
@@ -187,6 +197,17 @@ export class LegislativeStage extends Stage {
       mustVeto: this._mustVeto,
       isVotingSecret: this._isVotingSecret,
       vetoableLaws: this.vetoableLaws.map((law) => law.toJSON()),
-    };
+    } as const;
+  }
+
+  static fromJSON(data: ReturnType<LegislativeStage['toJSON']>) {
+    return new LegislativeStage({
+      ...data,
+      currentAction: data.currentAction,
+      drawnLaws: data.drawnLaws.map((law) => Law.fromJSON(law)),
+      vetoedLaw: data.vetoedLaw ? Law.fromJSON(data.vetoedLaw) : null,
+      lawToVote: data.lawToVote ? Law.fromJSON(data.lawToVote) : null,
+      voting: data.voting ? Voting.fromJSON(data.voting) : null,
+    });
   }
 }

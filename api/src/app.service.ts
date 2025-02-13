@@ -5,7 +5,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import crypto from 'crypto';
-import { AppRepository } from './app.repository';
+import { DeckRepository } from './deck.repository';
 import { Either, left, right } from './domain/either';
 import { Lobby } from './domain/lobby';
 import { LegislativeStage } from './domain/stage/legislative-stage';
@@ -15,7 +15,7 @@ import { User } from './domain/user';
 export class AppService {
   lobbies = new Map<string, Lobby>();
 
-  constructor(private readonly repository: AppRepository) {}
+  constructor(private readonly repository: DeckRepository) {}
 
   createLobby(body: {
     name: string;
@@ -27,8 +27,6 @@ export class AppService {
 
     const [error, lobby] = Lobby.create({
       id: id,
-      lawsDeck: this.repository.cloneLawsDeck(),
-      crisesDeck: this.repository.cloneCrisesDeck(),
     });
     if (!lobby) {
       return left(new InternalServerErrorException(error));
@@ -105,7 +103,10 @@ export class AppService {
       return left(new NotFoundException());
     }
 
-    const [error] = lobby.startGame(input.issuerId);
+    const crisesDeck = this.repository.cloneCrisesDeck();
+    const lawsDeck = this.repository.cloneLawsDeck();
+
+    const [error] = lobby.startGame(input.issuerId, crisesDeck, lawsDeck);
     if (error) {
       return left(new InternalServerErrorException(error));
     }

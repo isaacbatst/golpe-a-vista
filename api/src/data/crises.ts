@@ -1,5 +1,5 @@
-import { CrisisVisibleTo } from '../domain/crisis/crisis';
 import { CRISIS_NAMES } from '../domain/crisis/crisis-names';
+import { CrisisVisibleTo } from '../domain/crisis/crisis-visible-to.';
 
 const CRISES: Record<
   CRISIS_NAMES,
