@@ -276,4 +276,22 @@ export class Round {
   get nextPresident(): Player {
     return this.presidentQueue.getByRoundNumber(this.index + 1);
   }
+
+  toJSON() {
+    return {
+      index: this.index,
+      stages: this._stages.map((stage) => stage.toJSON()),
+      isDossierFake: this.isDossierFake,
+      isDossierOmitted: this.isDossierOmitted,
+      isLegislativeVotingSecret: this.isLegislativeVotingSecret,
+      requiredVeto: this.requiredVeto,
+      hasImpeachment: this._hasImpeachment,
+      crisis: this._crisis?.toJSON(),
+      rapporteur: this._rapporteur?.toJSON(),
+      president: this.president.toJSON(),
+      nextPresident: this.nextPresident.toJSON(),
+      finished: this.finished,
+      currentStage: this.currentStage.toJSON(),
+    };
+  }
 }

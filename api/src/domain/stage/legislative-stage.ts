@@ -176,4 +176,17 @@ export class LegislativeStage extends Stage {
   get isVotingSecret() {
     return this._isVotingSecret;
   }
+
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      drawnLaws: this._drawnLaws.map((law) => law.toJSON()),
+      vetoedLaw: this._vetoedLaw?.toJSON(),
+      lawToVote: this._lawToVote?.toJSON(),
+      voting: this._voting?.toJSON(),
+      mustVeto: this._mustVeto,
+      isVotingSecret: this._isVotingSecret,
+      vetoableLaws: this.vetoableLaws.map((law) => law.toJSON()),
+    };
+  }
 }

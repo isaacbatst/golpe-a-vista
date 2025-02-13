@@ -81,7 +81,9 @@ export class Lobby {
     if (this._users.size < this.minPlayers) {
       return left(`Mínimo de ${this.minPlayers} jogadores para iniciar o jogo`);
     }
-    const players = Array.from(this._users.values()).map((m) => m.name);
+    const players = Array.from(this._users.values()).map<[string, string]>(
+      (m) => [m.id, m.name],
+    );
     const [error, game] = Game.create({
       players: Game.createPlayers(players),
       crisesDeck: this._crisesDeck.clone(),

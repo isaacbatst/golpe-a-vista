@@ -6,8 +6,8 @@ import { Role } from './role';
 describe('Impeachment', () => {
   it('deve exigir votação por padrão', () => {
     const impeachment = new Impeachment({
-      accuser: new Player('p1', Role.MODERADO),
-      target: new Player('p2', Role.MODERADO),
+      accuser: new Player('p1', 'p1', Role.MODERADO),
+      target: new Player('p2', 'p2', Role.MODERADO),
       isSomeConservativeImpeached: false,
     });
 
@@ -20,8 +20,8 @@ describe('Impeachment', () => {
 
   it('deve realizar votação', () => {
     const impeachment = new Impeachment({
-      accuser: new Player('p1', Role.RADICAL),
-      target: new Player('p2', Role.MODERADO),
+      accuser: new Player('p1', 'p1', Role.RADICAL),
+      target: new Player('p2', 'p2', Role.MODERADO),
       isSomeConservativeImpeached: true,
     });
 
@@ -36,8 +36,8 @@ describe('Impeachment', () => {
 
   it('deve realizar votação e não cassar se resultado for falso', () => {
     const impeachment = new Impeachment({
-      accuser: new Player('p1', Role.RADICAL),
-      target: new Player('p2', Role.MODERADO),
+      accuser: new Player('p1', 'p1', Role.RADICAL),
+      target: new Player('p2', 'p2', Role.MODERADO),
       isSomeConservativeImpeached: true,
     });
 
@@ -52,8 +52,8 @@ describe('Impeachment', () => {
 
   it('deve permitir pular votação se alvo for conservador e um conservador já tiver sido cassado', () => {
     const impeachment = new Impeachment({
-      accuser: new Player('p1', Role.MODERADO),
-      target: new Player('p2', Role.CONSERVADOR),
+      accuser: new Player('p1', 'p1', Role.MODERADO),
+      target: new Player('p2', 'p2', Role.CONSERVADOR),
       isSomeConservativeImpeached: true,
     });
 
@@ -66,8 +66,8 @@ describe('Impeachment', () => {
 
   it('não deve permitir iniciar votação se não for necessário', () => {
     const impeachment = new Impeachment({
-      accuser: new Player('p1', Role.RADICAL),
-      target: new Player('p2', Role.CONSERVADOR),
+      accuser: new Player('p1', 'p1', Role.RADICAL),
+      target: new Player('p2', 'p2', Role.CONSERVADOR),
       isSomeConservativeImpeached: true,
     });
 
@@ -77,8 +77,8 @@ describe('Impeachment', () => {
 
   it('não deve permitir votar sem iniciar votação', () => {
     const impeachment = new Impeachment({
-      accuser: new Player('p1', Role.RADICAL),
-      target: new Player('p2', Role.MODERADO),
+      accuser: new Player('p1', 'p1', Role.RADICAL),
+      target: new Player('p2', 'p2', Role.MODERADO),
       isSomeConservativeImpeached: true,
     });
 

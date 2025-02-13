@@ -31,7 +31,7 @@ export class Game {
     return new Map(
       players.map(([id, name]) => {
         const role = Random.extractFromArray(rolesToDistribute);
-        return [id, new Player(name, role)];
+        return [id, new Player(id, name, role)];
       }),
     );
   }
@@ -305,6 +305,16 @@ export class Game {
     return this._presidentQueue;
   }
 
+  playerToJSON(player: Player & { id: string }) {
+    return {
+      ...player.toJSON(),
+      isPresident: player === this.president,
+      isRapporteur: player === this.currentRound.rapporteur,
+      isNextPresident:
+        player === this.getPresidentFromQueue(this.currentRoundIndex + 1),
+    };
+  }
+
   toJSON() {
     const approvedLaws = this.approvedLaws;
     return {
@@ -330,6 +340,7 @@ export class Game {
       ),
       crisesIntervalToImpeach: this._crisesIntervalToImpeach,
       rounds: this._rounds,
+      currentRound: this.currentRound,
       progressiveLawsToFear: this._progressiveLawsToFear,
       rejectedLawsIntervalToCrisis: this._rejectedLawsIntervalToCrisis,
       conservativesImpeachedToRadicalWin:

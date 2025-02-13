@@ -7,7 +7,7 @@ it('deve pular jogador cassado na fila de presidente', () => {
   const queue = new PresidentQueue(
     Array.from(
       { length: 5 },
-      (_, i) => new Player(`Player ${i}`, Role.CONSERVADOR, i === 0),
+      (_, i) => new Player(`p${i}`, `Player ${i}`, Role.CONSERVADOR, i === 0),
     ),
   );
   const president = queue.getByRoundNumber(0);

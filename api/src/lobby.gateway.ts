@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -5,10 +6,11 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
+import session from 'express-session';
 import { Server, Socket } from 'socket.io';
 import { AppService } from './app.service';
-import session from 'express-session';
-import { Inject } from '@nestjs/common';
+import { LegislativeAction } from './domain/stage/legislative-stage';
+import { StageType } from './domain/stage/stage';
 
 @WebSocketGateway({
   cors: {
@@ -111,6 +113,21 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
     if (error) {
       console.log(error);
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
+  }
+
+  @SubscribeMessage(`${StageType.LEGISLATIVE}:${LegislativeAction.DRAW_LAWS}`)
+  drawLaws(client: Socket, data: { lobbyId: string }) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] = this.service.legislativeStageDrawLaws({
+      lobbyId: data.lobbyId,
+      issuerId: client.request.session.userId,
+    });
+    if (error) {
       return this.handleSocketError(client, error.message);
     }
     this.server.to(data.lobbyId).emit('lobby:updated', lobby);

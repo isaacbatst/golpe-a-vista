@@ -97,4 +97,13 @@ export class DossierStage extends Stage {
   get isDossierVisibleToRapporteur(): boolean {
     return this._isDossierVisibleToRapporteur;
   }
+
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      dossier: this.dossier.map((law) => law.toJSON()),
+      nextRapporteur: this._nextRapporteur?.toJSON(),
+      isDossierVisibleToRapporteur: this._isDossierVisibleToRapporteur,
+    };
+  }
 }

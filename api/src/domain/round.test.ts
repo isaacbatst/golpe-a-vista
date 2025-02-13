@@ -20,8 +20,8 @@ import { Law } from '../data/laws';
 describe('Estágios', () => {
   it('Deve iniciar Estágio Legislativo', () => {
     const presidentQueue = new PresidentQueue([
-      new Player('p1', Role.MODERADO),
-      new Player('p2', Role.MODERADO),
+      new Player('p1', 'p1', Role.MODERADO),
+      new Player('p2', 'p2', Role.MODERADO),
     ]);
     const lawsDeck = makeLawsDeck();
     const crisesDeck = makeCrisesDeck();
@@ -31,8 +31,8 @@ describe('Estágios', () => {
 
   it('Deve iniciar com Cassação caso esteja ativa nesta rodada', () => {
     const presidentQueue = new PresidentQueue([
-      new Player('p1', Role.MODERADO),
-      new Player('p2', Role.MODERADO),
+      new Player('p1', 'p1', Role.MODERADO),
+      new Player('p2', 'p2', Role.MODERADO),
     ]);
     const lawsDeck = makeLawsDeck();
     const crisesDeck = makeCrisesDeck();
@@ -47,8 +47,8 @@ describe('Estágios', () => {
 
   it('Deve avançar de cassação para legislativo', () => {
     const presidentQueue = new PresidentQueue([
-      new Player('p1', Role.MODERADO),
-      new Player('p2', Role.MODERADO),
+      new Player('p1', 'p1', Role.MODERADO),
+      new Player('p2', 'p2', Role.MODERADO),
     ]);
     const lawsDeck = makeLawsDeck();
     const crisesDeck = makeCrisesDeck();
@@ -73,8 +73,8 @@ describe('Estágios', () => {
 
   it('Não deve avançar para o Dossiê sem finalizar o Estágio Legislativo', () => {
     const presidentQueue = new PresidentQueue([
-      new Player('p1', Role.MODERADO),
-      new Player('p2', Role.MODERADO),
+      new Player('p1', 'p1', Role.MODERADO),
+      new Player('p2', 'p2', Role.MODERADO),
     ]);
     const lawsDeck = makeLawsDeck();
     const crisesDeck = makeCrisesDeck();
@@ -85,8 +85,8 @@ describe('Estágios', () => {
 
   it('Deve avançar para o estágio do Dossiê', () => {
     const presidentQueue = new PresidentQueue([
-      new Player('p1', Role.MODERADO),
-      new Player('p2', Role.MODERADO),
+      new Player('p1', 'p1', Role.MODERADO),
+      new Player('p2', 'p2', Role.MODERADO),
     ]);
     const lawsDeck = makeLawsDeck();
     const crisesDeck = makeCrisesDeck();
@@ -108,8 +108,8 @@ describe('Estágios', () => {
 
   it('Deve finalizar round após o dossiê', () => {
     const presidentQueue = new PresidentQueue([
-      new Player('p1', Role.MODERADO),
-      new Player('p2', Role.MODERADO),
+      new Player('p1', 'p1', Role.MODERADO),
+      new Player('p2', 'p2', Role.MODERADO),
     ]);
     const lawsDeck = makeLawsDeck();
     const crisesDeck = makeCrisesDeck();
@@ -135,8 +135,8 @@ describe('Estágios', () => {
   });
 
   it('Deve avançar do Dossiê para o estágio da Sabotagem se uma lei progressista foi aprovada e a rodada anterior não foi sabotada', () => {
-    const president = new Player('p1', Role.MODERADO);
-    const nextPresident = new Player('p2', Role.MODERADO);
+    const president = new Player('p1', 'p1', Role.MODERADO);
+    const nextPresident = new Player('p2', 'p2', Role.MODERADO);
     const lawsDeck = makeLawsDeck('progressive');
     const crisesDeck = makeCrisesDeck();
     const players = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6'];
@@ -179,8 +179,8 @@ describe('Estágios', () => {
   });
 
   it('Deve avançar do Dossiê para o estágio de Radicalização se não houver Sabotagem, pelo menos X leis progressistas ou Y leis conservadoras foram ativadas e a rodada atual tiver uma crise', () => {
-    const president = new Player('p1', Role.MODERADO);
-    const nextPresident = new Player('p2', Role.MODERADO);
+    const president = new Player('p1', 'p1', Role.MODERADO);
+    const nextPresident = new Player('p2', 'p2', Role.MODERADO);
     const lawsDeck = makeLawsDeck('progressive');
     const crisesDeck = makeCrisesDeck();
     const round = new Round({
@@ -214,8 +214,8 @@ describe('Estágios', () => {
   });
 
   it('Deve avançar do estágio de Sabotagem para o estágio de Radicalização se a rodada anterior foi sabotada e cumprir as condições de radicalização', () => {
-    const president = new Player('p1', Role.MODERADO);
-    const nextPresident = new Player('p2', Role.MODERADO);
+    const president = new Player('p1', 'p1', Role.MODERADO);
+    const nextPresident = new Player('p2', 'p2', Role.MODERADO);
     const lawsDeck = makeLawsDeck('progressive');
     const crisesDeck = makeCrisesDeck();
     const round = new Round({
@@ -236,8 +236,8 @@ describe('Estágios', () => {
   });
 
   it('Deve retornar a crise selecionada na sabotagem', () => {
-    const president = new Player('p1', Role.MODERADO);
-    const nextPresident = new Player('p2', Role.MODERADO);
+    const president = new Player('p1', 'p1', Role.MODERADO);
+    const nextPresident = new Player('p2', 'p2', Role.MODERADO);
     const lawsDeck = makeLawsDeck();
     const crisesDeck = makeCrisesDeck();
     const sabotageStage = new SabotageStage(crisesDeck);
@@ -253,25 +253,25 @@ describe('Estágios', () => {
   });
 
   it('Deve retornar relator da próxima rodada', () => {
-    const president = new Player('p1', Role.MODERADO);
-    const nextPresident = new Player('p2', Role.MODERADO);
+    const president = new Player('p1', 'p1', Role.MODERADO);
+    const nextPresident = new Player('p2', 'p2', Role.MODERADO);
     const lawsDeck = makeLawsDeck();
     const crisesDeck = makeCrisesDeck();
     const dossierStage = new DossierStage({
       currentPresident: president,
       nextPresident,
-      currentRapporteur: new Player('p3', Role.MODERADO),
+      currentRapporteur: new Player('p3', 'p3', Role.MODERADO),
       drawnLaws: [],
       lawsDeck,
     });
-    const nextRapporteur = new Player('p4', Role.MODERADO);
+    const nextRapporteur = new Player('p4', 'p4', Role.MODERADO);
     dossierStage.chooseNextRapporteur(nextRapporteur);
     const round = new Round({
       presidentQueue: new PresidentQueue([president, nextPresident]),
       lawsDeck,
       crisesDeck,
       stages: [dossierStage],
-      rapporteur: new Player('p3', Role.MODERADO),
+      rapporteur: new Player('p3', 'p3', Role.MODERADO),
     });
     expect(round.nextRapporteur).toBe(nextRapporteur);
   });
@@ -280,8 +280,8 @@ describe('Estágios', () => {
 describe('Crises', () => {
   describe('Plano Cohen', () => {
     it('Deve gerar dossiê falso para o relator', () => {
-      const president = new Player('p1', Role.MODERADO);
-      const nextPresident = new Player('p2', Role.MODERADO);
+      const president = new Player('p1', 'p1', Role.MODERADO);
+      const nextPresident = new Player('p2', 'p2', Role.MODERADO);
       const lawsDeck = makeLawsDeck();
       const crisesDeck = makeCrisesDeck();
       const round = new Round({
@@ -300,8 +300,8 @@ describe('Crises', () => {
 
   describe('Café Com a ABIN', () => {
     it('Não deve permitir que relator veja o dossiê', () => {
-      const president = new Player('p1', Role.MODERADO);
-      const nextPresident = new Player('p2', Role.MODERADO);
+      const president = new Player('p1', 'p1', Role.MODERADO);
+      const nextPresident = new Player('p2', 'p2', Role.MODERADO);
       const lawsDeck = makeLawsDeck();
       const crisesDeck = makeCrisesDeck();
       const round = new Round({
@@ -322,8 +322,8 @@ describe('Crises', () => {
     { name: 'Forças Ocultas', factory: () => new ForcasOcultas() },
   ])('$name', ({ factory }) => {
     it('Deve ser obrigatório vetar uma lei progressista', () => {
-      const president = new Player('p1', Role.MODERADO);
-      const nextPresident = new Player('p2', Role.MODERADO);
+      const president = new Player('p1', 'p1', Role.MODERADO);
+      const nextPresident = new Player('p2', 'p2', Role.MODERADO);
       const cards = Array.from(
         { length: 3 },
         (_, i) =>
@@ -355,8 +355,8 @@ describe('Crises', () => {
 
   describe('Sessão Secreta', () => {
     it('Deve fazer votação legislativa secreta', () => {
-      const president = new Player('p1', Role.MODERADO);
-      const nextPresident = new Player('p2', Role.MODERADO);
+      const president = new Player('p1', 'p1', Role.MODERADO);
+      const nextPresident = new Player('p2', 'p2', Role.MODERADO);
       const lawsDeck = makeLawsDeck();
       const crisesDeck = makeCrisesDeck();
       const round = new Round({

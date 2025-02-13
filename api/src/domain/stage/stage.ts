@@ -33,4 +33,12 @@ export abstract class Stage {
   get isComplete(): boolean {
     return this.actionController.isComplete;
   }
+
+  toJSON() {
+    return {
+      type: this.type,
+      currentAction: this.currentAction,
+      isComplete: this.isComplete,
+    };
+  }
 }

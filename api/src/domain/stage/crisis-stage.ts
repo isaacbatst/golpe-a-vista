@@ -23,4 +23,11 @@ export class CrisisStage extends Stage {
     this.crisis.effect(round);
     this.advanceAction();
   }
+
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      crisis: this.crisis.toJSON(),
+    };
+  }
 }

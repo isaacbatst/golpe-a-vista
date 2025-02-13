@@ -10,14 +10,14 @@ import {
 describe('Estágio de Radicalização', () => {
   it('deve radicalizar um alvo', () => {
     const stage = new RadicalizationStage();
-    const target = new Player('p1', Role.MODERADO);
+    const target = new Player('p1', 'p1', Role.MODERADO);
     stage.radicalize(target);
     expect(target.radicalized).toBe(true);
   });
 
   it('não deve radicalizar dois jogadores', () => {
     const stage = new RadicalizationStage();
-    const target = new Player('p1', Role.MODERADO);
+    const target = new Player('p1', 'p1', Role.MODERADO);
     stage.radicalize(target);
     const [error] = stage.radicalize(target);
     expect(error).toBe(

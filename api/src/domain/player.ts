@@ -3,6 +3,7 @@ import { Role } from './role';
 
 export class Player {
   constructor(
+    private readonly _id: string,
     private readonly _name: string,
     private readonly _role: Role,
     public impeached = false,
@@ -29,6 +30,10 @@ export class Player {
     return right(true);
   }
 
+  get id() {
+    return this._id;
+  }
+
   get name() {
     return this._name;
   }
@@ -41,12 +46,18 @@ export class Player {
     return this._radicalized;
   }
 
+  get canSeeTeamMembers() {
+    return this._role === Role.CONSERVADOR;
+  }
+
   toJSON() {
     return {
+      id: this._id,
       name: this._name,
       role: this._role,
       impeached: this.impeached,
       radicalized: this._radicalized,
+      canSeeTeamMembers: this.canSeeTeamMembers,
     };
   }
 }

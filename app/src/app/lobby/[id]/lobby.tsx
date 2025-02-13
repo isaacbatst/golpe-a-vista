@@ -8,20 +8,17 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../components/ui/card";
+import { LobbyDTO } from "../../../lib/api.types";
 import { cn } from "../../../lib/utils";
 import { useLobbySocket } from "./lobby-socket-context";
-import { useMe } from "../../../hooks/api/useMe";
 
 type Props = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  lobby: any;
+  lobby: LobbyDTO;
+  userId: string;
 };
 
-const Lobby = ({ lobby }: Props) => {
-  const me = useMe();
-  const myPlayer = lobby.users.find(
-    (u: { id: string }) => u.id === me.data?.id
-  );
+const Lobby = ({ lobby, userId }: Props) => {
+  const myPlayer = lobby.users.find((u: { id: string }) => u.id === userId);
   const { kickUser, error, startGame } = useLobbySocket();
 
   const copyLink = () => {

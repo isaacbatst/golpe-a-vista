@@ -2,12 +2,14 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import crypto from 'crypto';
 import { AppRepository } from './app.repository';
-import { Lobby } from './domain/lobby';
-import { User } from './domain/user';
 import { Either, left, right } from './domain/either';
+import { Lobby } from './domain/lobby';
+import { LegislativeStage } from './domain/stage/legislative-stage';
+import { User } from './domain/user';
 
 @Injectable()
 export class AppService {
@@ -155,6 +157,41 @@ export class AppService {
     const [error] = lobby.removeUser(input.userId, input.issuerId);
     if (error) {
       return left(new NotFoundException(error));
+    }
+
+    return right(lobby);
+  }
+
+  legislativeStageDrawLaws(input: {
+    lobbyId: string;
+    issuerId: string;
+  }): Either<Error, Lobby> {
+    const lobby = this.lobbies.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException());
+    }
+
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (stage instanceof LegislativeStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível sortear leis fora do estágio legislativo',
+        ),
+      );
+    }
+
+    if (lobby.currentGame.president.id !== input.issuerId) {
+      return left(
+        new UnprocessableEntityException(
+          'Apenas o presidente pode sortear leis',
+        ),
+      );
+    }
+
+    const [error] = stage.drawLaws();
+
+    if (error) {
+      return left(new UnprocessableEntityException(error));
     }
 
     return right(lobby);
