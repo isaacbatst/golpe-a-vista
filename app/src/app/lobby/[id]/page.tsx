@@ -3,19 +3,22 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLobby } from "@/hooks/api/useLobby";
+import { Home } from "lucide-react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
+import { Button } from "../../../components/ui/button";
 import Lobby from "./lobby";
 import { LobbySocketProvider } from "./lobby-socket-context";
-import { Button } from "../../../components/ui/button";
-import Link from "next/link";
-import { Home } from "lucide-react";
+import Game from "./game";
+import { useMe } from "../../../hooks/api/useMe";
 
 export default function LobbyPage() {
   const params = useParams();
   const lobbyId = params.id as string;
   const lobby = useLobby(lobbyId);
+  const me = useMe();
 
-  if (lobby.isLoading) {
+  if (lobby.isLoading || me.isLoading) {
     return (
       <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
         <Card className="w-full max-w-md">
@@ -34,7 +37,7 @@ export default function LobbyPage() {
     );
   }
 
-  if (!lobby.data) {
+  if (!lobby.data || !me.data) {
     return (
       <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
         <Card className="w-full max-w-md">
@@ -61,7 +64,12 @@ export default function LobbyPage() {
 
   return (
     <LobbySocketProvider lobbyId={lobbyId}>
-      <Lobby lobby={lobby.data} />
+      {!lobby.data.currentGame && (
+        <Lobby userId={me.data?.id} lobby={lobby.data} />
+      )}
+      {lobby.data.currentGame && (
+        <Game userId={me.data.id} lobby={lobby.data} />
+      )}
     </LobbySocketProvider>
   );
 }

@@ -330,6 +330,7 @@ export class Game {
       ),
       crisesIntervalToImpeach: this._crisesIntervalToImpeach,
       rounds: this._rounds,
+      currentRound: this.currentRound,
       progressiveLawsToFear: this._progressiveLawsToFear,
       rejectedLawsIntervalToCrisis: this._rejectedLawsIntervalToCrisis,
       conservativesImpeachedToRadicalWin:

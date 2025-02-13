@@ -14,6 +14,7 @@ export default function JoinPage() {
           initialValues={{
             code: params.id as string,
           }}
+          focus
         />
       </div>
 

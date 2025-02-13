@@ -9,6 +9,7 @@ export enum RadicalizationAction {
 
 export class RadicalizationStage extends Stage {
   readonly type = StageType.RADICALIZATION;
+  private _target: Player | null = null;
 
   constructor(currentAction?: RadicalizationAction) {
     super(
@@ -24,11 +25,23 @@ export class RadicalizationStage extends Stage {
     if (actionError) {
       return left(actionError);
     }
+    this._target = target;
     const [error, radicalized] = target.radicalize();
     if (error) {
       return left(error);
     }
     this.advanceAction();
     return right(radicalized);
+  }
+
+  get target(): Player | null {
+    return this._target;
+  }
+
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      target: this._target?.toJSON(),
+    };
   }
 }

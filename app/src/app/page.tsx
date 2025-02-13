@@ -39,7 +39,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-      <h1 className="text-4xl font-bold mb-8 text-center">Golpe à Vista 👁️</h1>
+      <h1 className="text-4xl font-bold mb-8 text-center">Golpe à Vista</h1>
 
       <div className="w-full max-w-md space-y-4">
         <form onSubmit={submitCreateLobby}>

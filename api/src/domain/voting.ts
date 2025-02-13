@@ -59,4 +59,16 @@ export class Voting {
   get votes() {
     return new Map(this._votes);
   }
+
+  toJSON() {
+    return {
+      votes: Array.from(this._votes.entries()).map(([player, vote]) => ({
+        player,
+        vote,
+      })),
+      hasEnded: this._hasEnded,
+      result: this.result,
+      count: this.count,
+    };
+  }
 }

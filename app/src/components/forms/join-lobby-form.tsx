@@ -13,6 +13,7 @@ import { joinLobby } from "@/lib/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DoorOpen, LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -25,10 +26,18 @@ type JoinLobbyFormInputs = z.infer<typeof joinLobbySchema>;
 
 type Props = {
   initialValues?: Partial<JoinLobbyFormInputs>;
+  focus?: boolean;
 };
 
-export default function JoinLobbyForm({ initialValues }: Props) {
+export default function JoinLobbyForm({ initialValues, focus }: Props) {
   const router = useRouter();
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (focus) {
+      nameInputRef.current?.focus();
+    }
+  }, [focus]);
 
   const joinLobbyForm = useForm<JoinLobbyFormInputs>({
     resolver: zodResolver(joinLobbySchema),
@@ -48,6 +57,7 @@ export default function JoinLobbyForm({ initialValues }: Props) {
   });
 
   const joinLobbyFormCode = joinLobbyForm.register("code");
+  const { ref, ...joinLobbyFormName } = joinLobbyForm.register("name");
 
   return (
     <form onSubmit={submitJoinLobby}>
@@ -78,8 +88,12 @@ export default function JoinLobbyForm({ initialValues }: Props) {
               Seu nome
             </label>
             <Input
-              {...joinLobbyForm.register("name")}
+              {...joinLobbyFormName}
               id="join-form-name"
+              ref={(e) => {
+                ref(e)
+                nameInputRef.current = e;
+              }}
               placeholder=""
             />
           </div>

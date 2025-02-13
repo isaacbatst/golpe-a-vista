@@ -108,4 +108,13 @@ export class ImpeachmentStage extends Stage {
   get target() {
     return this._target;
   }
+
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      target: this._target?.toJSON(),
+      voting: this._voting?.toJSON(),
+      shouldSkipVoting: this.shouldSkipVoting,
+    };
+  }
 }

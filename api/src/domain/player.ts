@@ -41,12 +41,17 @@ export class Player {
     return this._radicalized;
   }
 
+  get canSeeTeamMembers() {
+    return this._role === Role.CONSERVADOR;
+  }
+
   toJSON() {
     return {
       name: this._name,
       role: this._role,
       impeached: this.impeached,
       radicalized: this._radicalized,
+      canSeeTeamMembers: this.canSeeTeamMembers,
     };
   }
 }

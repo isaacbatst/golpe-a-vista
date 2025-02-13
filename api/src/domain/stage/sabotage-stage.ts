@@ -50,4 +50,12 @@ export class SabotageStage extends Stage {
   get drawnCrises(): Crisis[] | null {
     return this._crisesDrawn;
   }
+
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      selectedCrisis: this._selectedCrisis?.toJSON(),
+      drawnCrises: this._crisesDrawn?.map((crisis) => crisis.toJSON()),
+    };
+  }
 }
