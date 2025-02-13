@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { LobbyGateway } from './lobby.gateway';
 import { SessionModule } from './modules/session/session.module';
 import { PersistenceModule } from './modules/persistence/persistence.module';
+import { LobbyRepository } from './lobby.repository';
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { PersistenceModule } from './modules/persistence/persistence.module';
     PersistenceModule,
   ],
   controllers: [AppController],
-  providers: [LobbyGateway, AppService, DeckRepository],
+  providers: [LobbyGateway, AppService, DeckRepository, LobbyRepository],
 })
 export class AppModule {}

@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
-import { Lora, Special_Elite } from "next/font/google";
+import { Lora } from "next/font/google";
 import { Toaster } from "../components/ui/sonner";
 import "./globals.css";
 
-const geistSans = Lora({
+const lora = Lora({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-});
-
-const geistMono = Special_Elite({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -27,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.className} antialiased`}
+        className={`${lora.variable} ${lora.className} antialiased`}
       >
         {children}
         <Toaster />

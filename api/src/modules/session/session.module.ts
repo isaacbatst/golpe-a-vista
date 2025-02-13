@@ -1,15 +1,22 @@
 import { Inject, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { RedisStore } from 'connect-redis';
 import session from 'express-session';
+import { RedisClientType } from 'redis';
+import { PersistenceModule } from '../persistence/persistence.module';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, PersistenceModule],
   providers: [
     {
       provide: 'SESSION_MIDDLEWARE',
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
+      inject: ['REDIS_CLIENT', ConfigService],
+      useFactory: (
+        redisClient: RedisClientType,
+        configService: ConfigService,
+      ) => {
         return session({
+          store: new RedisStore({ client: redisClient }),
           secret: configService.get<string>('SESSION_SECRET', 'default_secret'),
           resave: false,
           saveUninitialized: false,

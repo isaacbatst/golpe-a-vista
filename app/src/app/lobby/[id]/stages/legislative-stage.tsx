@@ -25,42 +25,38 @@ const LegislativeStage = ({ player, stage, round }: Props) => {
     president: {
       title: `Você é o Presidente!`,
       description: (
-        <>
-          <p className="mt-2 text-gray-700">
+        <div className="text-sm text-muted-foreground flex flex-col gap-4">
+
+          <p className="text-gray-700">
             Parabéns, <span className="font-semibold">{player.name}</span>! Você
-            assumiu o cargo de Presidente nesta rodada. Como sua primeira ação,
+            assumiu o cargo de Presidente nesta rodada. 
+          </p>
+          <p className="text-gray-700">
+          Como sua primeira ação,
             você deve analisar três cartas de leis e{" "}
             <strong>vetar uma delas</strong>. As duas restantes serão enviadas
             para votação.
           </p>
-          <p className="mt-2 text-gray-600">
-            Pense estrategicamente: seu veto pode influenciar o rumo do jogo!
-          </p>
-          <p className="mt-4 text-sm text-gray-500 italic">
-            Aguarde enquanto os demais jogadores são informados.
-          </p>
-        </>
+        </div>
       ),
     },
     rest: {
       title: `${round.president.name} é o Presidente!`,
       description: (
-        <>
-          <p className="mt-2 text-gray-700">
+        <div className="flex flex-col gap-4 text-sm text-muted-foreground">
+          <p className="text-gray-700">
             Nesta rodada,{" "}
             <span className="font-semibold">{round.president.name}</span>{" "}
             assumiu o cargo de Presidente e agora está analisando as leis
-            disponíveis. Como primeira ação, ele(a) deve{" "}
+            disponíveis. 
+          </p>
+          <p className="text-gray-700">Como primeira ação, ele(a) deve{" "}
             <strong>vetar uma das três cartas</strong> antes de encaminhar as
-            demais para votação.
-          </p>
-          <p className="mt-2 text-gray-600">
-            Fiquem atentos: em breve, a votação das leis começará!
-          </p>
-          <p className="mt-4 text-sm text-gray-500 italic">
+            demais para votação.</p>
+          <p className="text-sm text-gray-500 italic">
             Aguarde enquanto o Presidente toma sua decisão.
           </p>
-        </>
+        </div>
       ),
     },
   };
@@ -75,23 +71,22 @@ const LegislativeStage = ({ player, stage, round }: Props) => {
       </DialogTrigger>
       <DialogContent>
         {player.isPresident ? (
+          <>
           <DialogHeader>
             <DialogTitle>{texts.president.title}</DialogTitle>
-            <div className="text-sm text-muted-foreground flex flex-col">
-              {texts.president.description}
-            </div>
           </DialogHeader>
+              {texts.president.description}
+          </>
         ) : (
+          <>
           <DialogHeader>
             <DialogTitle>{texts.rest.title}</DialogTitle>
-            <div className="text-sm text-muted-foreground flex flex-col">
-              {texts.rest.description}
-            </div>
           </DialogHeader>
+              {texts.rest.description}
+          </>
         )}
         {stage.currentAction === LegislativeAction.DRAW_LAWS &&
           player.isPresident && (
-            // botao para sacar cartas
             <div>
               <Button>
                 <DicesIcon />

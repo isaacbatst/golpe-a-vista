@@ -26,7 +26,7 @@ export class CrisisFactory {
 
   static fromJSON(json: CrisisJSON): Crisis {
     return CrisisFactory.create({
-      name: json.title as CRISIS_NAMES,
+      name: json.name,
       description: json.description,
       visibleTo: json.visibleTo,
       notVisibleTo: json.notVisibleTo,

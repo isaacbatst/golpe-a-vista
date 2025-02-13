@@ -10,18 +10,20 @@ import { Either, left, right } from './domain/either';
 import { Lobby } from './domain/lobby';
 import { LegislativeStage } from './domain/stage/legislative-stage';
 import { User } from './domain/user';
+import { LobbyRepository } from './lobby.repository';
 
 @Injectable()
 export class AppService {
-  lobbies = new Map<string, Lobby>();
+  constructor(
+    private readonly deckRepository: DeckRepository,
+    private readonly lobbyRepository: LobbyRepository,
+  ) {}
 
-  constructor(private readonly repository: DeckRepository) {}
-
-  createLobby(body: {
+  async createLobby(body: {
     name: string;
-  }): Either<Error, { lobby: Lobby; user: User }> {
+  }): Promise<Either<Error, { lobby: Lobby; user: User }>> {
     let id = Math.random().toString(36).slice(2, 6).toUpperCase();
-    while (this.lobbies.has(id)) {
+    while (await this.lobbyRepository.has(id)) {
       id = Math.random().toString(36).slice(2, 6).toUpperCase();
     }
 
@@ -40,15 +42,15 @@ export class AppService {
     if (addPlayerError) {
       return left(new InternalServerErrorException(addPlayerError));
     }
-    this.lobbies.set(id, lobby);
+    await this.lobbyRepository.save(lobby);
     return right({
       lobby: lobby,
       user: lobbyMember,
     });
   }
 
-  getLobby(id: string, userId: string): Either<Error, Lobby> {
-    const lobby = this.lobbies.get(id);
+  async getLobby(id: string, userId: string): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(id);
     if (!lobby) {
       return left(new NotFoundException());
     }
@@ -60,11 +62,11 @@ export class AppService {
     return right(lobby);
   }
 
-  joinLobby(
+  async joinLobby(
     id: string,
     body: { name: string; session?: { lobbyId: string; userId: string } },
-  ): Either<Error, { lobby: Lobby; user: User }> {
-    const lobby = this.lobbies.get(id);
+  ): Promise<Either<Error, { lobby: Lobby; user: User }>> {
+    const lobby = await this.lobbyRepository.get(id);
     if (!lobby) {
       return left(new NotFoundException());
     }
@@ -73,53 +75,56 @@ export class AppService {
       (user) => user.id === body.session?.userId,
     );
 
-    if (!body.session || !userInLobby) {
-      const lobbyMember = new User({
-        id: crypto.randomUUID(),
-        name: body.name,
-      });
-      const [error] = lobby.addUser(lobbyMember);
-      if (error) {
-        return left(new InternalServerErrorException(error));
-      }
+    if (body.session && userInLobby) {
       return right({
         lobby: lobby,
-        user: lobbyMember,
+        user: userInLobby,
       });
     }
 
+    const newUser = new User({
+      id: crypto.randomUUID(),
+      name: body.name,
+    });
+    const [error] = lobby.addUser(newUser);
+    if (error) {
+      return left(new InternalServerErrorException(error));
+    }
+    await this.lobbyRepository.save(lobby);
+
     return right({
       lobby: lobby,
-      user: userInLobby,
+      user: newUser,
     });
   }
 
-  startGame(input: {
+  async startGame(input: {
     lobbyId: string;
     issuerId: string;
-  }): Either<Error, Lobby> {
-    const lobby = this.lobbies.get(input.lobbyId);
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
     if (!lobby) {
       return left(new NotFoundException());
     }
 
-    const crisesDeck = this.repository.cloneCrisesDeck();
-    const lawsDeck = this.repository.cloneLawsDeck();
+    const crisesDeck = this.deckRepository.cloneCrisesDeck();
+    const lawsDeck = this.deckRepository.cloneLawsDeck();
 
     const [error] = lobby.startGame(input.issuerId, crisesDeck, lawsDeck);
     if (error) {
       return left(new InternalServerErrorException(error));
     }
 
+    await this.lobbyRepository.save(lobby);
     return right(lobby);
   }
 
-  connectUser(
+  async connectUser(
     lobbyId: string,
     userId: string,
     socketId: string,
-  ): Either<Error, Lobby> {
-    const lobby = this.lobbies.get(lobbyId);
+  ): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(lobbyId);
     if (!lobby) {
       return left(new NotFoundException());
     }
@@ -127,11 +132,15 @@ export class AppService {
     if (error) {
       return left(new NotFoundException(error));
     }
+    await this.lobbyRepository.save(lobby);
     return right(lobby);
   }
 
-  disconnectUser(userId: string, lobbyId: string): Either<Error, Lobby> {
-    const lobby = this.lobbies.get(lobbyId);
+  async disconnectUser(
+    userId: string,
+    lobbyId: string,
+  ): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(lobbyId);
     if (!lobby) {
       return left(new NotFoundException());
     }
@@ -141,16 +150,16 @@ export class AppService {
     if (error) {
       return left(new NotFoundException(error));
     }
-
+    await this.lobbyRepository.save(lobby);
     return right(lobby);
   }
 
-  kickUser(input: {
+  async kickUser(input: {
     lobbyId: string;
     userId: string;
     issuerId: string;
-  }): Either<Error, Lobby> {
-    const lobby = this.lobbies.get(input.lobbyId);
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
     if (!lobby) {
       return left(new NotFoundException());
     }
@@ -160,14 +169,15 @@ export class AppService {
       return left(new NotFoundException(error));
     }
 
+    await this.lobbyRepository.save(lobby);
     return right(lobby);
   }
 
-  legislativeStageDrawLaws(input: {
+  async legislativeStageDrawLaws(input: {
     lobbyId: string;
     issuerId: string;
-  }): Either<Error, Lobby> {
-    const lobby = this.lobbies.get(input.lobbyId);
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
     if (!lobby) {
       return left(new NotFoundException());
     }
@@ -189,12 +199,13 @@ export class AppService {
       );
     }
 
-    const [error] = stage.drawLaws();
+    const [error] = stage.drawLaws(lobby.currentGame.lawsDeck);
 
     if (error) {
       return left(new UnprocessableEntityException(error));
     }
 
+    await this.lobbyRepository.save(lobby);
     return right(lobby);
   }
 }

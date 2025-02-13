@@ -18,8 +18,8 @@ export class AppController {
   constructor(private readonly service: AppService) {}
 
   @Post('lobbies')
-  createLobby(@Req() req: Request, @Body() body: { name: string }) {
-    const [error, created] = this.service.createLobby(body);
+  async createLobby(@Req() req: Request, @Body() body: { name: string }) {
+    const [error, created] = await this.service.createLobby(body);
     if (!created) {
       throw error;
     }
@@ -31,7 +31,7 @@ export class AppController {
   }
 
   @Get('lobbies/:id')
-  getLobby(@Param('id') id: string, @Session() session: SessionData) {
+  async getLobby(@Param('id') id: string, @Session() session: SessionData) {
     if (!session) {
       throw new ForbiddenException();
     }
@@ -40,7 +40,7 @@ export class AppController {
       throw new UnauthorizedException();
     }
 
-    const [error, lobby] = this.service.getLobby(id, session.userId);
+    const [error, lobby] = await this.service.getLobby(id, session.userId);
 
     if (!lobby) {
       throw error;
@@ -49,13 +49,13 @@ export class AppController {
   }
 
   @Post('lobbies/:id/join')
-  joinLobby(
+  async joinLobby(
     @Param('id') id: string,
     @Req() req: Request,
     @Body() body: { name: string },
     @Session() session: SessionData,
   ) {
-    const [error, joined] = this.service.joinLobby(id, {
+    const [error, joined] = await this.service.joinLobby(id, {
       name: body.name,
       session: session,
     });

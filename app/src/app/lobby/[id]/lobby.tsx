@@ -101,16 +101,22 @@ const Lobby = ({ lobby, userId }: Props) => {
               );
             })}
           </ul>
-          <Button
-            className="mt-4"
-            disabled={lobby.users.length < 7}
-            onClick={() => {
-              startGame();
-            }}
-          >
-            <Play />
-            Iniciar Jogo
-          </Button>
+          {myPlayer?.isHost ? (
+            <Button
+              className="mt-4"
+              disabled={lobby.users.length < 7}
+              onClick={() => {
+                startGame();
+              }}
+            >
+              <Play />
+              Iniciar Jogo
+            </Button>
+          ) : (
+            <p className="text-center text-gray-500 mt-4">
+              Aguarde o anfitrião iniciar o jogo
+            </p>
+          )}
           {error && (
             <div className="mt-4 p-4 bg-red-100 text-red-500 rounded-lg">
               {error}

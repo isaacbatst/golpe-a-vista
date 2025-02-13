@@ -172,6 +172,14 @@ export class Game {
     return this._presidentQueue.getByRoundNumber(round);
   }
 
+  get crisesDeck() {
+    return this._crisesDeck;
+  }
+
+  get lawsDeck() {
+    return this._lawsDeck;
+  }
+
   get nextRoundShouldImpeach() {
     if (this.currentRound.hasApprovedLaw(LawType.CONSERVADORES)) {
       return true;

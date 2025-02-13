@@ -46,7 +46,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return this.handleSocketError(client, 'Usuário não reconhecido');
     }
 
-    const [error, lobby] = this.service.connectUser(
+    const [error, lobby] = await this.service.connectUser(
       data.lobbyId,
       client.request.session.userId,
       client.id,
@@ -58,7 +58,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(data.lobbyId).emit('lobby:updated', lobby);
   }
 
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
     console.log('🔴 Cliente desconectado:', client.id);
 
     if (!client.request.session) {
@@ -70,7 +70,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
 
-    const [error, lobby] = this.service.disconnectUser(userId, lobbyId);
+    const [error, lobby] = await this.service.disconnectUser(userId, lobbyId);
     if (!lobby) {
       return this.handleSocketError(client, error.message);
     }
@@ -78,11 +78,11 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('kick')
-  kickUser(client: Socket, data: { lobbyId: string; userId: string }) {
+  async kickUser(client: Socket, data: { lobbyId: string; userId: string }) {
     if (!client.request.session.userId) {
       return this.handleSocketError(client, 'Usuário não reconhecido');
     }
-    const [error, lobby] = this.service.kickUser({
+    const [error, lobby] = await this.service.kickUser({
       lobbyId: data.lobbyId,
       userId: data.userId,
       issuerId: client.request.session.userId,
@@ -103,11 +103,11 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('start')
-  startGame(client: Socket, data: { lobbyId: string }) {
+  async startGame(client: Socket, data: { lobbyId: string }) {
     if (!client.request.session.userId) {
       return this.handleSocketError(client, 'Usuário não reconhecido');
     }
-    const [error, lobby] = this.service.startGame({
+    const [error, lobby] = await this.service.startGame({
       lobbyId: data.lobbyId,
       issuerId: client.request.session.userId,
     });
@@ -119,11 +119,11 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage(`${StageType.LEGISLATIVE}:${LegislativeAction.DRAW_LAWS}`)
-  drawLaws(client: Socket, data: { lobbyId: string }) {
+  async drawLaws(client: Socket, data: { lobbyId: string }) {
     if (!client.request.session.userId) {
       return this.handleSocketError(client, 'Usuário não reconhecido');
     }
-    const [error, lobby] = this.service.legislativeStageDrawLaws({
+    const [error, lobby] = await this.service.legislativeStageDrawLaws({
       lobbyId: data.lobbyId,
       issuerId: client.request.session.userId,
     });
