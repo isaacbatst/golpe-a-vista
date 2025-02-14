@@ -13,17 +13,15 @@ const LegislativeStageVetoLaw = () => {
 
   if (!player.isPresident) {
     return (
-      <>
+      <div className="flex flex-col items-center">
         <DialogHeader>
-          <DialogTitle>{president.name} é o Presidente!</DialogTitle>
+          <DialogTitle className="text-2xl font-semibold mb-3">{president.name} é o Presidente!</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col gap-4 text-sm text-muted-foreground">
-          <p className="text-gray-700">
+        <div className="text-muted-foreground flex flex-col gap-4 max-w-md text-center mb-6">
+        <p className="text-sm">
             Nesta rodada,{" "}
             <span className="font-semibold">{president.name}</span> assumiu o
-            cargo de Presidente e agora está analisando as leis disponíveis.
-          </p>
-          <p className="text-gray-700">
+            cargo de Presidente e agora está analisando as leis disponíveis. 
             Como primeira ação, ele(a) deve{" "}
             <strong>vetar uma das três cartas</strong> antes de encaminhar as
             demais para votação.
@@ -32,12 +30,14 @@ const LegislativeStageVetoLaw = () => {
             Aguarde enquanto o Presidente toma sua decisão.
           </p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-1 space-y">
-          {stage.drawnLaws.map(() => (
-            <LawCard key={Math.random()} />
+        <ul className="flex flex-wrap gap-3 justify-center">
+          {stage.drawnLaws.map((law) => (
+            <li key={law.name} className="flex justify-center">
+              <LawCard />
+            </li>
           ))}
-        </div>
-      </>
+        </ul>
+      </div>
     );
   }
 
@@ -47,7 +47,7 @@ const LegislativeStageVetoLaw = () => {
         <DialogTitle className="text-2xl font-semibold mb-3">Você é o Presidente!</DialogTitle>
       </DialogHeader>
       <div className="text-muted-foreground flex flex-col gap-4 max-w-md text-center mb-6">
-        <p className="text-gray-700">
+        <p className="text-sm">
           Parabéns, <span className="font-semibold">{player.name}</span>! Você
           assumiu o cargo de Presidente nesta rodada. Como sua primeira ação, você deve analisar três cartas de leis e{" "}
           <strong>vetar uma delas</strong>. As duas restantes serão enviadas

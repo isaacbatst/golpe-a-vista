@@ -142,7 +142,7 @@ export default function Game({ userId, lobby }: Props) {
                           <Wifi
                             className={cn("h-4", {
                               "text-green-500": user?.isConnected,
-                              "text-gray-300": !user?.isConnected,
+                              "text-red-500": !user?.isConnected,
                             })}
                           />
                         </div>
