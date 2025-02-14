@@ -11,6 +11,7 @@ import Lobby from "./lobby";
 import { LobbySocketProvider } from "./lobby-socket-context";
 import Game from "./game";
 import { useMe } from "../../../hooks/api/useMe";
+import { LobbyContextProvider } from "./lobby-context";
 
 export default function LobbyPage() {
   const params = useParams();
@@ -64,12 +65,14 @@ export default function LobbyPage() {
 
   return (
     <LobbySocketProvider lobbyId={lobbyId}>
-      {!lobby.data.currentGame && (
+     <LobbyContextProvider lobby={lobby.data}>
+     {!lobby.data.currentGame && (
         <Lobby userId={me.data?.id} lobby={lobby.data} />
       )}
       {lobby.data.currentGame && (
         <Game userId={me.data.id} lobby={lobby.data} />
       )}
+     </LobbyContextProvider>
     </LobbySocketProvider>
   );
 }

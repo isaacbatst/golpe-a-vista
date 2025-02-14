@@ -1,10 +1,12 @@
 import { createContext, PropsWithChildren, useContext } from "react";
 import useSocket from "../../../hooks/useSocket";
+import { LegislativeAction, StageType } from "../../../lib/api.types";
 
 type LobbySocketContextType = {
   error: string | null;
   kickUser: (userId: string) => void;
   startGame: () => void;
+  legislativeStageDrawCards: () => void;
 };
 
 export const LobbySocketContext = createContext<LobbySocketContextType>(
@@ -29,6 +31,12 @@ export const LobbySocketProvider = ({
         startGame: () => {
           socket?.emit("start", { lobbyId });
         },
+        legislativeStageDrawCards: () => {
+          socket?.emit(
+            `${StageType.LEGISLATIVE}:${LegislativeAction.DRAW_LAWS}`,
+            { lobbyId }
+          );
+        },
       }}
     >
       {children}
@@ -36,7 +44,7 @@ export const LobbySocketProvider = ({
   );
 };
 
-export const useLobbySocket = () => {
+export const useLobbySocketContext = () => {
   const context = useContext(LobbySocketContext);
   if (!context) {
     throw new Error("useLobbySocket must be used within a LobbySocketProvider");

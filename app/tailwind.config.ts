@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 import animate from "tailwindcss-animate";
+import { fontFamily } from "tailwindcss/defaultTheme";
 
 export default {
     darkMode: ["class"],
@@ -10,6 +11,12 @@ export default {
   ],
   theme: {
   	extend: {
+			fontFamily: {
+        lora: ["var(--font-lora)", ...fontFamily.serif],
+        ['special-elite']: ["var(--font-special-elite)", ...fontFamily.serif],
+				anton: ["var(--font-anton)", ...fontFamily.sans],
+				bebas: ["var(--font-bebas)", ...fontFamily.sans],
+      },
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

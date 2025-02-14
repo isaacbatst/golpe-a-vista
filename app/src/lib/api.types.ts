@@ -5,9 +5,13 @@ export type UserDTO = {
   isConnected: boolean;
 };
 
-export type LawType = 'PROGRESSIVE' | 'CONSERVATIVE';
+export enum LawType {
+  CONSERVADORES = "Conservadores",
+  PROGRESSISTAS = "Progressistas",
+}
 
 export type LawDTO = {
+  id: string;
   name: string;
   type: LawType;
   description: string;

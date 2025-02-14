@@ -10,7 +10,7 @@ import {
 } from "../../../components/ui/card";
 import { LobbyDTO } from "../../../lib/api.types";
 import { cn } from "../../../lib/utils";
-import { useLobbySocket } from "./lobby-socket-context";
+import { useLobbySocketContext } from "./lobby-socket-context";
 
 type Props = {
   lobby: LobbyDTO;
@@ -19,7 +19,7 @@ type Props = {
 
 const Lobby = ({ lobby, userId }: Props) => {
   const myPlayer = lobby.users.find((u: { id: string }) => u.id === userId);
-  const { kickUser, error, startGame } = useLobbySocket();
+  const { kickUser, error, startGame } = useLobbySocketContext();
 
   const copyLink = () => {
     const link = `${window.location.origin}/join/${lobby.id}`;

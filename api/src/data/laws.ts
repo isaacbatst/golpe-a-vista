@@ -7,103 +7,126 @@ export class Law {
     readonly name: string,
     readonly type: LawType,
     readonly description: string,
+    readonly id = '112',
   ) {}
   toJSON() {
     return {
+      id: this.id,
       name: this.name,
       type: this.type,
       description: this.description,
     };
   }
-  static fromJSON(data: { name: string; type: LawType; description: string }) {
-    return new Law(data.name, data.type, data.description);
+  static fromJSON(data: {
+    name: string;
+    type: LawType;
+    description: string;
+    id: string;
+  }) {
+    return new Law(data.name, data.type, data.description, data.id);
   }
 }
-
 export const LAWS: Law[] = [
   new Law(
     'Taxação das Grandes Fortunas',
     LawType.PROGRESSISTAS,
-    'A próxima lei conservadora aprovada não terá efeito, pois "o orçamento já está equilibrado".',
+    'Os mais ricos pagando mais impostos? Que ultraje!',
+    '112',
   ),
   new Law(
-    'Direito à Greve Sem Retaliação',
+    'Direito à Greve',
     LawType.PROGRESSISTAS,
-    'Se esta lei for rejeitada, os jogadores não poderão rejeitar a próxima lei, pois "a pressão popular aumentou".',
+    'Agora ninguém pode mais ser demitido só por querer direitos básicos.',
+    '142',
   ),
   new Law(
-    'Transparência Total nas Decisões de Governo',
+    'Transparência Total',
     LawType.PROGRESSISTAS,
-    'O próximo Presidente deve revelar as duas leis antes de escolher, pois "a população exige mais clareza".',
+    'Os políticos terão que contar tudo. O desespero no Congresso é palpável.',
+    '932',
   ),
   new Law(
-    'Redução da Jornada de Trabalho: Viva o Ócio!',
+    'Redução da Jornada de Trabalho',
     LawType.PROGRESSISTAS,
-    'O próximo moderado não terá receio de ativar uma crise, pois "o apoio popular está alto".',
+    'Mais tempo livre para a população. O patrão que lute!',
+    '215',
   ),
   new Law(
-    'Fim da Polícia Militar: Segurança Cidadã',
+    'Fim da Polícia Militar',
     LawType.PROGRESSISTAS,
-    'O próximo Presidente não poderá ativar crises, pois "a nova política de segurança pública impede manobras arbitrárias".',
+    'Agora a segurança pública será feita com base no diálogo e no respeito. Que conceito revolucionário!',
+    '348',
   ),
   new Law(
-    'Voto de Confiança',
+    'Escola sem Política',
     LawType.CONSERVADORES,
-    'Se esta lei for aprovada, os jogadores devem votar secretamente na próxima rodada, pois "a estabilidade governamental está em jogo".',
+    'Professores proibidos de discutir questões sociais e políticas em sala. Melhor garantir que ninguém pense demais!',
+    '467',
   ),
   new Law(
-    'Programa de Renda Básica Universal',
+    'Renda Básica Universal',
     LawType.PROGRESSISTAS,
-    'Se esta lei for aprovada, o próximo Presidente poderá aprovar uma lei sem votação, pois "o apoio popular garante legitimidade imediata".',
+    'Dinheiro no bolso do povo sem trabalhar? Tem gente arrancando os cabelos agora mesmo.',
+    '529',
   ),
   new Law(
-    'Reforma Agrária: Agora Vai!',
+    'Reforma Agrária',
     LawType.PROGRESSISTAS,
-    'Se esta lei for aprovada, os conservadores só poderão ativar crises após duas rodadas, pois "o campo se organizou contra sabotagens".',
+    'Mais terra para quem planta. Os latifundiários estão nervosos!',
+    '673',
   ),
   new Law(
-    'Privatização da Saúde: Saúde para Quem Pode Pagar',
+    'Privatização da Saúde',
     LawType.CONSERVADORES,
-    'O próximo Presidente não poderá escolher leis progressistas, pois "o setor privado exige segurança nos investimentos".',
+    'Saúde para quem pode pagar! SUS é coisa do passado.',
+    '784',
   ),
   new Law(
     'Criminalização de Movimentos Sociais',
     LawType.CONSERVADORES,
-    'Se esta lei for aprovada, o próximo Presidente será escolhido pelos conservadores, pois "novas diretrizes de ordem pública exigem liderança firme".',
+    'Protestou? Cadeia! Ordem e progresso, mas sem o progresso.',
+    '856',
   ),
   new Law(
-    'Crescimento Econômico Acima de Tudo',
+    'Teto de Gastos',
     LawType.CONSERVADORES,
-    'Se esta lei for aprovada, o próximo Presidente não poderá rejeitar uma lei, independentemente da votação, pois "o governo precisa garantir estabilidade para o mercado".',
+    'Investir no povo? Melhor congelar tudo e esperar o milagre econômico acontecer.',
+    '918',
   ),
   new Law(
-    'Aumento de Benefícios Empresariais',
+    'Benefícios Empresariais',
     LawType.CONSERVADORES,
-    'Se esta lei for rejeitada, os conservadores poderão ativar uma crise imediatamente, pois "o setor privado reage negativamente".',
+    'Empresas primeiro, o povo... talvez depois.',
+    '371',
   ),
   new Law(
-    'Benefícios Fiscais para Multinacionais',
+    'Incentivo às Multinacionais',
     LawType.CONSERVADORES,
-    'Se esta lei for aprovada, a próxima lei progressista obrigatoriamente ativará uma crise, pois "investidores reagem ao risco político".',
+    'O dinheiro sai, os problemas ficam. Negócio bom assim ninguém nunca viu.',
+    '624',
   ),
   new Law(
-    'Orçamento de Guerra: Corte de Gastos Sociais',
+    'Orçamento de Guerra',
     LawType.CONSERVADORES,
-    'Se esta lei for aprovada, o próximo moderado a assumir o cargo será forçado a ativar uma crise caso escolha uma lei progressista.',
+    'Cortar tudo que não seja canhão. Educação? Saúde? Que bobagem!',
+    '482',
   ),
   new Law(
-    'Medidas de Estabilização do Congresso',
+    'Estabilização do Congresso',
     LawType.CONSERVADORES,
-    'Se esta lei for aprovada, os moderados não poderão rejeitar leis na próxima rodada, pois "a governabilidade exige compromisso institucional".',
+    'Menos debate, mais obediência. A democracia agradece... ou não.',
+    '759',
   ),
   new Law(
     'Controle Centralizado',
     LawType.CONSERVADORES,
-    'O próximo Presidente não poderá votar na próxima rodada, pois "a administração pública deve ser gerida tecnocraticamente".',
+    'Agora só um manda e ninguém discute. Democracia simplificada!',
+    '890',
   ),
   new Law(
-    'Redução do Tamanho do Estado',
+    'Privatização da Educação',
     LawType.CONSERVADORES,
-    'Se esta lei for aprovada, o próximo Presidente sacará apenas uma lei em vez de duas, pois "a máquina pública foi enxugada".',
+    'A iniciativa privada sabe o que é melhor para o seu filho. O Estado só atrapalha.',
+    '503',
   ),
 ];
