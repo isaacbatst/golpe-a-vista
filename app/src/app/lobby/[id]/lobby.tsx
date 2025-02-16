@@ -118,7 +118,7 @@ const Lobby = ({ lobby, userId }: Props) => {
             </p>
           )}
           {error && (
-            <div className="mt-4 p-4 bg-red-100 text-red-500 rounded-lg">
+            <div className="mt-4 p-4 bg-red-100 text-red-500 rounded-lg text-sm">
               {error}
             </div>
           )}

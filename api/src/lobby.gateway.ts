@@ -1,6 +1,5 @@
 import { Inject, UseFilters } from '@nestjs/common';
 import {
-  BaseWsExceptionFilter,
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
@@ -12,6 +11,7 @@ import { Server, Socket } from 'socket.io';
 import { AppService } from './app.service';
 import { LegislativeAction } from './domain/stage/legislative-stage';
 import { StageType } from './domain/stage/stage';
+import { WsExceptionFilter } from './filters/ws-exception.filter';
 
 @WebSocketGateway({
   cors: {
@@ -20,7 +20,7 @@ import { StageType } from './domain/stage/stage';
   },
   path: '/ws/socket',
 })
-@UseFilters(new BaseWsExceptionFilter())
+@UseFilters(new WsExceptionFilter())
 export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
