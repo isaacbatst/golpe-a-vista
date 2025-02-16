@@ -21,30 +21,30 @@ export enum RoundStageIndex {
 type StageQueueParams = {
   presidentId: string;
   crisis?: Crisis | null;
-  drawnLaws: Law[];
-  hasApprovedLaw: (lawType: LawType) => boolean;
-  hasMinLawsToRadicalization: () => boolean;
-  isDossierFake: boolean;
-  isLegislativeVotingSecret: boolean;
-  requiredVeto: LawType | null;
-  hasLastRoundBeenSabotaged: boolean;
-  hasImpeachment: boolean;
+  hasImpeachment?: boolean;
+  drawnLaws?: Law[];
+  hasApprovedProgressiveLaw?: boolean;
+  hasMinLawsToRadicalization?: boolean;
+  isDossierFake?: boolean;
+  isLegislativeVotingSecret?: boolean;
+  requiredVeto?: LawType | null;
+  hasLastRoundBeenSabotaged?: boolean;
 };
 
 export class StageQueue {
-  constructor(private _currentStageIndex: number = 0) {}
+  constructor(private _nextStage: number = 0) {}
 
   nextStage({
     presidentId,
-    crisis,
-    hasImpeachment,
-    drawnLaws,
-    hasApprovedLaw,
-    hasMinLawsToRadicalization,
-    isDossierFake,
-    isLegislativeVotingSecret,
-    requiredVeto,
-    hasLastRoundBeenSabotaged,
+    crisis = null,
+    hasImpeachment = false,
+    drawnLaws = [],
+    hasApprovedProgressiveLaw = false,
+    hasMinLawsToRadicalization = false,
+    isDossierFake = false,
+    isLegislativeVotingSecret = false,
+    requiredVeto = null,
+    hasLastRoundBeenSabotaged = false,
   }: StageQueueParams): Stage | null {
     const stages: {
       factory: () => Stage;
@@ -76,40 +76,38 @@ export class StageQueue {
       {
         factory: () => new SabotageStage(),
         condition: () =>
-          hasApprovedLaw(LawType.PROGRESSISTAS) && !hasLastRoundBeenSabotaged,
+          hasApprovedProgressiveLaw && !hasLastRoundBeenSabotaged,
       },
       {
         factory: () => new RadicalizationStage(),
-        condition: () => Boolean(hasMinLawsToRadicalization() && crisis),
+        condition: () => Boolean(hasMinLawsToRadicalization && crisis),
       },
     ];
 
-    if (!stages[this._currentStageIndex]) {
-      return null;
-    }
-
-    for (let i = this._currentStageIndex + 1; i < stages.length; i++) {
-      if (!stages[i].condition || stages[i].condition!()) {
-        this._currentStageIndex = i;
+    for (let i = this._nextStage; i < stages.length; i++) {
+      const passed = stages[i].condition ? stages[i].condition!() : true;
+      if (passed) {
+        this._nextStage = i;
         break;
+      }
+      if (i === stages.length - 1) {
+        this._nextStage = i;
+        return null;
       }
     }
 
-    if (!stages[this._currentStageIndex]) {
-      return null;
-    }
-
-    const nextStage = stages[this._currentStageIndex].factory();
+    const nextStage = stages[this._nextStage].factory();
+    this._nextStage++;
     return nextStage;
   }
 
   get nextStageIndex() {
-    return this._currentStageIndex;
+    return this._nextStage;
   }
 
   toJSON() {
     return {
-      nextStageIndex: this._currentStageIndex,
+      nextStageIndex: this._nextStage,
     };
   }
 

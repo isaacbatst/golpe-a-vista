@@ -172,6 +172,10 @@ export class Game {
     return this._presidentQueue.getByRoundNumber(round);
   }
 
+  getPlayerById(id: string) {
+    return this._players.get(id);
+  }
+
   get crisesDeck() {
     return this._crisesDeck;
   }
@@ -296,6 +300,16 @@ export class Game {
 
   get president() {
     return this.currentRound.president;
+  }
+
+  get nextPresident() {
+    return this.getPresidentFromQueue(this.currentRoundIndex + 1);
+  }
+
+  get rapporteur() {
+    return this.currentRound.rapporteurId
+      ? (this.getPlayerById(this.currentRound.rapporteurId) ?? null)
+      : null;
   }
 
   get players() {

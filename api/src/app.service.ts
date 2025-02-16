@@ -11,6 +11,7 @@ import { Lobby } from './domain/lobby';
 import { LegislativeStage } from './domain/stage/legislative-stage';
 import { User } from './domain/user';
 import { LobbyRepository } from './lobby.repository';
+import { DossierStage } from 'src/domain/stage/dossier-stage';
 
 @Injectable()
 export class AppService {
@@ -355,6 +356,42 @@ export class AppService {
     }
     if (!nextStage) {
       lobby.currentGame.nextRound();
+    }
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
+  async dossierStageSelectRapporteur(input: {
+    lobbyId: string;
+    issuerId: string;
+    rapporteurId: string;
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException('Lobby não encontrado'));
+    }
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (stage instanceof DossierStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível selecionar um relator fora do estágio de Dossiê',
+        ),
+      );
+    }
+    const chosen = lobby.currentGame.getPlayerById(input.rapporteurId);
+    if (!chosen) {
+      return left(new NotFoundException('Relator não encontrado'));
+    }
+
+    const [error] = stage.chooseNextRapporteur({
+      chosen,
+      currentPresident: lobby.currentGame.president,
+      currentRapporteur: lobby.currentGame.rapporteur,
+      nextPresident: lobby.currentGame.nextPresident,
+      issuerId: input.issuerId,
+    });
+    if (error) {
+      return left(new InternalServerErrorException(error));
     }
     await this.lobbyRepository.save(lobby);
     return right(lobby);

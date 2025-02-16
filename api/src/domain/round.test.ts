@@ -100,7 +100,7 @@ describe('Estágios', () => {
     ]);
     const round = new Round({
       presidentQueue,
-      stageQueue: new StageQueue(RoundStageIndex.SABOTAGE),
+      stageQueue: new StageQueue(RoundStageIndex.DOSSIER),
       stages: [
         new DossierStage({
           drawnLaws: [],
@@ -108,6 +108,7 @@ describe('Estágios', () => {
         }),
       ],
     });
+
     const [error, stage] = round.nextStage();
     expect(error).toBeUndefined();
     expect(stage).toBeNull();

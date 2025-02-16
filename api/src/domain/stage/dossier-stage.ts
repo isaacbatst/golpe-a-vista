@@ -36,6 +36,7 @@ export class DossierStage extends Stage {
   }
 
   chooseNextRapporteur(params: {
+    issuerId?: string;
     chosen: Player;
     currentPresident: Player;
     currentRapporteur: Player | null;
@@ -43,6 +44,12 @@ export class DossierStage extends Stage {
   }): Either<string, void> {
     const [error] = this.assertCurrentAction('SELECT_RAPPORTEUR');
     if (error) return left(error);
+
+    params.issuerId = params.issuerId ?? params.currentPresident.id;
+
+    if (params.issuerId !== params.currentPresident.id) {
+      return left('Apenas o presidente pode escolher o relator');
+    }
 
     if (params.currentPresident.id === params.chosen.id) {
       return left('O presidente não pode ser o próximo relator');

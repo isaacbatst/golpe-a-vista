@@ -88,13 +88,13 @@ export class Round {
     return this.createNextStage()!;
   }
 
-  private createNextStage(): Stage | null {
+  createNextStage(): Stage | null {
     return this._stageQueue.nextStage({
       drawnLaws: this.drawnLaws,
-      hasApprovedLaw: (type) => this.hasApprovedLaw(type),
       hasImpeachment: this._hasImpeachment,
       hasLastRoundBeenSabotaged: this._hasLastRoundBeenSabotaged,
-      hasMinLawsToRadicalization: () => this.hasMinLawsToRadicalization(),
+      hasApprovedProgressiveLaw: this.hasApprovedLaw(LawType.PROGRESSISTAS),
+      hasMinLawsToRadicalization: this.hasMinLawsToRadicalization(),
       isDossierFake: this.isDossierFake,
       isLegislativeVotingSecret: this.isLegislativeVotingSecret,
       presidentId: this.president.id,

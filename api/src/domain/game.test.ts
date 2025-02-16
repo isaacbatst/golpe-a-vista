@@ -60,7 +60,7 @@ describe('Rodadas', () => {
       rounds: [
         new Round({
           presidentQueue,
-          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION + 1),
+          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION),
           stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
         }),
       ],
@@ -86,12 +86,13 @@ describe('Rodadas', () => {
     const dossierStage = new DossierStage({
       drawnLaws: [],
     });
-    dossierStage.chooseNextRapporteur({
+    const [chooseNextRapporteurError] = dossierStage.chooseNextRapporteur({
       chosen: players.get('p3')!,
       currentPresident: players.get('p1')!,
       nextPresident: players.get('p2')!,
       currentRapporteur: null,
     });
+    expect(chooseNextRapporteurError).toBeUndefined();
     const presidentQueue = new PresidentQueue(Array.from(players.values()));
     const [error, game] = Game.create({
       players,
@@ -101,14 +102,14 @@ describe('Rodadas', () => {
       rounds: [
         new Round({
           presidentQueue,
-          stageQueue: new StageQueue(RoundStageIndex.DOSSIER + 1),
+          stageQueue: new StageQueue(RoundStageIndex.DOSSIER),
           stages: [dossierStage],
         }),
       ],
     });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
-
+    expect(game?.currentRound.createNextStage()).toBeNull();
     const [errorNextRound] = game!.nextRound();
     expect(errorNextRound).toBeUndefined();
     expect(game!.currentRound.rapporteurId).toBe(players.get('p3')?.id);
@@ -187,7 +188,7 @@ describe('Crises', () => {
         }
         return new Round({
           presidentQueue,
-          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION + 1),
+          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION),
           stages: [
             legislativeStage,
             new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE),
@@ -240,7 +241,7 @@ describe('Crises', () => {
 
         return new Round({
           presidentQueue: new PresidentQueue(Array.from(players.values())),
-          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION + 1),
+          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION),
           stages: [
             legislativeStage,
             new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE),
@@ -292,7 +293,7 @@ describe('Crises', () => {
       new Round({
         presidentQueue: new PresidentQueue(Array.from(players.values())),
         stages: [sabotageStage],
-        stageQueue: new StageQueue(RoundStageIndex.SABOTAGE + 1),
+        stageQueue: new StageQueue(RoundStageIndex.SABOTAGE),
       }),
     ];
 
@@ -329,7 +330,7 @@ describe('Cassações', () => {
       const rounds = Array.from({ length: n }, () => {
         return new Round({
           stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
-          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION + 1),
+          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION),
           crisis: new PlanoCohen(),
           presidentQueue: new PresidentQueue(Array.from(players.values())),
         });
@@ -398,7 +399,7 @@ describe('Presidência', () => {
         new Round({
           presidentQueue,
           stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
-          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION + 1),
+          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION),
         }),
       ],
     });
@@ -437,7 +438,7 @@ describe('Presidência', () => {
           hasImpeachment: true,
           presidentQueue,
           stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
-          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION + 1),
+          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION),
         }),
       ],
     });
