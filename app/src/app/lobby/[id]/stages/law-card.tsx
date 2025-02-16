@@ -8,18 +8,18 @@ import PaperCard from "./paper-card";
 type Props = {
   law: LegislativeStageLawDTO;
   overlayContent?: React.ReactNode;
-  overlayInitialValue?: boolean;
+  showingOverlayInitialValue?: boolean;
   isOverlayFixed?: boolean;
 };
 
 const LawCard = ({
   law,
   overlayContent: overlay,
-  overlayInitialValue: overlayInitialValue = false,
+  showingOverlayInitialValue = false,
   isOverlayFixed = false,
 }: Props) => {
   const { showingOverlay, containerProps } = useOverlay(
-    overlayInitialValue,
+    showingOverlayInitialValue,
     isOverlayFixed
   );
   return (

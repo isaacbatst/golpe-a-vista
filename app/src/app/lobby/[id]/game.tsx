@@ -10,6 +10,8 @@ import { cn } from "../../../lib/utils";
 import PlayerAvatar from "./player-avatar";
 import { PlayerContextProvider } from "./player-context";
 import LegislativeStage from "./stages/legislative-stage";
+import { Button } from "../../../components/ui/button";
+import { useLobbySocketContext } from "./lobby-socket-context";
 
 type Props = {
   userId: string;
@@ -18,19 +20,36 @@ type Props = {
 
 export default function Game({ userId, lobby }: Props) {
   const me = lobby.currentGame.players.find((player) => player.id === userId)!;
+  const { resetLobby } = useLobbySocketContext();
   return (
     <PlayerContextProvider player={me}>
       <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
         <Card className="w-full max-w-5xl bg-white shadow-2xl">
           <CardHeader>
-            <CardTitle className="text-center text-2xl font-bold">
+            <CardTitle className="text-center text-2xl font-bold flex items-center justify-between">
               Golpe à Vista
+              {lobby.users.find((u) => u.id === userId)?.isHost && (
+                <Button
+                  onClick={() => {
+                    const confirmed = window.confirm(
+                      "Você tem certeza que deseja resetar o lobby?"
+                    );
+                    if (confirmed) {
+                      resetLobby();
+                    }
+                  }}
+                  variant="ghost"
+                  className="text-sm font-medium"
+                >
+                  Resetar Lobby
+                </Button>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="">
             <div className="flex flex-col gap-6">
-              <div className="flex justify-center space-x-4">
-                <div className="text-center">
+              <div className="flex justify-center  divide-solid divide-x-2">
+                <div className="text-left px-2">
                   <h3 className="text-lg font-semibold mb-2">
                     Leis Progressistas
                   </h3>
@@ -42,17 +61,17 @@ export default function Game({ userId, lobby }: Props) {
                           className={cn("w-6 h-8 rounded", {
                             "bg-red-500":
                               i <
-                              (lobby.currentGame.approvedProgressiveLaws || 0),
+                              (lobby.currentGame.approvedProgressiveLaws.length || 0),
                             "bg-gray-200":
                               i >=
-                              (lobby.currentGame.approvedProgressiveLaws || 0),
+                              (lobby.currentGame.approvedProgressiveLaws.length || 0),
                           })}
                         />
                       )
                     )}
                   </div>
                 </div>
-                <div className="text-center">
+                <div className="text-left px-2">
                   <h3 className="text-lg font-semibold mb-2">
                     Leis Conservadoras
                   </h3>
@@ -64,10 +83,10 @@ export default function Game({ userId, lobby }: Props) {
                           className={cn("w-6 h-8 rounded", {
                             "bg-blue-500":
                               i <
-                              (lobby.currentGame.approvedConservativeLaws || 0),
+                              (lobby.currentGame.approvedConservativeLaws.length || 0),
                             "bg-gray-200":
                               i >=
-                              (lobby.currentGame.approvedConservativeLaws || 0),
+                              (lobby.currentGame.approvedConservativeLaws.length || 0),
                           })}
                         />
                       )

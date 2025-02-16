@@ -10,6 +10,7 @@ import LegislativeStageDrawLaws from "./legislative-stage-draw-laws";
 import LegislativeStageChooseLawForVoting from "./legislative-stage-choose-law-for-voting";
 import LegislativeStageVetoLaw from "./legislative-stage-veto-law";
 import LegislativeStageVoting from "./legislative-stage-voting";
+import LegislativeStageAdvanceStage from "./legislative-stage-advance-stage";
 
 type Props = {
   stage: LegislativeStageDTO;
@@ -38,6 +39,9 @@ const LegislativeStage = ({ stage }: Props) => {
         )}
         {stage.currentAction === LegislativeAction.VOTING && (
           <LegislativeStageVoting />
+        )}
+        {stage.currentAction === LegislativeAction.ADVANCE_STAGE && (
+          <LegislativeStageAdvanceStage />
         )}
       </DialogContent>
     </Dialog>

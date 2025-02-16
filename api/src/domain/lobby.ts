@@ -102,6 +102,14 @@ export class Lobby {
     return right(game);
   }
 
+  reset(issuerId: string): Either<string, void> {
+    if (issuerId !== this.host?.id) {
+      return left('Apenas o anfitrião pode reiniciar o lobby');
+    }
+    this._games = [];
+    return right();
+  }
+
   hasUser(userId: string): boolean {
     return this._users.has(userId);
   }

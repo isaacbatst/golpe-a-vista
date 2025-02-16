@@ -1,7 +1,6 @@
-import { DialogTitle } from "@radix-ui/react-dialog";
 import { DicesIcon } from "lucide-react";
 import { Button } from "../../../../components/ui/button";
-import { DialogHeader } from "../../../../components/ui/dialog";
+import { DialogHeader, DialogTitle } from "../../../../components/ui/dialog";
 import { useLobbyContext } from "../lobby-context";
 import { useLobbySocketContext } from "../lobby-socket-context";
 import { usePlayerContext } from "../player-context";

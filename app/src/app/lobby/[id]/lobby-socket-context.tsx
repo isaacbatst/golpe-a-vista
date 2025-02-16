@@ -5,11 +5,13 @@ import { LegislativeAction, StageType } from "../../../lib/api.types";
 type LobbySocketContextType = {
   error: string | null;
   kickUser: (userId: string) => void;
+  resetLobby: () => void;
   startGame: () => void;
   legislativeStageDrawCards: () => void;
   legislativeStageVetoLaw: (lawId: string) => void;
   legislativeStageChooseLawForVoting: (lawId: string) => void;
   legislativeStageVoting: (vote: boolean) => void;
+  legislativeStageAdvanceStage: () => void;
 };
 
 export const LobbySocketContext = createContext<LobbySocketContextType>(
@@ -34,6 +36,9 @@ export const LobbySocketProvider = ({
         startGame: () => {
           socket?.emit("start", { lobbyId });
         },
+        resetLobby: () => {
+          socket?.emit("reset", { lobbyId });
+        },
         legislativeStageDrawCards: () => {
           socket?.emit(
             `${StageType.LEGISLATIVE}:${LegislativeAction.DRAW_LAWS}`,
@@ -57,6 +62,12 @@ export const LobbySocketProvider = ({
             lobbyId,
             vote,
           });
+        },
+        legislativeStageAdvanceStage: () => {
+          socket?.emit(
+            `${StageType.LEGISLATIVE}:${LegislativeAction.ADVANCE_STAGE}`,
+            { lobbyId }
+          );
         },
       }}
     >

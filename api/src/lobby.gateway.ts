@@ -104,6 +104,21 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(data.lobbyId).emit('lobby:updated', lobby);
   }
 
+  @SubscribeMessage(`reset`)
+  async resetLobby(client: Socket, data: { lobbyId: string }) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] = await this.service.resetLobby(
+      data.lobbyId,
+      client.request.session.userId,
+    );
+    if (error) {
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
+  }
+
   @SubscribeMessage('start')
   async startGame(client: Socket, data: { lobbyId: string }) {
     if (!client.request.session.userId) {
@@ -190,6 +205,23 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       issuerId: client.request.session.userId,
       lobbyId: data.lobbyId,
       vote: data.vote,
+    });
+    if (error) {
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
+  }
+
+  @SubscribeMessage(
+    `${StageType.LEGISLATIVE}:${LegislativeAction.ADVANCE_STAGE}`,
+  )
+  async advanceStage(client: Socket, data: { lobbyId: string }) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] = await this.service.legislativeStageAdvanceStage({
+      issuerId: client.request.session.userId,
+      lobbyId: data.lobbyId,
     });
     if (error) {
       return this.handleSocketError(client, error.message);

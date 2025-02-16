@@ -38,7 +38,9 @@ const LegislativeStageVetoLaw = () => {
         <ul className="flex flex-wrap gap-3 justify-center">
           {stage.drawnLaws.map((law) => (
             <li key={law.name} className="flex justify-center">
-              <LawCardFolded />
+              <LawCardFolded 
+                isOverlayFixed
+              />
             </li>
           ))}
         </ul>

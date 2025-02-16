@@ -173,6 +173,22 @@ export class AppService {
     return right(lobby);
   }
 
+  async resetLobby(
+    id: string,
+    issuerId: string,
+  ): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(id);
+    if (!lobby) {
+      return left(new NotFoundException('Lobby não encontrado'));
+    }
+    const [error] = lobby.reset(issuerId);
+    if (error) {
+      return left(new InternalServerErrorException(error));
+    }
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
   async legislativeStageDrawLaws(input: {
     lobbyId: string;
     issuerId: string;
@@ -313,6 +329,33 @@ export class AppService {
       );
     }
     stage.vote(input.issuerId, input.vote);
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
+  async legislativeStageAdvanceStage(input: {
+    lobbyId: string;
+    issuerId: string;
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException('Lobby não encontrado'));
+    }
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (stage instanceof LegislativeStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível avançar a ação fora do estágio legislativo',
+        ),
+      );
+    }
+    const [error, nextStage] = lobby.currentGame.currentRound.nextStage();
+    if (error) {
+      return left(new InternalServerErrorException(error));
+    }
+    if (!nextStage) {
+      lobby.currentGame.nextRound();
+    }
     await this.lobbyRepository.save(lobby);
     return right(lobby);
   }

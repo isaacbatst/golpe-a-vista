@@ -11,7 +11,7 @@ type Props = {
 const LegislativeStageVotingStatus = ({ stage, players, me }: Props) => {
   return (
     <>
-      <div className="text-muted-foreground flex flex-col gap-4 max-w-md text-center mb-6">
+      <div className="text-muted-foreground flex flex-col gap-4 max-w-md text-center mb-4">
         {!stage.isVotingSecret && (
           <p className="text-sm font-semibold">
             <span className="text-green-500">

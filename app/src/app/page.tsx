@@ -38,8 +38,8 @@ export default function HomePage() {
       return createLobbyForm.setError("root", {
         message: "Erro ao criar lobby",
       });
-    router.push(`/lobby/${created.id}`);
     setIsNavigating(true);
+    router.push(`/lobby/${created.id}`);
   });
 
   return (

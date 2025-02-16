@@ -40,6 +40,7 @@ const LegislativeStageChooseLawForVoting = () => {
             <li key={law.name} className="flex justify-center">
               <LawCardFolded
                 isShowingOverlay={law.isVetoed}
+                isOverlayFixed
                 overlay={law.isVetoed ? <LawCardOverlayVetoed /> : null}
               />
             </li>
@@ -70,7 +71,7 @@ const LegislativeStageChooseLawForVoting = () => {
           <li key={law.name} className="flex justify-center">
             <LawCard
               law={law}
-              overlayInitialValue={law.isVetoed}
+              showingOverlayInitialValue={law.isVetoed}
               isOverlayFixed={law.isVetoed}
               overlayContent={
                 law.isVetoed ? (

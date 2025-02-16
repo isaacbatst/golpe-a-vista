@@ -32,7 +32,7 @@ type StageQueueParams = {
 };
 
 export class StageQueue {
-  constructor(private _nextStageIndex: number = 0) {}
+  constructor(private _currentStageIndex: number = 0) {}
 
   nextStage({
     presidentId,
@@ -84,34 +84,32 @@ export class StageQueue {
       },
     ];
 
-    if (!stages[this._nextStageIndex]) {
+    if (!stages[this._currentStageIndex]) {
       return null;
     }
 
-    while (
-      this._nextStageIndex < stages.length &&
-      stages[this._nextStageIndex].condition &&
-      !stages[this._nextStageIndex].condition!()
-    ) {
-      this._nextStageIndex++;
+    for (let i = this._currentStageIndex + 1; i < stages.length; i++) {
+      if (!stages[i].condition || stages[i].condition!()) {
+        this._currentStageIndex = i;
+        break;
+      }
     }
 
-    if (!stages[this._nextStageIndex]) {
+    if (!stages[this._currentStageIndex]) {
       return null;
     }
 
-    const nextStage = stages[this._nextStageIndex].factory();
-    this._nextStageIndex++;
+    const nextStage = stages[this._currentStageIndex].factory();
     return nextStage;
   }
 
   get nextStageIndex() {
-    return this._nextStageIndex;
+    return this._currentStageIndex;
   }
 
   toJSON() {
     return {
-      nextStageIndex: this._nextStageIndex,
+      nextStageIndex: this._currentStageIndex,
     };
   }
 

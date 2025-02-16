@@ -57,7 +57,7 @@ export enum LegislativeAction {
   ADVANCE_STAGE = "ADVANCE_STAGE",
 }
 
-export type Voting = {
+export type VotingDTO = {
   count: {
     yes: number;
     no: number;
@@ -68,6 +68,7 @@ export type Voting = {
     player: string;
     vote: boolean | null;
   }>;
+  hasEnded: boolean;
 };
 
 export type LegislativeStageLawDTO = LawDTO & {
@@ -84,7 +85,9 @@ export type LegislativeStageDTO = {
   mustVeto: boolean;
   type: StageType.LEGISLATIVE;
   vetoableLaws: LawDTO[];
-  voting: Voting | null;
+  voting: VotingDTO | null;
+  lawToVote: LegislativeStageLawDTO | null;
+  isLawToVoteVisible: boolean;
 };
 
 export type StageDTO = LegislativeStageDTO;
@@ -118,8 +121,8 @@ export type GameDTO = {
   progressiveLawsToFear: number;
   rejectedLawsIntervalToCrisis: number;
   conservativesImpeachedToRadicalWin: number;
-  approvedConservativeLaws: number;
-  approvedProgressiveLaws: number;
+  approvedConservativeLaws: LawDTO[];
+  approvedProgressiveLaws: LawDTO[];
 };
 
 export type LobbyDTO = {

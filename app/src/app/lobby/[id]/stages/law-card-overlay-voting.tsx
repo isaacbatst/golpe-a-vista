@@ -27,7 +27,7 @@ const LawCardOverlayVoting = ({ vote }: Props) => {
       variant="destructive"
       icon="x"
       disabled={disabled}
-      className="disabled:opacity-80 disabled:cursor-not-allowed"
+      className="disabled:opacity-90 disabled:cursor-not-allowed"
       onClick={() => !disabled && legislativeStageVoting(false)}
     >
       Não

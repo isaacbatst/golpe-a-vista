@@ -207,6 +207,15 @@ export class LegislativeStage extends Stage {
     return this._isVotingSecret;
   }
 
+  get isLawToVoteVisible() {
+    return (
+      (this.currentAction as LegislativeAction) ===
+        LegislativeAction.ADVANCE_STAGE &&
+      this._lawToVote &&
+      this._voting?.result
+    );
+  }
+
   toJSON() {
     return {
       ...super.toJSON(),
@@ -226,6 +235,7 @@ export class LegislativeStage extends Stage {
       mustVeto: this._mustVeto,
       isVotingSecret: this._isVotingSecret,
       vetoableLaws: this.vetoableLaws.map((law) => law.toJSON()),
+      isLawToVoteVisible: this.isLawToVoteVisible,
     } as const;
   }
 
