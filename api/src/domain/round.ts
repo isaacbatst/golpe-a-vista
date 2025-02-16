@@ -30,7 +30,17 @@ export type RoundParams = {
   isDossierOmitted?: boolean;
   isLegislativeVotingSecret?: boolean;
   requiredVeto?: LawType | null;
+  nextStageIndex?: number;
 };
+
+export enum RoundStageIndex {
+  IMPEACHMENT = 0,
+  CRISIS = 1,
+  LEGISLATIVE = 2,
+  DOSSIER = 3,
+  SABOTAGE = 4,
+  RADICALIZATION = 5,
+}
 
 export class Round {
   public readonly presidentQueue: PresidentQueue;
@@ -48,7 +58,8 @@ export class Round {
   private readonly _minRadicalizationProgressiveLaws: number;
   private readonly _previouslyApprovedConservativeLaws: number;
   private readonly _previouslyApprovedProgressiveLaws: number;
-  private readonly _stages: Stage[];
+  private readonly _stages: Stage[] = [];
+  private _nextStageIndex: number;
 
   constructor(props: RoundParams) {
     this._crisis = props.crisis ?? null;
@@ -65,6 +76,7 @@ export class Round {
       props.previouslyApprovedProgressiveLaws ?? 0;
     this.index = props.index ?? 0;
     this.presidentQueue = props.presidentQueue;
+    this._nextStageIndex = props.nextStageIndex ?? 0;
     this._stages = props.stages ?? [this.createFirstStage()];
   }
 
@@ -84,67 +96,69 @@ export class Round {
   }
 
   private createFirstStage(): Stage {
-    if (this._hasImpeachment) {
-      return new ImpeachmentStage(this.president);
-    }
-
-    if (this._crisis) {
-      return new CrisisStage(this._crisis);
-    }
-
-    return new LegislativeStage({
-      mustVeto: this.requiredVeto,
-      isVotingSecret: this.isLegislativeVotingSecret,
-    });
+    return this.createNextStage()!;
   }
 
   private createNextStage(): Stage | null {
-    if (this.currentStage instanceof ImpeachmentStage && this._crisis) {
-      return new CrisisStage(this._crisis);
+    const stages: {
+      factory: () => Stage;
+      condition?: () => boolean;
+    }[] = [
+      {
+        factory: () => new ImpeachmentStage(this.president),
+        condition: () => this._hasImpeachment,
+      },
+      {
+        factory: () => new CrisisStage(this._crisis!),
+        condition: () => Boolean(this._crisis),
+      },
+      {
+        factory: () =>
+          new LegislativeStage({
+            mustVeto: this.requiredVeto,
+            isVotingSecret: this.isLegislativeVotingSecret,
+          }),
+      },
+      {
+        factory: () =>
+          new DossierStage({
+            drawnLaws: this.drawnLaws,
+            fakeDossier: this.isDossierFake,
+          }),
+        condition: () => this.drawnLaws.length > 0,
+      },
+      {
+        factory: () => new SabotageStage(),
+        condition: () =>
+          this.hasApprovedLaw(LawType.PROGRESSISTAS) &&
+          !this._hasLastRoundBeenSabotaged,
+      },
+      {
+        factory: () => new RadicalizationStage(),
+        condition: () =>
+          Boolean(this.hasMinLawsToRadicalization() && this._crisis),
+      },
+    ];
+
+    if (!stages[this._nextStageIndex]) {
+      return null;
     }
 
-    if (
-      this.currentStage instanceof ImpeachmentStage ||
-      this.currentStage instanceof CrisisStage
+    while (
+      this._nextStageIndex < stages.length &&
+      stages[this._nextStageIndex].condition &&
+      !stages[this._nextStageIndex].condition!()
     ) {
-      return new LegislativeStage({
-        mustVeto: this.requiredVeto,
-        isVotingSecret: this.isLegislativeVotingSecret,
-      });
+      this._nextStageIndex++;
     }
 
-    if (this.currentStage instanceof LegislativeStage) {
-      return new DossierStage({
-        drawnLaws: this.currentStage.drawnLaws,
-        fakeDossier: this.isDossierFake,
-      });
+    if (!stages[this._nextStageIndex]) {
+      return null;
     }
 
-    if (
-      this.currentStage instanceof DossierStage &&
-      this.hasApprovedLaw(LawType.PROGRESSISTAS) &&
-      !this._hasLastRoundBeenSabotaged
-    ) {
-      return new SabotageStage();
-    }
-
-    if (
-      this.currentStage instanceof DossierStage &&
-      this.hasMinLawsToRadicalization() &&
-      this._crisis
-    ) {
-      return new RadicalizationStage();
-    }
-
-    if (
-      this.currentStage instanceof SabotageStage &&
-      this.hasMinLawsToRadicalization() &&
-      this._crisis
-    ) {
-      return new RadicalizationStage();
-    }
-
-    return null;
+    const nextStage = stages[this._nextStageIndex].factory();
+    this._nextStageIndex++;
+    return nextStage;
   }
 
   private hasMinLawsToRadicalization(): boolean {
@@ -185,7 +199,7 @@ export class Round {
   }
 
   get finished(): boolean {
-    return this.createNextStage() === null;
+    return this.currentStage.isComplete && this.createNextStage() === null;
   }
 
   get approvedLaws(): Law[] {
@@ -294,6 +308,7 @@ export class Round {
       previouslyApprovedProgressiveLaws:
         this._previouslyApprovedProgressiveLaws,
       presidentQueue: this.presidentQueue.toJSON(),
+      nextStageIndex: this._nextStageIndex,
     };
   }
 

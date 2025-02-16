@@ -8,13 +8,14 @@ import { makeCrisesDeck, makeLawsDeck } from './mock';
 import { Player } from './player';
 import { PresidentQueue } from './president-queue';
 import { LawType, Role } from './role';
-import { Round } from './round';
+import { Round, RoundStageIndex } from './round';
 import { CrisisStage } from './stage/crisis-stage';
 import { DossierAction, DossierStage } from './stage/dossier-stage';
 import { ImpeachmentAction, ImpeachmentStage } from './stage/impeachment-stage';
 import { LegislativeAction, LegislativeStage } from './stage/legislative-stage';
 import { RadicalizationStage } from './stage/radicalization-stage';
 import { SabotageAction, SabotageStage } from './stage/sabotage-stage';
+import { Law } from '../data/laws';
 
 describe('Estágios', () => {
   it('Deve iniciar Estágio Legislativo', () => {
@@ -53,6 +54,7 @@ describe('Estágios', () => {
           ImpeachmentAction.ADVANCE_STAGE,
         ),
       ],
+      nextStageIndex: 1,
       hasImpeachment: true,
     });
     const [error, stage] = round.nextStage();
@@ -80,8 +82,10 @@ describe('Estágios', () => {
       stages: [
         new LegislativeStage({
           currentAction: LegislativeAction.ADVANCE_STAGE,
+          drawnLaws: [new Law('1', LawType.PROGRESSISTAS, 'Lei 1')],
         }),
       ],
+      nextStageIndex: RoundStageIndex.DOSSIER,
     });
     const [error, stage] = round.nextStage();
     expect(error).toBeUndefined();
@@ -95,6 +99,7 @@ describe('Estágios', () => {
     ]);
     const round = new Round({
       presidentQueue,
+      nextStageIndex: RoundStageIndex.SABOTAGE,
       stages: [
         new DossierStage({
           drawnLaws: [],
@@ -140,6 +145,7 @@ describe('Estágios', () => {
     expect(legislativeStage.votingResult).toBe(true);
     const round = new Round({
       presidentQueue: new PresidentQueue([president, nextPresident]),
+      nextStageIndex: RoundStageIndex.SABOTAGE,
       stages: [
         legislativeStage,
         new DossierStage({
@@ -163,6 +169,7 @@ describe('Estágios', () => {
       previouslyApprovedConservativeLaws: 2,
       previouslyApprovedProgressiveLaws: 2,
       crisis: new PlanoCohen(),
+      nextStageIndex: RoundStageIndex.SABOTAGE,
       stages: [
         new LegislativeStage({
           mustVeto: null,
@@ -190,6 +197,7 @@ describe('Estágios', () => {
       previouslyApprovedProgressiveLaws: 2,
       crisis: new PlanoCohen(),
       stages: [new SabotageStage(SabotageAction.ADVANCE_STAGE)],
+      nextStageIndex: RoundStageIndex.SABOTAGE,
       hasLastRoundBeenSabotaged: true,
     });
     const [error, stage] = round.nextStage();
