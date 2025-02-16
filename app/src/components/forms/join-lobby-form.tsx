@@ -13,7 +13,7 @@ import { joinLobby } from "@/lib/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DoorOpen, LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -32,6 +32,7 @@ type Props = {
 export default function JoinLobbyForm({ initialValues, focus }: Props) {
   const router = useRouter();
   const nameInputRef = useRef<HTMLInputElement>(null);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   useEffect(() => {
     if (focus) {
@@ -48,11 +49,13 @@ export default function JoinLobbyForm({ initialValues, focus }: Props) {
   });
 
   const submitJoinLobby = joinLobbyForm.handleSubmit(async (values) => {
-    const joined = await joinLobby(values.code, values.name);
-    if (!joined)
+    const [error, lobby] = await joinLobby(values.code, values.name);
+    if (!lobby)
       return joinLobbyForm.setError("root", {
-        message: "Erro ao entrar no lobby",
+        message: error,
       });
+
+    setIsNavigating(true);
     router.push(`/lobby/${values.code}`);
   });
 
@@ -91,7 +94,7 @@ export default function JoinLobbyForm({ initialValues, focus }: Props) {
               {...joinLobbyFormName}
               id="join-form-name"
               ref={(e) => {
-                ref(e)
+                ref(e);
                 nameInputRef.current = e;
               }}
               placeholder=""
@@ -103,7 +106,8 @@ export default function JoinLobbyForm({ initialValues, focus }: Props) {
             className="w-full"
             disabled={
               joinLobbyForm.formState.isSubmitting ||
-              !joinLobbyForm.formState.isValid
+              !joinLobbyForm.formState.isValid ||
+              isNavigating
             }
           >
             {joinLobbyForm.formState.isSubmitting ? (

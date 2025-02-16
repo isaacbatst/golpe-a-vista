@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import JoinLobbyForm from "../components/forms/join-lobby-form";
 import { createLobby } from "../lib/api";
+import { useState } from "react";
 
 const createLobbySchema = z.object({
   name: z.string().min(2),
@@ -25,6 +26,7 @@ type CreateLobbyForm = z.infer<typeof createLobbySchema>;
 
 export default function HomePage() {
   const router = useRouter();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const createLobbyForm = useForm<CreateLobbyForm>({
     resolver: zodResolver(createLobbySchema),
@@ -33,8 +35,11 @@ export default function HomePage() {
   const submitCreateLobby = createLobbyForm.handleSubmit(async (values) => {
     const created = await createLobby(values.name);
     if (!created)
-      return createLobbyForm.setError("root", { message: "Erro ao criar lobby" });
+      return createLobbyForm.setError("root", {
+        message: "Erro ao criar lobby",
+      });
     router.push(`/lobby/${created.id}`);
+    setIsNavigating(true);
   });
 
   return (
@@ -68,7 +73,11 @@ export default function HomePage() {
             <CardFooter className="flex flex-col gap-2">
               <Button
                 className="w-full"
-                disabled={createLobbyForm.formState.isSubmitting || !createLobbyForm.formState.isValid}
+                disabled={
+                  createLobbyForm.formState.isSubmitting ||
+                  !createLobbyForm.formState.isValid ||
+                  isNavigating
+                }
               >
                 {createLobbyForm.formState.isSubmitting ? (
                   <LoaderCircle />

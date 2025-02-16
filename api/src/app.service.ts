@@ -68,7 +68,7 @@ export class AppService {
   ): Promise<Either<Error, { lobby: Lobby; user: User }>> {
     const lobby = await this.lobbyRepository.get(id);
     if (!lobby) {
-      return left(new NotFoundException());
+      return left(new NotFoundException('Lobby não encontrado'));
     }
 
     const userInLobby = lobby.users.find(
@@ -104,7 +104,7 @@ export class AppService {
   }): Promise<Either<Error, Lobby>> {
     const lobby = await this.lobbyRepository.get(input.lobbyId);
     if (!lobby) {
-      return left(new NotFoundException());
+      return left(new NotFoundException('Lobby não encontrado'));
     }
 
     const crisesDeck = this.deckRepository.cloneCrisesDeck();
@@ -126,7 +126,7 @@ export class AppService {
   ): Promise<Either<Error, Lobby>> {
     const lobby = await this.lobbyRepository.get(lobbyId);
     if (!lobby) {
-      return left(new NotFoundException());
+      return left(new NotFoundException('Lobby não encontrado'));
     }
     const [error] = lobby.connectUser(userId, socketId);
     if (error) {
@@ -142,7 +142,7 @@ export class AppService {
   ): Promise<Either<Error, Lobby>> {
     const lobby = await this.lobbyRepository.get(lobbyId);
     if (!lobby) {
-      return left(new NotFoundException());
+      return left(new NotFoundException('Lobby não encontrado'));
     }
 
     const [error] = lobby.disconnectUser(userId);
@@ -161,7 +161,7 @@ export class AppService {
   }): Promise<Either<Error, Lobby>> {
     const lobby = await this.lobbyRepository.get(input.lobbyId);
     if (!lobby) {
-      return left(new NotFoundException());
+      return left(new NotFoundException('Lobby não encontrado'));
     }
 
     const [error] = lobby.removeUser(input.userId, input.issuerId);
@@ -179,7 +179,7 @@ export class AppService {
   }): Promise<Either<Error, Lobby>> {
     const lobby = await this.lobbyRepository.get(input.lobbyId);
     if (!lobby) {
-      return left(new NotFoundException());
+      return left(new NotFoundException('Lobby não encontrado'));
     }
 
     const stage = lobby.currentGame.currentRound.currentStage;
@@ -212,7 +212,7 @@ export class AppService {
   }): Promise<Either<Error, Lobby>> {
     const lobby = await this.lobbyRepository.get(input.lobbyId);
     if (!lobby) {
-      return left(new NotFoundException());
+      return left(new NotFoundException('Lobby não encontrado'));
     }
 
     const stage = lobby.currentGame.currentRound.currentStage;
@@ -253,7 +253,7 @@ export class AppService {
   }): Promise<Either<Error, Lobby>> {
     const lobby = await this.lobbyRepository.get(input.lobbyId);
     if (!lobby) {
-      return left(new NotFoundException());
+      return left(new NotFoundException('Lobby não encontrado'));
     }
 
     const stage = lobby.currentGame.currentRound.currentStage;
@@ -302,7 +302,7 @@ export class AppService {
   }): Promise<Either<Error, Lobby>> {
     const lobby = await this.lobbyRepository.get(input.lobbyId);
     if (!lobby) {
-      return left(new NotFoundException());
+      return left(new NotFoundException('Lobby não encontrado'));
     }
     const stage = lobby.currentGame.currentRound.currentStage;
     if (stage instanceof LegislativeStage === false) {
