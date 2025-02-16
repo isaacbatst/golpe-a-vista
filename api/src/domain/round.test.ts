@@ -115,11 +115,21 @@ describe('Estágios', () => {
     const legislativeStage = new LegislativeStage();
     const [drawLawsError] = legislativeStage.drawLaws(
       makeLawsDeck('progressive'),
+      president.id,
+      president.id,
     );
     expect(drawLawsError).toBeUndefined();
-    const [vetoLawError] = legislativeStage.vetoLaw(0);
+    const [vetoLawError] = legislativeStage.vetoLaw(
+      0,
+      president.id,
+      president.id,
+    );
     expect(vetoLawError).toBeUndefined();
-    const [chooseLawForVotingError] = legislativeStage.chooseLawForVoting(1);
+    const [chooseLawForVotingError] = legislativeStage.chooseLawForVoting(
+      1,
+      president.id,
+      president.id,
+    );
     expect(chooseLawForVotingError).toBeUndefined();
     const [startVotingError] = legislativeStage.startVoting(players);
     expect(startVotingError).toBeUndefined();

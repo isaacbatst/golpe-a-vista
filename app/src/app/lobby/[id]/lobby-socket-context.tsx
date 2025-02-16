@@ -7,6 +7,9 @@ type LobbySocketContextType = {
   kickUser: (userId: string) => void;
   startGame: () => void;
   legislativeStageDrawCards: () => void;
+  legislativeStageVetoLaw: (lawId: string) => void;
+  legislativeStageChooseLawForVoting: (lawId: string) => void;
+  legislativeStageVoting: (vote: boolean) => void;
 };
 
 export const LobbySocketContext = createContext<LobbySocketContextType>(
@@ -36,6 +39,24 @@ export const LobbySocketProvider = ({
             `${StageType.LEGISLATIVE}:${LegislativeAction.DRAW_LAWS}`,
             { lobbyId }
           );
+        },
+        legislativeStageVetoLaw: (lawId: string) => {
+          socket?.emit(
+            `${StageType.LEGISLATIVE}:${LegislativeAction.VETO_LAW}`,
+            { lobbyId, vetoedLawId: lawId }
+          );
+        },
+        legislativeStageChooseLawForVoting: (lawId: string) => {
+          socket?.emit(
+            `${StageType.LEGISLATIVE}:${LegislativeAction.CHOOSE_LAW_FOR_VOTING}`,
+            { lobbyId, lawId }
+          );
+        },
+        legislativeStageVoting: (vote: boolean) => {
+          socket?.emit(`${StageType.LEGISLATIVE}:${LegislativeAction.VOTING}`, {
+            lobbyId,
+            vote,
+          });
         },
       }}
     >

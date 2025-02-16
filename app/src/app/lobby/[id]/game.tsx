@@ -1,10 +1,5 @@
 import { Wifi } from "lucide-react";
 import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "../../../components/ui/avatar";
-import {
   Card,
   CardContent,
   CardHeader,
@@ -12,8 +7,9 @@ import {
 } from "../../../components/ui/card";
 import { LobbyDTO, StageType } from "../../../lib/api.types";
 import { cn } from "../../../lib/utils";
-import LegislativeStage from "./stages/legislative-stage";
+import PlayerAvatar from "./player-avatar";
 import { PlayerContextProvider } from "./player-context";
+import LegislativeStage from "./stages/legislative-stage";
 
 type Props = {
   userId: string;
@@ -89,11 +85,7 @@ export default function Game({ userId, lobby }: Props) {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {lobby.currentGame.players.map((player) => {
                   const isMe = player.id === userId;
-                  const initialsParams = new URLSearchParams();
-                  initialsParams.set("seed", player.name);
-                  initialsParams.set("backgroundType", "gradientLinear");
-                  initialsParams.set("scale", "80");
-                  initialsParams.set("size", "32");
+
                   const user = lobby.users.find((u) => u.id === player.id);
                   const canSeePlayerRole =
                     isMe || (me.canSeeTeamMembers && player.role === me.role);
@@ -124,16 +116,11 @@ export default function Game({ userId, lobby }: Props) {
                           </span>
                         )}
                       </div>
-                      <Avatar
-                        className={`w-20 h-20 mb-3 ring-2 ring-offset-2 ${
-                          isMe ? "ring-primary" : "ring-gray-300"
-                        }`}
-                      >
-                        <AvatarImage
-                          src={`https://api.dicebear.com/9.x/initials/svg?${initialsParams}`}
-                        />
-                        <AvatarFallback>{player.name[0]}</AvatarFallback>
-                      </Avatar>
+                      <PlayerAvatar
+                        isMe={isMe}
+                        player={player}
+                        className="w-20 h-20 mb-3 "
+                      />
                       {user && (
                         <div className="flex gap-1 items-center">
                           <span className="text-sm text-gray-500">

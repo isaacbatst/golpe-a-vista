@@ -1,5 +1,6 @@
-import { Inject } from '@nestjs/common';
+import { Inject, UseFilters } from '@nestjs/common';
 import {
+  BaseWsExceptionFilter,
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
@@ -19,6 +20,7 @@ import { StageType } from './domain/stage/stage';
   },
   path: '/ws/socket',
 })
+@UseFilters(new BaseWsExceptionFilter())
 export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
@@ -136,5 +138,62 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private handleSocketError(client: Socket, error: string) {
     console.error('❌ WebSocket Error:', error);
     client.emit('error', { message: error });
+  }
+
+  @SubscribeMessage(`${StageType.LEGISLATIVE}:${LegislativeAction.VETO_LAW}`)
+  async vetoLaw(
+    client: Socket,
+    data: { lobbyId: string; vetoedLawId: string },
+  ) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] = await this.service.legislativeStageVetoLaw({
+      issuerId: client.request.session.userId,
+      lobbyId: data.lobbyId,
+      vetoedLawId: data.vetoedLawId,
+    });
+    if (error) {
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
+  }
+
+  @SubscribeMessage(
+    `${StageType.LEGISLATIVE}:${LegislativeAction.CHOOSE_LAW_FOR_VOTING}`,
+  )
+  async chooseLawForVoting(
+    client: Socket,
+    data: { lobbyId: string; lawId: string },
+  ) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] =
+      await this.service.legislativeStageChooseLawForVoting({
+        issuerId: client.request.session.userId,
+        lobbyId: data.lobbyId,
+        lawId: data.lawId,
+      });
+    if (error) {
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
+  }
+
+  @SubscribeMessage(`${StageType.LEGISLATIVE}:${LegislativeAction.VOTING}`)
+  async voting(client: Socket, data: { lobbyId: string; vote: boolean }) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] = await this.service.legislativeStageVoting({
+      issuerId: client.request.session.userId,
+      lobbyId: data.lobbyId,
+      vote: data.vote,
+    });
+    if (error) {
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
   }
 }

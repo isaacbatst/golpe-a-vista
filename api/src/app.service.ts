@@ -191,20 +191,128 @@ export class AppService {
       );
     }
 
-    if (lobby.currentGame.president.id !== input.issuerId) {
-      return left(
-        new UnprocessableEntityException(
-          'Apenas o presidente pode sortear leis',
-        ),
-      );
-    }
-
-    const [error] = stage.drawLaws(lobby.currentGame.lawsDeck);
+    const [error] = stage.drawLaws(
+      lobby.currentGame.lawsDeck,
+      input.issuerId,
+      lobby.currentGame.president.id,
+    );
 
     if (error) {
       return left(new UnprocessableEntityException(error));
     }
 
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
+  async legislativeStageVetoLaw(input: {
+    lobbyId: string;
+    issuerId: string;
+    vetoedLawId: string;
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException());
+    }
+
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (stage instanceof LegislativeStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível vetar leis fora do estágio legislativo',
+        ),
+      );
+    }
+
+    const drawnLawIndex = stage.drawnLaws.findIndex(
+      (law) => law.id === input.vetoedLawId,
+    );
+
+    if (drawnLawIndex === -1) {
+      return left(new NotFoundException('Lei não encontrada'));
+    }
+
+    const [error] = stage.vetoLaw(
+      drawnLawIndex,
+      input.issuerId,
+      lobby.currentGame.president.id,
+    );
+
+    if (error) {
+      return left(new UnprocessableEntityException(error));
+    }
+
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
+  async legislativeStageChooseLawForVoting(input: {
+    lobbyId: string;
+    issuerId: string;
+    lawId: string;
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException());
+    }
+
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (stage instanceof LegislativeStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível escolher leis para votação fora do estágio legislativo',
+        ),
+      );
+    }
+
+    const drawnLawIndex = stage.drawnLaws.findIndex(
+      (law) => law.id === input.lawId,
+    );
+
+    if (drawnLawIndex === -1) {
+      return left(new NotFoundException('Lei não encontrada'));
+    }
+
+    const [error] = stage.chooseLawForVoting(
+      drawnLawIndex,
+      input.issuerId,
+      lobby.currentGame.president.id,
+    );
+
+    if (error) {
+      return left(new UnprocessableEntityException(error));
+    }
+
+    const [startVotingError] = stage.startVoting(
+      lobby.users.map((user) => user.id),
+    );
+
+    if (startVotingError) {
+      return left(new InternalServerErrorException(startVotingError));
+    }
+
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
+  async legislativeStageVoting(input: {
+    lobbyId: string;
+    issuerId: string;
+    vote: boolean;
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException());
+    }
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (stage instanceof LegislativeStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível votar fora do estágio legislativo',
+        ),
+      );
+    }
+    stage.vote(input.issuerId, input.vote);
     await this.lobbyRepository.save(lobby);
     return right(lobby);
   }

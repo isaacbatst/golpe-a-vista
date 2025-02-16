@@ -62,17 +62,32 @@ export class LegislativeStage extends Stage {
     this._voting = voting;
   }
 
-  drawLaws(lawsDeck: Deck<Law>): Either<string, Law[]> {
+  drawLaws(
+    lawsDeck: Deck<Law>,
+    issuerId: string,
+    presidentId: string,
+  ): Either<string, Law[]> {
     const [error] = this.assertCurrentAction(LegislativeAction.DRAW_LAWS);
     if (error) return left(error);
+    if (issuerId !== presidentId) {
+      return left('Apenas o presidente pode sortear leis.');
+    }
     this._drawnLaws = lawsDeck.draw(3);
     this.advanceAction();
     return right(this._drawnLaws);
   }
 
-  vetoLaw(index: number): Either<string, void> {
+  vetoLaw(
+    index: number,
+    issuerId: string,
+    presidentId: string,
+  ): Either<string, void> {
     const [error] = this.assertCurrentAction(LegislativeAction.VETO_LAW);
     if (error) return left(error);
+
+    if (issuerId !== presidentId) {
+      return left('Apenas o presidente pode vetar leis.');
+    }
 
     if (index < 0 || index >= this._drawnLaws.length) {
       return left('Índice inválido.');
@@ -88,11 +103,18 @@ export class LegislativeStage extends Stage {
     return right();
   }
 
-  chooseLawForVoting(index: number): Either<string, void> {
+  chooseLawForVoting(
+    index: number,
+    issuerId: string,
+    presidentId: string,
+  ): Either<string, void> {
     const [error] = this.assertCurrentAction(
       LegislativeAction.CHOOSE_LAW_FOR_VOTING,
     );
     if (error) return left(error);
+    if (issuerId !== presidentId) {
+      return left('Apenas o presidente pode escolher leis para votação.');
+    }
 
     const law = this._drawnLaws[index];
     if (!law) return left('Índice inválido.');
@@ -190,7 +212,14 @@ export class LegislativeStage extends Stage {
       ...super.toJSON(),
       type: this.type,
       currentAction: this.currentAction as LegislativeAction,
-      drawnLaws: this._drawnLaws.map((law) => law.toJSON()),
+      drawnLaws: this._drawnLaws.map((law) => ({
+        ...law.toJSON(),
+        isVetoable: Boolean(
+          this.vetoableLaws.find((vetoableLaw) => vetoableLaw.id === law.id),
+        ),
+        isVetoed: this._vetoedLaw?.id === law.id,
+        isLawToVote: this.lawToVote ? this._lawToVote?.id === law.id : null,
+      })),
       vetoedLaw: this._vetoedLaw?.toJSON(),
       lawToVote: this._lawToVote?.toJSON(),
       voting: this._voting?.toJSON(),

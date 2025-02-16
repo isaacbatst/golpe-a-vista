@@ -22,7 +22,7 @@ export class PresidentQueue {
   }
 
   getByRoundNumber(roundNumber: number): Player {
-    return this._players[roundNumber + (this._offset % this._players.length)];
+    return this._players[(roundNumber + this._offset) % this._players.length];
   }
 
   toJSON() {

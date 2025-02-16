@@ -3,14 +3,15 @@ import { DialogHeader } from "../../../../components/ui/dialog";
 import { useLobbyContext } from "../lobby-context";
 import { useLobbySocketContext } from "../lobby-socket-context";
 import { usePlayerContext } from "../player-context";
-import LawCard from "./law-card";
 import LawCardFolded from "./law-card-folded";
 import LawCardOverlayActionButton from "./law-card-overlay-action-button";
+import LawCard from "./law-card";
+import LawCardOverlayVetoed from "./law-card-overlay-vetoed";
 
-const LegislativeStageVetoLaw = () => {
+const LegislativeStageChooseLawForVoting = () => {
   const { player } = usePlayerContext();
   const { lobby } = useLobbyContext();
-  const { legislativeStageVetoLaw } = useLobbySocketContext();
+  const { legislativeStageChooseLawForVoting } = useLobbySocketContext();
   const stage = lobby.currentGame.currentRound.currentStage;
   const president = lobby.currentGame.currentRound.president;
 
@@ -26,10 +27,9 @@ const LegislativeStageVetoLaw = () => {
           <p className="text-sm">
             Nesta rodada,{" "}
             <span className="font-semibold">{president.name}</span> assumiu o
-            cargo de Presidente e agora está analisando as leis disponíveis.
-            Como primeira ação, ele(a) deve{" "}
-            <strong>vetar uma das três cartas</strong> antes de encaminhar as
-            demais para votação.
+            cargo de Presidente e agora está analisando as leis disponíveis. Ele
+            deve <strong>escolher</strong> uma das cartas restantes para ser
+            votada.
           </p>
           <p className="text-sm text-gray-500 italic">
             Aguarde enquanto o Presidente toma sua decisão.
@@ -38,7 +38,10 @@ const LegislativeStageVetoLaw = () => {
         <ul className="flex flex-wrap gap-3 justify-center">
           {stage.drawnLaws.map((law) => (
             <li key={law.name} className="flex justify-center">
-              <LawCardFolded />
+              <LawCardFolded
+                isShowingOverlay={law.isVetoed}
+                overlay={law.isVetoed ? <LawCardOverlayVetoed /> : null}
+              />
             </li>
           ))}
         </ul>
@@ -67,16 +70,22 @@ const LegislativeStageVetoLaw = () => {
           <li key={law.name} className="flex justify-center">
             <LawCard
               law={law}
+              overlayInitialValue={law.isVetoed}
+              isOverlayFixed={law.isVetoed}
               overlayContent={
-                <LawCardOverlayActionButton
-                  variant="destructive"
-                  icon="ban"
-                  onClick={() => {
-                    legislativeStageVetoLaw(law.id);
-                  }}
-                >
-                  Vetar Lei
-                </LawCardOverlayActionButton>
+                law.isVetoed ? (
+                  <LawCardOverlayVetoed />
+                ) : (
+                  <LawCardOverlayActionButton
+                    variant="outline"
+                    icon="vote"
+                    onClick={() => {
+                      legislativeStageChooseLawForVoting(law.id);
+                    }}
+                  >
+                    Escolher
+                  </LawCardOverlayActionButton>
+                )
               }
             />
           </li>
@@ -86,4 +95,4 @@ const LegislativeStageVetoLaw = () => {
   );
 };
 
-export default LegislativeStageVetoLaw;
+export default LegislativeStageChooseLawForVoting;

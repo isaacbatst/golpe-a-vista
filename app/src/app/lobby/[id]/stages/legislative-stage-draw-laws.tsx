@@ -3,9 +3,9 @@ import { DicesIcon } from "lucide-react";
 import { Button } from "../../../../components/ui/button";
 import { DialogHeader } from "../../../../components/ui/dialog";
 import { useLobbyContext } from "../lobby-context";
-import { usePlayerContext } from "../player-context";
 import { useLobbySocketContext } from "../lobby-socket-context";
-import LawCard from "./law-card";
+import { usePlayerContext } from "../player-context";
+import LawCardFolded from "./law-card-folded";
 
 const LegislativeStageDrawLaws = () => {
   const { player } = usePlayerContext();
@@ -35,6 +35,11 @@ const LegislativeStageDrawLaws = () => {
           <p className="text-sm text-gray-500 italic">
             Aguarde enquanto o Presidente toma sua decisão.
           </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <LawCardFolded key={index} />
+            ))}
+          </div>
         </div>
       </>
     );
@@ -59,7 +64,7 @@ const LegislativeStageDrawLaws = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {Array.from({ length: 3 }).map((_, index) => (
-          <LawCard key={index} />
+          <LawCardFolded key={index} />
         ))}
       </div>
       <div className="flex justify-center">

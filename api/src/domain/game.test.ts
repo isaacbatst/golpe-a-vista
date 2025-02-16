@@ -166,17 +166,23 @@ describe('Crises', () => {
         ),
       );
 
-      const rounds = Array.from({ length: n }, () => {
+      const rounds = Array.from({ length: n }, (_, i) => {
         const legislativeStage = new LegislativeStage();
-        legislativeStage.drawLaws(makeLawsDeck('progressive'));
-        legislativeStage.vetoLaw(0);
-        legislativeStage.chooseLawForVoting(1);
+        const presidentQueue = new PresidentQueue(Array.from(players.values()));
+        const president = presidentQueue.getByRoundNumber(i);
+        legislativeStage.drawLaws(
+          makeLawsDeck('progressive'),
+          president.id,
+          president.id,
+        );
+        legislativeStage.vetoLaw(0, president.id, president.id);
+        legislativeStage.chooseLawForVoting(1, president.id, president.id);
         legislativeStage.startVoting(playersNames.map(([id]) => id));
         for (const player of players) {
           legislativeStage.vote(player[0], true);
         }
         return new Round({
-          presidentQueue: new PresidentQueue(Array.from(players.values())),
+          presidentQueue,
           stages: [
             legislativeStage,
             new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE),
@@ -205,11 +211,7 @@ describe('Crises', () => {
       const crisesDeck = makeCrisesDeck();
       const lawsDeck = makeLawsDeck('progressive');
 
-      const rounds = Array.from({ length: n }, () => {
-        const legislativeStage = new LegislativeStage();
-        legislativeStage.drawLaws(makeLawsDeck());
-        legislativeStage.vetoLaw(0);
-        legislativeStage.chooseLawForVoting(1);
+      const rounds = Array.from({ length: n }, (_, i) => {
         const playersNames: [string, string][] = [
           ['p1', 'p1'],
           ['p2', 'p2'],
@@ -220,6 +222,12 @@ describe('Crises', () => {
           ['p7', 'p7'],
         ];
         const players = Game.createPlayers(playersNames);
+        const legislativeStage = new LegislativeStage();
+        const presidentQueue = new PresidentQueue(Array.from(players.values()));
+        const president = presidentQueue.getByRoundNumber(i);
+        legislativeStage.drawLaws(makeLawsDeck(), president.id, president.id);
+        legislativeStage.vetoLaw(0, president.id, president.id);
+        legislativeStage.chooseLawForVoting(1, president.id, president.id);
         legislativeStage.startVoting(playersNames.map(([id]) => id));
         for (const player of players) {
           legislativeStage.vote(player[0], false);
@@ -491,9 +499,10 @@ describe('Condições de Vitória', () => {
         },
         (_, i) => {
           const legislativeStage = new LegislativeStage();
-          legislativeStage.drawLaws(lawsDeck);
-          legislativeStage.vetoLaw(0);
-          legislativeStage.chooseLawForVoting(1);
+          const president = presidentQueue.getByRoundNumber(i);
+          legislativeStage.drawLaws(lawsDeck, president.id, president.id);
+          legislativeStage.vetoLaw(0, president.id, president.id);
+          legislativeStage.chooseLawForVoting(1, president.id, president.id);
           legislativeStage.startVoting(playersNames.map(([id]) => id));
           for (const player of players) {
             legislativeStage.vote(player[0], true);
@@ -542,9 +551,12 @@ describe('Condições de Vitória', () => {
         },
         (_, i) => {
           const legislativeStage = new LegislativeStage();
-          legislativeStage.drawLaws(makeLawsDeck());
-          legislativeStage.vetoLaw(0);
-          legislativeStage.chooseLawForVoting(1);
+          const president = presidentQueue.getByRoundNumber(i);
+          console.log('president', president);
+          console.log('i', i);
+          legislativeStage.drawLaws(makeLawsDeck(), president.id, president.id);
+          legislativeStage.vetoLaw(0, president.id, president.id);
+          legislativeStage.chooseLawForVoting(1, president.id, president.id);
           legislativeStage.startVoting(playersNames.map(([id]) => id));
           for (const player of players) {
             legislativeStage.vote(player[0], true);
