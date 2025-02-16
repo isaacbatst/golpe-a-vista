@@ -112,7 +112,6 @@ describe('Estágios', () => {
     const [error, stage] = round.nextStage();
     expect(error).toBeUndefined();
     expect(stage).toBeNull();
-    expect(round.finished).toBe(true);
   });
 
   it('Deve avançar do Dossiê para o estágio da Sabotagem se uma lei progressista foi aprovada e a rodada anterior não foi sabotada', () => {

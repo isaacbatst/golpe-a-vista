@@ -13,6 +13,16 @@ export enum RoundStageIndex {
 export class StageQueue {
   constructor(private _nextStage: number = 0) {}
 
+  isFinished(factories: StageFactory[]): boolean {
+    for (let i = this._nextStage; i < factories.length; i++) {
+      if (!factories[i].shouldSkip()) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   nextStage(factories: StageFactory[]): Stage | null {
     for (let i = this._nextStage; i < factories.length; i++) {
       if (factories[i].shouldSkip()) {

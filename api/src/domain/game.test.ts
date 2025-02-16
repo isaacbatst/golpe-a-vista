@@ -110,7 +110,7 @@ describe('Rodadas', () => {
     });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
-    expect(game?.currentRound.createNextStage()).toBeNull();
+    expect(game?.currentRound.finished).toBe(true);
     const [errorNextRound] = game!.nextRound();
     expect(errorNextRound).toBeUndefined();
     expect(game!.currentRound.rapporteurId).toBe(players.get('p3')?.id);

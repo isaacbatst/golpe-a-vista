@@ -80,7 +80,7 @@ export class Round {
       return left('Estágio atual não finalizado');
     }
 
-    const next = this.createNextStage();
+    const next = this.pushNextStage();
 
     if (!next) {
       return right(null);
@@ -91,31 +91,11 @@ export class Round {
   }
 
   private createFirstStage(): Stage {
-    return this.createNextStage()!;
+    return this.pushNextStage()!;
   }
 
-  createNextStage(): Stage | null {
-    const factories: StageFactory[] = [
-      new ImpeachmentStageFactory(this.president.id, this._hasImpeachment),
-      new CrisisStageFactory(this._crisis),
-      new LegislativeStageFactory(
-        this.requiredVeto,
-        this.isLegislativeVotingSecret,
-      ),
-      new DossierStageFactory(this.drawnLaws, this.isDossierFake),
-      new SabotageStageFactory(
-        this.hasApprovedLaw(LawType.PROGRESSISTAS),
-        this._hasLastRoundBeenSabotaged,
-      ),
-      new RadicalizationStageFactory(
-        this.totalApprovedLaws(LawType.CONSERVADORES),
-        this.totalApprovedLaws(LawType.PROGRESSISTAS),
-        this._minRadicalizationConservativeLaws,
-        this._minRadicalizationProgressiveLaws,
-      ),
-    ];
-
-    return this._stageQueue.nextStage(factories);
+  pushNextStage(): Stage | null {
+    return this._stageQueue.nextStage(this.stageFactories);
   }
 
   hasApprovedLaw(type: LawType): boolean {
@@ -152,8 +132,33 @@ export class Round {
     return this._stages[this._stages.length - 1];
   }
 
+  get stageFactories(): StageFactory[] {
+    return [
+      new ImpeachmentStageFactory(this.president.id, this._hasImpeachment),
+      new CrisisStageFactory(this._crisis),
+      new LegislativeStageFactory(
+        this.requiredVeto,
+        this.isLegislativeVotingSecret,
+      ),
+      new DossierStageFactory(this.drawnLaws, this.isDossierFake),
+      new SabotageStageFactory(
+        this.hasApprovedLaw(LawType.PROGRESSISTAS),
+        this._hasLastRoundBeenSabotaged,
+      ),
+      new RadicalizationStageFactory(
+        this.totalApprovedLaws(LawType.CONSERVADORES),
+        this.totalApprovedLaws(LawType.PROGRESSISTAS),
+        this._minRadicalizationConservativeLaws,
+        this._minRadicalizationProgressiveLaws,
+      ),
+    ];
+  }
+
   get finished(): boolean {
-    return this.currentStage.isComplete && this.createNextStage() === null;
+    return (
+      this.currentStage.isComplete &&
+      this._stageQueue.isFinished(this.stageFactories)
+    );
   }
 
   get approvedLaws(): Law[] {
