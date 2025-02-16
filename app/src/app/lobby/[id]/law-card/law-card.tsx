@@ -3,7 +3,7 @@ import { useOverlay } from "../../../../hooks/useOverlay";
 import { LawType, LegislativeStageLawDTO } from "../../../../lib/api.types";
 import { cn } from "../../../../lib/utils";
 import LawCardOverlay from "./law-card-overlay";
-import PaperCard from "./paper-card";
+import PaperCard from "@/components/paper-card";
 
 type Props = {
   law: LegislativeStageLawDTO;

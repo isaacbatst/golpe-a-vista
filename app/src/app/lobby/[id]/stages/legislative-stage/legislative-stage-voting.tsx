@@ -1,19 +1,23 @@
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { DialogHeader } from "../../../../components/ui/dialog";
-import { useLobbyContext } from "../lobby-context";
-import { usePlayerContext } from "../player-context";
-import LawCard from "./law-card";
-import LawCardFolded from "./law-card-folded";
-import LawCardOverlayDiscarded from "./law-card-overlay-discarded";
-import LawCardOverlayVetoed from "./law-card-overlay-vetoed";
-import LawCardOverlayVoting from "./law-card-overlay-voting";
+import { DialogHeader } from "../../../../../components/ui/dialog";
+import {
+  LegislativeStageDTO,
+  LegislativeStageLawDTO,
+} from "../../../../../lib/api.types";
+import { useLobbyContext } from "../../lobby-context";
+import { usePlayerContext } from "../../player-context";
+import LawCard from "../../law-card/law-card";
+import LawCardFolded from "../../law-card/law-card-folded";
+import LawCardOverlayDiscarded from "../../law-card/law-card-overlay-discarded";
+import LawCardOverlayVetoed from "../../law-card/law-card-overlay-vetoed";
+import LawCardOverlayVoting from "../../law-card/law-card-overlay-voting";
 import LegislativeStageVotingStatus from "./legislative-stage-voting-status";
-import { LegislativeStageLawDTO } from "../../../../lib/api.types";
 
 const LegislativeStageVoting = () => {
   const { player: me } = usePlayerContext();
   const { lobby } = useLobbyContext();
-  const stage = lobby.currentGame.currentRound.currentStage;
+  const stage = lobby.currentGame.currentRound
+    .currentStage as LegislativeStageDTO;
   const myVote =
     stage.voting?.votes.find((vote) => vote.player === me.id)?.vote ?? null;
   const hasAlreadyVoted = myVote !== undefined && myVote !== null;
@@ -51,7 +55,9 @@ const LegislativeStageVoting = () => {
                 <LawCard
                   law={law}
                   isOverlayFixed={!law.isLawToVote || hasAlreadyVoted}
-                  showingOverlayInitialValue={!law.isLawToVote || hasAlreadyVoted}
+                  showingOverlayInitialValue={
+                    !law.isLawToVote || hasAlreadyVoted
+                  }
                   overlayContent={getOverlay(law)}
                 />
               ) : (

@@ -1,6 +1,6 @@
+import PaperCard from "@/components/paper-card";
 import { useOverlay } from "../../../../hooks/useOverlay";
 import LawCardOverlay from "./law-card-overlay";
-import PaperCard from "./paper-card";
 
 const LawCardFolded = ({
   overlay,

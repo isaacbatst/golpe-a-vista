@@ -1,17 +1,19 @@
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { DialogHeader } from "../../../../components/ui/dialog";
-import { useLobbyContext } from "../lobby-context";
-import { useLobbySocketContext } from "../lobby-socket-context";
-import { usePlayerContext } from "../player-context";
-import LawCard from "./law-card";
-import LawCardFolded from "./law-card-folded";
-import LawCardOverlayActionButton from "./law-card-overlay-action-button";
+import { DialogHeader } from "../../../../../components/ui/dialog";
+import { useLobbyContext } from "../../lobby-context";
+import { useLobbySocketContext } from "../../lobby-socket-context";
+import { usePlayerContext } from "../../player-context";
+import LawCard from "../../law-card/law-card";
+import LawCardFolded from "../../law-card/law-card-folded";
+import LawCardOverlayActionButton from "../../law-card/law-card-overlay-action-button";
+import { LegislativeStageDTO } from "../../../../../lib/api.types";
 
 const LegislativeStageVetoLaw = () => {
   const { player } = usePlayerContext();
   const { lobby } = useLobbyContext();
   const { legislativeStageVetoLaw } = useLobbySocketContext();
-  const stage = lobby.currentGame.currentRound.currentStage;
+  const stage = lobby.currentGame.currentRound
+    .currentStage as LegislativeStageDTO;
   const president = lobby.currentGame.currentRound.president;
 
   if (!player.isPresident) {
@@ -38,9 +40,7 @@ const LegislativeStageVetoLaw = () => {
         <ul className="flex flex-wrap gap-3 justify-center">
           {stage.drawnLaws.map((law) => (
             <li key={law.name} className="flex justify-center">
-              <LawCardFolded 
-                isOverlayFixed
-              />
+              <LawCardFolded isOverlayFixed />
             </li>
           ))}
         </ul>

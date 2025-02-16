@@ -1,18 +1,20 @@
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { DialogHeader } from "../../../../components/ui/dialog";
-import { useLobbyContext } from "../lobby-context";
-import { useLobbySocketContext } from "../lobby-socket-context";
-import { usePlayerContext } from "../player-context";
-import LawCardFolded from "./law-card-folded";
-import LawCardOverlayActionButton from "./law-card-overlay-action-button";
-import LawCard from "./law-card";
-import LawCardOverlayVetoed from "./law-card-overlay-vetoed";
+import { DialogHeader } from "../../../../../components/ui/dialog";
+import { LegislativeStageDTO } from "../../../../../lib/api.types";
+import { useLobbyContext } from "../../lobby-context";
+import { useLobbySocketContext } from "../../lobby-socket-context";
+import { usePlayerContext } from "../../player-context";
+import LawCard from "../../law-card/law-card";
+import LawCardFolded from "../../law-card/law-card-folded";
+import LawCardOverlayActionButton from "../../law-card/law-card-overlay-action-button";
+import LawCardOverlayVetoed from "../../law-card/law-card-overlay-vetoed";
 
 const LegislativeStageChooseLawForVoting = () => {
   const { player } = usePlayerContext();
   const { lobby } = useLobbyContext();
   const { legislativeStageChooseLawForVoting } = useLobbySocketContext();
-  const stage = lobby.currentGame.currentRound.currentStage;
+  const stage = lobby.currentGame.currentRound
+    .currentStage as LegislativeStageDTO;
   const president = lobby.currentGame.currentRound.president;
 
   if (!player.isPresident) {

@@ -1,11 +1,11 @@
 import { DialogTrigger } from "@radix-ui/react-dialog";
 import { Info } from "lucide-react";
-import { Button } from "../../../../components/ui/button";
-import { Dialog, DialogContent } from "../../../../components/ui/dialog";
+import { Button } from "../../../../../components/ui/button";
+import { Dialog, DialogContent } from "../../../../../components/ui/dialog";
 import {
   LegislativeAction,
   LegislativeStageDTO,
-} from "../../../../lib/api.types";
+} from "../../../../../lib/api.types";
 import LegislativeStageDrawLaws from "./legislative-stage-draw-laws";
 import LegislativeStageChooseLawForVoting from "./legislative-stage-choose-law-for-voting";
 import LegislativeStageVetoLaw from "./legislative-stage-veto-law";

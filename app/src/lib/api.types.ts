@@ -90,7 +90,11 @@ export type LegislativeStageDTO = {
   isLawToVoteVisible: boolean;
 };
 
-export type StageDTO = LegislativeStageDTO;
+export type DossierStageDTO = {
+  type: StageType.REPORT_DOSSIER;
+}
+
+export type StageDTO = LegislativeStageDTO | DossierStageDTO;
 
 export type RoundDTO = {
   index: number;

@@ -1,27 +1,31 @@
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { ChevronsRight } from "lucide-react";
-import { Button } from "../../../../components/ui/button";
+import { Button } from "../../../../../components/ui/button";
 import {
   DialogDescription,
   DialogHeader,
-} from "../../../../components/ui/dialog";
-import { LegislativeStageLawDTO } from "../../../../lib/api.types";
-import { cn } from "../../../../lib/utils";
-import { useLobbyContext } from "../lobby-context";
-import { usePlayerContext } from "../player-context";
-import LawCard from "./law-card";
-import LawCardFolded from "./law-card-folded";
-import LawCardOverlayDiscarded from "./law-card-overlay-discarded";
-import LawCardOverlayRejected from "./law-card-overlay-rejected";
-import LawCardOverlayVetoed from "./law-card-overlay-vetoed";
+} from "../../../../../components/ui/dialog";
+import {
+  LegislativeStageDTO,
+  LegislativeStageLawDTO,
+} from "../../../../../lib/api.types";
+import { cn } from "../../../../../lib/utils";
+import { useLobbyContext } from "../../lobby-context";
+import { useLobbySocketContext } from "../../lobby-socket-context";
+import { usePlayerContext } from "../../player-context";
+import LawCard from "../../law-card/law-card";
+import LawCardFolded from "../../law-card/law-card-folded";
+import LawCardOverlayDiscarded from "../../law-card/law-card-overlay-discarded";
+import LawCardOverlayRejected from "../../law-card/law-card-overlay-rejected";
+import LawCardOverlayVetoed from "../../law-card/law-card-overlay-vetoed";
 import LegislativeStageVotingStatus from "./legislative-stage-voting-status";
-import { useLobbySocketContext } from "../lobby-socket-context";
 
 const LegislativeStageAdvanceStage = () => {
   const { player: me } = usePlayerContext();
   const { lobby } = useLobbyContext();
   const { legislativeStageAdvanceStage } = useLobbySocketContext();
-  const stage = lobby.currentGame.currentRound.currentStage;
+  const stage = lobby.currentGame.currentRound
+    .currentStage as LegislativeStageDTO;
 
   const result = stage.voting?.result ? "Lei Aprovada" : "Lei Rejeitada";
 

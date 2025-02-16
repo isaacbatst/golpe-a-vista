@@ -1,6 +1,6 @@
-import { LegislativeStageDTO, PlayerDTO } from "../../../../lib/api.types";
-import { cn } from "../../../../lib/utils";
-import PlayerAvatar from "../player-avatar";
+import { LegislativeStageDTO, PlayerDTO } from "../../../../../lib/api.types";
+import { cn } from "../../../../../lib/utils";
+import PlayerAvatar from "../../player-avatar";
 
 type Props = {
   stage: LegislativeStageDTO;

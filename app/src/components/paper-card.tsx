@@ -1,5 +1,5 @@
 import React, { HTMLProps, PropsWithChildren } from "react";
-import { cn } from "../../../../lib/utils";
+import { cn } from "@/lib/utils";
 
 const PaperCard = ({
   children,
