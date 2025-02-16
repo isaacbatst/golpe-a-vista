@@ -13,30 +13,34 @@ export enum ImpeachmentAction {
 }
 export class ImpeachmentStage extends Stage {
   readonly type = StageType.IMPEACHMENT;
-  private _target: Player | null;
+  private _targetId: string | null;
+  private _targetRole: Role | null;
   private _voting: Voting | null;
 
   constructor(
-    readonly accuser: Player,
+    readonly accuserId: string,
     private _isSomeConservativeImpeached: boolean = false,
     private _isRadicalImpeached: boolean = false,
     currentAction?: ImpeachmentAction,
-    target?: Player,
+    targetId?: string,
+    targetRole?: Role,
     voting?: Voting,
   ) {
     super(
       ['SELECT_TARGET', 'START_VOTING', 'VOTING', 'EXECUTION', 'ADVANCE_STAGE'],
       currentAction,
     );
-    this._target = target ?? null;
+    this._targetId = targetId ?? null;
+    this._targetRole = targetRole ?? null;
     this._voting = voting ?? null;
   }
 
-  chooseTarget(target: Player): Either<string, void> {
+  chooseTarget(targetId: string, targetRole: Role): Either<string, void> {
     const [error] = this.assertCurrentAction('SELECT_TARGET');
     if (error) return left(error);
 
-    this._target = target;
+    this._targetId = targetId;
+    this._targetRole = targetRole;
 
     if (this.shouldSkipVoting) {
       this.actionController.currentAction = ImpeachmentAction.EXECUTION;
@@ -54,7 +58,7 @@ export class ImpeachmentStage extends Stage {
       return left('Votação ignorada.');
     }
 
-    if (!this._target) return left('Nenhum alvo foi escolhido.');
+    if (!this._targetId) return left('Nenhum alvo foi escolhido.');
 
     const [votingError, voting] = Voting.create(players);
 
@@ -67,7 +71,11 @@ export class ImpeachmentStage extends Stage {
     return right();
   }
 
-  vote(player: string, approve: boolean): Either<string, boolean> {
+  vote(
+    playerId: string,
+    approve: boolean,
+    target: Player,
+  ): Either<string, boolean> {
     const [error] = this.assertCurrentAction('VOTING');
     if (error) return left(error);
 
@@ -75,24 +83,28 @@ export class ImpeachmentStage extends Stage {
 
     if (!this._voting) return left('Votação não iniciada.');
 
-    const hasEnded = this._voting.vote(player, approve);
+    const hasEnded = this._voting.vote(playerId, approve);
 
     if (hasEnded) {
       this.advanceAction();
-      return this.impeach();
+      return this.impeach(target);
     }
 
     return right(this._voting.hasEnded);
   }
 
-  impeach(): Either<string, boolean> {
+  impeach(target: Player): Either<string, boolean> {
     const [error] = this.assertCurrentAction('EXECUTION');
     if (error) return left(error);
     if (!this._voting && !this.shouldSkipVoting)
       return left('Votação não iniciada.');
 
-    if (this._target && this._voting?.result) {
-      this._target.impeached = true;
+    if (
+      this._targetId &&
+      this._voting?.result &&
+      target.id === this._targetId
+    ) {
+      target.impeached = true;
     }
 
     this.advanceAction();
@@ -100,17 +112,17 @@ export class ImpeachmentStage extends Stage {
   }
 
   get shouldSkipVoting() {
-    if (!this._target) return null;
+    if (!this._targetId) return null;
 
     return (
-      this._target.role === Role.CONSERVADOR &&
+      this._targetRole === Role.CONSERVADOR &&
       this._isSomeConservativeImpeached &&
       !this._isRadicalImpeached
     );
   }
 
   get target() {
-    return this._target;
+    return this._targetId;
   }
 
   toJSON() {
@@ -118,10 +130,11 @@ export class ImpeachmentStage extends Stage {
       ...super.toJSON(),
       type: this.type,
       currentAction: this.currentAction as ImpeachmentAction,
-      target: this._target?.toJSON(),
+      targetId: this._targetId,
+      targetRole: this._targetRole,
       voting: this._voting?.toJSON(),
       shouldSkipVoting: this.shouldSkipVoting,
-      accuser: this.accuser.toJSON(),
+      accuserId: this.accuserId,
       isSomeConservativeImpeached: this._isSomeConservativeImpeached,
       isRadicalImpeached: this._isRadicalImpeached,
     } as const;
@@ -131,11 +144,12 @@ export class ImpeachmentStage extends Stage {
     data: ReturnType<ImpeachmentStage['toJSON']>,
   ): ImpeachmentStage {
     return new ImpeachmentStage(
-      Player.fromJSON(data.accuser),
+      data.accuserId,
       data.isSomeConservativeImpeached,
       data.isRadicalImpeached,
       data.currentAction,
-      data.target ? Player.fromJSON(data.target) : undefined,
+      data.targetId ?? undefined,
+      data.targetRole ?? undefined,
       data.voting ? Voting.fromJSON(data.voting) : undefined,
     );
   }

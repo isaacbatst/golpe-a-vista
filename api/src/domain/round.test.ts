@@ -48,7 +48,7 @@ describe('Estágios', () => {
       presidentQueue,
       stages: [
         new ImpeachmentStage(
-          presidentQueue.getByRoundNumber(0),
+          presidentQueue.getByRoundNumber(0).id,
           false,
           false,
           ImpeachmentAction.ADVANCE_STAGE,

@@ -476,10 +476,10 @@ describe('Presidência', () => {
     expect(game?.currentRound.currentStage).toBeInstanceOf(ImpeachmentStage);
     const stage = game!.currentRound.currentStage as ImpeachmentStage;
     const target = game!.players.find((p) => p !== game?.president);
-    stage.chooseTarget(target!);
+    stage.chooseTarget(target!.id, target!.role);
     stage.startVoting(playersNames.map(([id]) => id));
     for (const player of players) {
-      stage.vote(player[0], true);
+      stage.vote(player[0], true, target!);
     }
     expect(target?.impeached).toBe(true);
   });
@@ -607,11 +607,11 @@ describe('Condições de Vitória', () => {
       (p) => p.role === Role.RADICAL,
     )!;
     const accuser = Array.from(players.values()).find((p) => p !== radical)!;
-    const impeachmentStage = new ImpeachmentStage(accuser);
-    impeachmentStage.chooseTarget(radical);
+    const impeachmentStage = new ImpeachmentStage(accuser.id);
+    impeachmentStage.chooseTarget(radical.id, Role.RADICAL);
     impeachmentStage.startVoting(playersNames.map(([id]) => id));
     for (const player of players) {
-      impeachmentStage.vote(player[0], true);
+      impeachmentStage.vote(player[0], true, radical);
     }
     const presidentQueue = new PresidentQueue(Array.from(players.values()));
     const rounds = [
@@ -654,11 +654,11 @@ describe('Condições de Vitória', () => {
     const presidentQueue = new PresidentQueue(Array.from(players.values()));
 
     const stages = conservatives.map((target) => {
-      const impeachmentStage = new ImpeachmentStage(accuser);
-      impeachmentStage.chooseTarget(target);
+      const impeachmentStage = new ImpeachmentStage(accuser.id);
+      impeachmentStage.chooseTarget(target.id, target.role);
       impeachmentStage.startVoting(playersNames.map(([id]) => id));
       for (const player of players) {
-        impeachmentStage.vote(player[0], true);
+        impeachmentStage.vote(player[0], true, target);
       }
       return impeachmentStage;
     });
