@@ -1,15 +1,15 @@
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { ChevronsRight } from "lucide-react";
-import { Button } from "../../../../../components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   DialogDescription,
   DialogHeader,
-} from "../../../../../components/ui/dialog";
+} from "@/components/ui/dialog";
 import {
   LegislativeStageDTO,
   LegislativeStageLawDTO,
-} from "../../../../../lib/api.types";
-import { cn } from "../../../../../lib/utils";
+} from "@/lib/api.types";
+import { cn } from "@/lib/utils";
 import { useLobbyContext } from "../../lobby-context";
 import { useLobbySocketContext } from "../../lobby-socket-context";
 import { usePlayerContext } from "../../player-context";

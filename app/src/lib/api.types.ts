@@ -57,6 +57,12 @@ export enum LegislativeAction {
   ADVANCE_STAGE = "ADVANCE_STAGE",
 }
 
+export enum DossierAction {
+  SELECT_RAPPORTEUR = "SELECT_RAPPORTEUR",
+  PASS_DOSSIER = "PASS_DOSSIER",
+  ADVANCE_STAGE = "ADVANCE_STAGE",
+}
+
 export type VotingDTO = {
   count: {
     yes: number;
@@ -91,8 +97,9 @@ export type LegislativeStageDTO = {
 };
 
 export type DossierStageDTO = {
+  currentAction: DossierAction;
   type: StageType.REPORT_DOSSIER;
-}
+};
 
 export type StageDTO = LegislativeStageDTO | DossierStageDTO;
 

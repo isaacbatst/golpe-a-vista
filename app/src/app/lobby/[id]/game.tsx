@@ -1,3 +1,4 @@
+import DossierStage from "@/app/lobby/[id]/stages/dossier-stage/dossier-stage";
 import { Button } from "../../../components/ui/button";
 import {
   Card,
@@ -63,13 +64,12 @@ export default function Game({ userId, lobby }: Props) {
                   stage={lobby.currentGame.currentRound.currentStage}
                 />
               )}
-              {
-                lobby.currentGame.currentRound.currentStage.type ===StageType.REPORT_DOSSIER && (
-                  <div>
-                    oi
-                  </div>
-                )
-              }
+              {lobby.currentGame.currentRound.currentStage.type ===
+                StageType.REPORT_DOSSIER && (
+                <DossierStage
+                  stage={lobby.currentGame.currentRound.currentStage}
+                />
+              )}
               <PlayersGrid
                 me={me}
                 players={lobby.currentGame.players}

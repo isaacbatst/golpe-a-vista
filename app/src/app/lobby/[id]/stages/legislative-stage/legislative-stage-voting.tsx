@@ -1,9 +1,9 @@
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { DialogHeader } from "../../../../../components/ui/dialog";
+import { DialogHeader } from "@/components/ui/dialog";
 import {
   LegislativeStageDTO,
   LegislativeStageLawDTO,
-} from "../../../../../lib/api.types";
+} from "@/lib/api.types";
 import { useLobbyContext } from "../../lobby-context";
 import { usePlayerContext } from "../../player-context";
 import LawCard from "../../law-card/law-card";

@@ -1,6 +1,6 @@
 import { DicesIcon } from "lucide-react";
-import { Button } from "../../../../../components/ui/button";
-import { DialogHeader, DialogTitle } from "../../../../../components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useLobbyContext } from "../../lobby-context";
 import { useLobbySocketContext } from "../../lobby-socket-context";
 import { usePlayerContext } from "../../player-context";

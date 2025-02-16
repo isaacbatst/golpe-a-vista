@@ -1,12 +1,12 @@
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { DialogHeader } from "../../../../../components/ui/dialog";
+import { DialogHeader } from "@/components/ui/dialog";
 import { useLobbyContext } from "../../lobby-context";
 import { useLobbySocketContext } from "../../lobby-socket-context";
 import { usePlayerContext } from "../../player-context";
 import LawCard from "../../law-card/law-card";
 import LawCardFolded from "../../law-card/law-card-folded";
 import LawCardOverlayActionButton from "../../law-card/law-card-overlay-action-button";
-import { LegislativeStageDTO } from "../../../../../lib/api.types";
+import { LegislativeStageDTO } from "@/lib/api.types";
 
 const LegislativeStageVetoLaw = () => {
   const { player } = usePlayerContext();
