@@ -4,7 +4,8 @@ import { Game } from './game';
 import { makeCrisesDeck, makeLawsDeck } from './mock';
 import { PresidentQueue } from './president-queue';
 import { Role } from './role';
-import { Round, RoundStageIndex } from './round';
+import { Round } from './round';
+import { RoundStageIndex, StageQueue } from './stage/stage-queue';
 import { DossierStage } from './stage/dossier-stage';
 import { ImpeachmentStage } from './stage/impeachment-stage';
 import { LegislativeStage } from './stage/legislative-stage';
@@ -59,7 +60,7 @@ describe('Rodadas', () => {
       rounds: [
         new Round({
           presidentQueue,
-          nextStageIndex: RoundStageIndex.RADICALIZATION + 1,
+          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION + 1),
           stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
         }),
       ],
@@ -100,7 +101,7 @@ describe('Rodadas', () => {
       rounds: [
         new Round({
           presidentQueue,
-          nextStageIndex: RoundStageIndex.DOSSIER + 1,
+          stageQueue: new StageQueue(RoundStageIndex.DOSSIER + 1),
           stages: [dossierStage],
         }),
       ],
@@ -186,7 +187,7 @@ describe('Crises', () => {
         }
         return new Round({
           presidentQueue,
-          nextStageIndex: RoundStageIndex.RADICALIZATION + 1,
+          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION + 1),
           stages: [
             legislativeStage,
             new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE),
@@ -239,7 +240,7 @@ describe('Crises', () => {
 
         return new Round({
           presidentQueue: new PresidentQueue(Array.from(players.values())),
-          nextStageIndex: RoundStageIndex.RADICALIZATION + 1,
+          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION + 1),
           stages: [
             legislativeStage,
             new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE),
@@ -291,7 +292,7 @@ describe('Crises', () => {
       new Round({
         presidentQueue: new PresidentQueue(Array.from(players.values())),
         stages: [sabotageStage],
-        nextStageIndex: RoundStageIndex.SABOTAGE + 1,
+        stageQueue: new StageQueue(RoundStageIndex.SABOTAGE + 1),
       }),
     ];
 
@@ -328,7 +329,7 @@ describe('Cassações', () => {
       const rounds = Array.from({ length: n }, () => {
         return new Round({
           stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
-          nextStageIndex: RoundStageIndex.RADICALIZATION + 1,
+          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION + 1),
           crisis: new PlanoCohen(),
           presidentQueue: new PresidentQueue(Array.from(players.values())),
         });
@@ -397,7 +398,7 @@ describe('Presidência', () => {
         new Round({
           presidentQueue,
           stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
-          nextStageIndex: RoundStageIndex.RADICALIZATION + 1,
+          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION + 1),
         }),
       ],
     });
@@ -436,7 +437,7 @@ describe('Presidência', () => {
           hasImpeachment: true,
           presidentQueue,
           stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
-          nextStageIndex: RoundStageIndex.RADICALIZATION + 1,
+          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION + 1),
         }),
       ],
     });
