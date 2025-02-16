@@ -1,3 +1,9 @@
+import { CrisisStageFactory } from 'src/domain/stage/crisis-stage.factory';
+import { DossierStageFactory } from 'src/domain/stage/dossier-stage.factory';
+import { ImpeachmentStageFactory } from 'src/domain/stage/impeachment-stage.factory';
+import { LegislativeStageFactory } from 'src/domain/stage/legislative-stage.factory';
+import { RadicalizationStageFactory } from 'src/domain/stage/radicalization-stage.factory';
+import { SabotageStageFactory } from 'src/domain/stage/sabotage-stage.factory';
 import { Law } from '../data/laws';
 import { Crisis } from './crisis/crisis';
 import { CrisisFactory } from './crisis/crisis-factory';
@@ -89,41 +95,27 @@ export class Round {
   }
 
   createNextStage(): Stage | null {
-    return this._stageQueue.nextStage({
-      drawnLaws: this.drawnLaws,
-      hasImpeachment: this._hasImpeachment,
-      hasLastRoundBeenSabotaged: this._hasLastRoundBeenSabotaged,
-      hasApprovedProgressiveLaw: this.hasApprovedLaw(LawType.PROGRESSISTAS),
-      hasMinLawsToRadicalization: this.hasMinLawsToRadicalization(),
-      isDossierFake: this.isDossierFake,
-      isLegislativeVotingSecret: this.isLegislativeVotingSecret,
-      presidentId: this.president.id,
-      requiredVeto: this.requiredVeto,
-      crisis: this._crisis,
-    });
-  }
+    const factories: StageFactory[] = [
+      new ImpeachmentStageFactory(this.president.id, this._hasImpeachment),
+      new CrisisStageFactory(this._crisis),
+      new LegislativeStageFactory(
+        this.requiredVeto,
+        this.isLegislativeVotingSecret,
+      ),
+      new DossierStageFactory(this.drawnLaws, this.isDossierFake),
+      new SabotageStageFactory(
+        this.hasApprovedLaw(LawType.PROGRESSISTAS),
+        this._hasLastRoundBeenSabotaged,
+      ),
+      new RadicalizationStageFactory(
+        this.totalApprovedLaws(LawType.CONSERVADORES),
+        this.totalApprovedLaws(LawType.PROGRESSISTAS),
+        this._minRadicalizationConservativeLaws,
+        this._minRadicalizationProgressiveLaws,
+      ),
+    ];
 
-  private hasMinLawsToRadicalization(): boolean {
-    const legislativeStages = this._stages.filter(
-      (stage): stage is LegislativeStage => stage instanceof LegislativeStage,
-    );
-
-    const conservativeLaws = legislativeStages.filter(
-      (stage) => stage.lawToVote?.type === LawType.CONSERVADORES,
-    ).length;
-    const progressiveLaws = legislativeStages.filter(
-      (stage) => stage.lawToVote?.type === LawType.PROGRESSISTAS,
-    ).length;
-
-    const totalConservativeLaws =
-      this._previouslyApprovedConservativeLaws + conservativeLaws;
-    const totalProgressiveLaws =
-      this._previouslyApprovedProgressiveLaws + progressiveLaws;
-
-    return (
-      totalConservativeLaws >= this._minRadicalizationConservativeLaws ||
-      totalProgressiveLaws >= this._minRadicalizationProgressiveLaws
-    );
+    return this._stageQueue.nextStage(factories);
   }
 
   hasApprovedLaw(type: LawType): boolean {
@@ -134,6 +126,26 @@ export class Round {
     return legislativeStages.some(
       (stage) => stage.lawToVote?.type === type && stage.votingResult,
     );
+  }
+
+  totalApprovedLaws(type: LawType): number {
+    const legislativeStages = this._stages.filter(
+      (stage): stage is LegislativeStage => stage instanceof LegislativeStage,
+    );
+
+    const approvedThisRound = legislativeStages.filter(
+      (stage) => stage.lawToVote?.type === type && stage.votingResult,
+    ).length;
+
+    return this.previouslyApprovedLaws(type) + approvedThisRound;
+  }
+
+  previouslyApprovedLaws(type: LawType): number {
+    if (type === LawType.CONSERVADORES) {
+      return this._previouslyApprovedConservativeLaws;
+    }
+
+    return this._previouslyApprovedProgressiveLaws;
   }
 
   get currentStage(): Stage {

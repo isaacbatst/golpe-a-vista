@@ -1,4 +1,6 @@
+import { StageType } from 'src/domain/stage/stage';
 import { describe, expect, it } from 'vitest';
+import { Law } from '../data/laws';
 import { CafeComAbin } from './crisis/cafe-com-abin';
 import { FmiMandou } from './crisis/fmi-mandou';
 import { ForcasOcultas } from './crisis/forcas-ocultas';
@@ -9,14 +11,12 @@ import { Player } from './player';
 import { PresidentQueue } from './president-queue';
 import { LawType, Role } from './role';
 import { Round } from './round';
-import { RoundStageIndex, StageQueue } from './stage/stage-queue';
 import { CrisisStage } from './stage/crisis-stage';
 import { DossierAction, DossierStage } from './stage/dossier-stage';
 import { ImpeachmentAction, ImpeachmentStage } from './stage/impeachment-stage';
 import { LegislativeAction, LegislativeStage } from './stage/legislative-stage';
-import { RadicalizationStage } from './stage/radicalization-stage';
 import { SabotageAction, SabotageStage } from './stage/sabotage-stage';
-import { Law } from '../data/laws';
+import { RoundStageIndex, StageQueue } from './stage/stage-queue';
 
 describe('Estágios', () => {
   it('Deve iniciar Estágio Legislativo', () => {
@@ -25,7 +25,7 @@ describe('Estágios', () => {
       new Player('p2', 'p2', Role.MODERADO),
     ]);
     const round = new Round({ presidentQueue });
-    expect(round.currentStage).toBeInstanceOf(LegislativeStage);
+    expect(round.currentStage?.type).toBe(StageType.LEGISLATIVE);
   });
 
   it('Deve iniciar com Cassação caso esteja ativa nesta rodada', () => {
@@ -37,7 +37,7 @@ describe('Estágios', () => {
       presidentQueue,
       hasImpeachment: true,
     });
-    expect(round.currentStage).toBeInstanceOf(ImpeachmentStage);
+    expect(round.currentStage?.type).toBe(StageType.IMPEACHMENT);
   });
 
   it('Deve avançar de cassação para legislativo', () => {
@@ -60,7 +60,7 @@ describe('Estágios', () => {
     });
     const [error, stage] = round.nextStage();
     expect(error).toBeUndefined();
-    expect(stage).toBeInstanceOf(LegislativeStage);
+    expect(stage?.type).toBe(StageType.LEGISLATIVE);
   });
 
   it('Não deve avançar para o Dossiê sem finalizar o Estágio Legislativo', () => {
@@ -90,7 +90,7 @@ describe('Estágios', () => {
     });
     const [error, stage] = round.nextStage();
     expect(error).toBeUndefined();
-    expect(stage).toBeInstanceOf(DossierStage);
+    expect(stage?.type).toBe(StageType.REPORT_DOSSIER);
   });
 
   it('Deve finalizar round após o dossiê', () => {
@@ -158,7 +158,7 @@ describe('Estágios', () => {
     });
     const [error, stage] = round.nextStage();
     expect(error).toBeUndefined();
-    expect(stage).toBeInstanceOf(SabotageStage);
+    expect(stage?.type).toBe(StageType.SABOTAGE);
   });
 
   it('Deve avançar do Dossiê para o estágio de Radicalização se não houver Sabotagem, pelo menos X leis progressistas ou Y leis conservadoras foram ativadas e a rodada atual tiver uma crise', () => {
@@ -171,7 +171,7 @@ describe('Estágios', () => {
       previouslyApprovedConservativeLaws: 2,
       previouslyApprovedProgressiveLaws: 2,
       crisis: new PlanoCohen(),
-      stageQueue: new StageQueue(RoundStageIndex.SABOTAGE),
+      stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION),
       stages: [
         new LegislativeStage({
           mustVeto: null,
@@ -185,7 +185,7 @@ describe('Estágios', () => {
     });
     const [error, stage] = round.nextStage();
     expect(error).toBeUndefined();
-    expect(stage).toBeInstanceOf(RadicalizationStage);
+    expect(stage?.type).toBe(StageType.RADICALIZATION);
   });
 
   it('Deve avançar do estágio de Sabotagem para o estágio de Radicalização se a rodada anterior foi sabotada e cumprir as condições de radicalização', () => {
@@ -199,12 +199,12 @@ describe('Estágios', () => {
       previouslyApprovedProgressiveLaws: 2,
       crisis: new PlanoCohen(),
       stages: [new SabotageStage(SabotageAction.ADVANCE_STAGE)],
-      stageQueue: new StageQueue(RoundStageIndex.SABOTAGE),
+      stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION),
       hasLastRoundBeenSabotaged: true,
     });
     const [error, stage] = round.nextStage();
     expect(error).toBeUndefined();
-    expect(stage).toBeInstanceOf(RadicalizationStage);
+    expect(stage?.type).toBe(StageType.RADICALIZATION);
   });
 
   it('Deve retornar a crise selecionada na sabotagem', () => {
@@ -252,7 +252,7 @@ describe('Crises', () => {
         crisis: new PlanoCohen(),
       });
 
-      expect(round.currentStage).toBeInstanceOf(CrisisStage);
+      expect(round.currentStage.type).toBe(StageType.CRISIS);
       const crisisStage = round.currentStage as CrisisStage;
       crisisStage.executeEffect(round);
       expect(round.isDossierFake).toBe(true);
@@ -267,7 +267,7 @@ describe('Crises', () => {
         presidentQueue: new PresidentQueue([president, nextPresident]),
         crisis: new CafeComAbin(),
       });
-      expect(round.currentStage).toBeInstanceOf(CrisisStage);
+      expect(round.currentStage.type).toBe(StageType.CRISIS);
       const crisisStage = round.currentStage as CrisisStage;
       crisisStage.executeEffect(round);
       expect(round.isDossierOmitted).toBe(true);
@@ -285,13 +285,13 @@ describe('Crises', () => {
         presidentQueue: new PresidentQueue([president, nextPresident]),
         crisis: factory(),
       });
-      expect(round.currentStage).toBeInstanceOf(CrisisStage);
+      expect(round.currentStage.type).toBe(StageType.CRISIS);
       const crisisStage = round.currentStage as CrisisStage;
       crisisStage.executeEffect(round);
       expect(round.requiredVeto).toBe(LawType.PROGRESSISTAS);
       const [nextStageError] = round.nextStage();
       expect(nextStageError).toBeUndefined();
-      expect(round.currentStage).toBeInstanceOf(LegislativeStage);
+      expect(round.currentStage.type).toBe(StageType.LEGISLATIVE);
       const legislativeStage = round.currentStage as LegislativeStage;
       expect(legislativeStage.mustVeto).toBe(LawType.PROGRESSISTAS);
     });
@@ -305,7 +305,7 @@ describe('Crises', () => {
         presidentQueue: new PresidentQueue([president, nextPresident]),
         crisis: new SessaoSecreta(),
       });
-      expect(round.currentStage).toBeInstanceOf(CrisisStage);
+      expect(round.currentStage.type).toBe(StageType.CRISIS);
       const crisisStage = round.currentStage as CrisisStage;
       crisisStage.executeEffect(round);
       expect(round.isLegislativeVotingSecret).toBe(true);

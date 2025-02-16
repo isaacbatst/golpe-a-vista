@@ -15,7 +15,10 @@ export type StageJSON =
   | ToJson<SabotageStage>
   | ToJson<RadicalizationStage>;
 
-export class StageFactory {
+export abstract class StageFactory {
+  abstract shouldSkip(): boolean;
+  abstract create(): Stage;
+
   static fromJSON(json: StageJSON): Stage {
     switch (json.type) {
       case StageType.CRISIS:

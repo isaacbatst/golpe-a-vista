@@ -14,6 +14,7 @@ import {
   RadicalizationStage,
 } from './stage/radicalization-stage';
 import { SabotageStage } from './stage/sabotage-stage';
+import { StageType } from 'src/domain/stage/stage';
 
 describe('Rodadas', () => {
   it('não deve finalizar rodada se ainda houver estágios a serem jogados', () => {
@@ -475,7 +476,7 @@ describe('Presidência', () => {
     });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
-    expect(game?.currentRound.currentStage).toBeInstanceOf(ImpeachmentStage);
+    expect(game?.currentRound.currentStage.type).toBe(StageType.IMPEACHMENT);
     const stage = game!.currentRound.currentStage as ImpeachmentStage;
     const target = game!.players.find((p) => p !== game?.president);
     stage.chooseTarget(target!.id, target!.role);
