@@ -37,6 +37,15 @@ export type PlayerDTO = {
   isRapporteur: boolean;
   isNextPresident: boolean;
   canSeeTeamMembers: boolean;
+  canBeRapporteur:
+    | {
+        status: true;
+        reason: undefined;
+      }
+    | {
+        status: false;
+        reason: string;
+      };
 };
 
 export enum StageType {
@@ -101,7 +110,12 @@ export type DossierStageDTO = {
   type: StageType.REPORT_DOSSIER;
 };
 
-export type StageDTO = LegislativeStageDTO | DossierStageDTO;
+export type SabotageStageDTO = {
+  currentAction: string;
+  type: StageType.SABOTAGE;
+};
+
+export type StageDTO = LegislativeStageDTO | DossierStageDTO | SabotageStageDTO;
 
 export type RoundDTO = {
   index: number;

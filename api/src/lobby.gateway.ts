@@ -12,6 +12,7 @@ import { AppService } from './app.service';
 import { LegislativeAction } from './domain/stage/legislative-stage';
 import { StageType } from './domain/stage/stage';
 import { WsExceptionFilter } from './filters/ws-exception.filter';
+import { DossierAction } from 'src/domain/stage/dossier-stage';
 
 @WebSocketGateway({
   cors: {
@@ -222,6 +223,27 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const [error, lobby] = await this.service.legislativeStageAdvanceStage({
       issuerId: client.request.session.userId,
       lobbyId: data.lobbyId,
+    });
+    if (error) {
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
+  }
+
+  @SubscribeMessage(
+    `${StageType.REPORT_DOSSIER}:${DossierAction.SELECT_RAPPORTEUR}`,
+  )
+  async selectRapporteur(
+    client: Socket,
+    data: { lobbyId: string; rapporteurId: string },
+  ) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] = await this.service.dossierStageSelectRapporteur({
+      issuerId: client.request.session.userId,
+      lobbyId: data.lobbyId,
+      rapporteurId: data.rapporteurId,
     });
     if (error) {
       return this.handleSocketError(client, error.message);

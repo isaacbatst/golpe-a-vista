@@ -1,3 +1,4 @@
+import DossierStageAdvanceStage from "@/app/lobby/[id]/stages/dossier-stage/dossier-stage-advance-stage";
 import DossierStageSelectRapporteur from "@/app/lobby/[id]/stages/dossier-stage/dossier-stage-select-rapporteur";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
@@ -17,9 +18,13 @@ const DossierStage = ({ stage }: Props) => {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="w-full max-w-[95%] xl:max-w-[80%] 2xl:max-w-screen-lg max-h-screen overflow-y-auto">
+      <DialogContent>
+        {stage.currentAction}
         {stage.currentAction === DossierAction.SELECT_RAPPORTEUR && (
-          <DossierStageSelectRapporteur stage={stage} />
+          <DossierStageSelectRapporteur />
+        )}
+        {stage.currentAction === DossierAction.ADVANCE_STAGE && (
+          <DossierStageAdvanceStage />
         )}
       </DialogContent>
     </Dialog>

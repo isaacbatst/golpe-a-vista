@@ -350,12 +350,9 @@ export class AppService {
         ),
       );
     }
-    const [error, nextStage] = lobby.currentGame.currentRound.nextStage();
+    const [error] = this.advanceStage(lobby);
     if (error) {
       return left(new InternalServerErrorException(error));
-    }
-    if (!nextStage) {
-      lobby.currentGame.nextRound();
     }
     await this.lobbyRepository.save(lobby);
     return right(lobby);
@@ -393,7 +390,26 @@ export class AppService {
     if (error) {
       return left(new InternalServerErrorException(error));
     }
+
+    if (stage.isComplete) {
+      const [error] = this.advanceStage(lobby);
+      if (error) {
+        return left(new InternalServerErrorException(error));
+      }
+    }
+
     await this.lobbyRepository.save(lobby);
     return right(lobby);
+  }
+
+  private advanceStage(lobby: Lobby): Either<string, void> {
+    const [error, nextStage] = lobby.currentGame.currentRound.nextStage();
+    if (error) {
+      return left(error);
+    }
+    if (!nextStage) {
+      lobby.currentGame.nextRound();
+    }
+    return right();
   }
 }

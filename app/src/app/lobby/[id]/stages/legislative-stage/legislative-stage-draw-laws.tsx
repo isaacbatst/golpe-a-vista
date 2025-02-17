@@ -34,11 +34,13 @@ const LegislativeStageDrawLaws = () => {
           <p className="text-sm text-gray-500 italic">
             Aguarde enquanto o Presidente toma sua decisão.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <ul className="flex flex-wrap gap-3 justify-center">
             {Array.from({ length: 3 }).map((_, index) => (
-              <LawCardFolded key={index} />
+              <li key={index} className="flex justify-center">
+                <LawCardFolded key={index} />
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </>
     );
@@ -49,23 +51,25 @@ const LegislativeStageDrawLaws = () => {
       <DialogHeader>
         <DialogTitle>Você é o Presidente!</DialogTitle>
       </DialogHeader>
-      <div className="text-sm text-muted-foreground flex flex-col gap-4">
+      <div className="text-sm text-muted-foreground flex flex-col gap-2">
         <p className="text-gray-700">
           Parabéns, <span className="font-semibold">{player.name}</span>! Você
-          assumiu o cargo de Presidente nesta rodada.
+          assumiu o cargo de Presidente nesta rodada. Você deve:
         </p>
-        <p className="text-gray-700">
-          Como sua primeira ação, você deve analisar três cartas de leis e{" "}
-          <strong>vetar uma delas</strong>. As duas restantes serão enviadas
-          para votação.
-        </p>
+        <ul className="list-disc list-inside text-gray-700">
+          <li>Sortear três cartas de leis</li>
+          <li>Vetar uma delas</li>
+          <li>Escolher uma das duas restantes para votação</li>
+        </ul>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <ul className="flex flex-wrap gap-3 justify-center">
         {Array.from({ length: 3 }).map((_, index) => (
-          <LawCardFolded key={index} />
+          <li key={index} className="flex justify-center">
+            <LawCardFolded />
+          </li>
         ))}
-      </div>
+      </ul>
       <div className="flex justify-center">
         <Button onClick={legislativeStageDrawCards}>
           <DicesIcon />

@@ -1,3 +1,4 @@
+import { DossierStage } from 'src/domain/stage/dossier-stage';
 import { Law } from '../data/laws';
 import { Crisis } from './crisis/crisis';
 import { CrisisFactory } from './crisis/crisis-factory';
@@ -337,14 +338,27 @@ export class Game {
   toJSON() {
     const approvedLaws = this.approvedLaws;
     return {
-      players: Array.from(this._players.entries()).map(([id, player]) => ({
-        ...player.toJSON(),
-        id,
-        isPresident: player === this.president,
-        isRapporteur: player.id === this.currentRound.rapporteurId,
-        isNextPresident:
-          player === this.getPresidentFromQueue(this.currentRoundIndex + 1),
-      })),
+      players: Array.from(this._players.entries()).map(([id, player]) => {
+        const [canBeRapporteurError, canBeRapporteur] =
+          DossierStage.canBeNextRapporteur({
+            chosen: player,
+            currentPresident: this.president,
+            currentRapporteur: this.rapporteur,
+            nextPresident: this.nextPresident,
+          });
+        return {
+          ...player.toJSON(),
+          id,
+          isPresident: player === this.president,
+          isRapporteur: player.id === this.currentRound.rapporteurId,
+          isNextPresident:
+            player === this.getPresidentFromQueue(this.currentRoundIndex + 1),
+          canBeRapporteur: {
+            status: canBeRapporteur ?? false,
+            reason: canBeRapporteurError,
+          },
+        };
+      }),
       rounds: this._rounds.map((round) => round.toJSON()),
       presidentQueue: this._presidentQueue.toJSON(),
       lawsDeck: this._lawsDeck.toJSON(),

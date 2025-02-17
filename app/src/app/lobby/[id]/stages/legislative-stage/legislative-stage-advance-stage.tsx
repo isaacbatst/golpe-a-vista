@@ -1,14 +1,8 @@
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { ChevronsRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DialogDescription,
-  DialogHeader,
-} from "@/components/ui/dialog";
-import {
-  LegislativeStageDTO,
-  LegislativeStageLawDTO,
-} from "@/lib/api.types";
+import { DialogDescription, DialogHeader } from "@/components/ui/dialog";
+import { LegislativeStageDTO, LegislativeStageLawDTO } from "@/lib/api.types";
 import { cn } from "@/lib/utils";
 import { useLobbyContext } from "../../lobby-context";
 import { useLobbySocketContext } from "../../lobby-socket-context";
@@ -19,6 +13,7 @@ import LawCardOverlayDiscarded from "../../law-card/law-card-overlay-discarded";
 import LawCardOverlayRejected from "../../law-card/law-card-overlay-rejected";
 import LawCardOverlayVetoed from "../../law-card/law-card-overlay-vetoed";
 import LegislativeStageVotingStatus from "./legislative-stage-voting-status";
+import AlertIndicator from "@/components/alert-indicator";
 
 const LegislativeStageAdvanceStage = () => {
   const { player: me } = usePlayerContext();
@@ -91,12 +86,13 @@ const LegislativeStageAdvanceStage = () => {
       </ul>
       {me.isPresident && (
         <Button
-          className="mt-6"
+          className="mt-6 relative"
           size="lg"
           onClick={legislativeStageAdvanceStage}
         >
           <ChevronsRight />
           Próxima Pauta
+          <AlertIndicator />
         </Button>
       )}
     </div>

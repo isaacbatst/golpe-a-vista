@@ -51,20 +51,15 @@ export class DossierStage extends Stage {
       return left('Apenas o presidente pode escolher o relator');
     }
 
-    if (params.currentPresident.id === params.chosen.id) {
-      return left('O presidente não pode ser o próximo relator');
-    }
+    const [canBeNextRapporteurError] = DossierStage.canBeNextRapporteur({
+      chosen: params.chosen,
+      currentPresident: params.currentPresident,
+      nextPresident: params.nextPresident,
+      currentRapporteur: params.currentRapporteur,
+    });
 
-    if (params.currentRapporteur?.id === params.chosen.id) {
-      return left('O relator anterior não pode ser o relator');
-    }
-
-    if (params.nextPresident.id === params.chosen.id) {
-      return left('O próximo presidente não pode ser o relator');
-    }
-
-    if (params.chosen.impeached) {
-      return left('O relator não pode ter sido cassado');
+    if (canBeNextRapporteurError) {
+      return left(canBeNextRapporteurError);
     }
 
     this._nextRapporteurId = params.chosen.id;
@@ -127,5 +122,27 @@ export class DossierStage extends Stage {
       ...data,
       drawnLaws: data.dossier.map((law) => Law.fromJSON(law)),
     });
+  }
+
+  static canBeNextRapporteur(params: {
+    chosen: Player;
+    currentPresident: Player;
+    nextPresident: Player;
+    currentRapporteur: Player | null;
+  }): Either<string, true> {
+    if (params.chosen.id === params.currentPresident.id) {
+      return left('O presidente não pode ser o próximo relator');
+    }
+    if (params.currentRapporteur?.id === params.chosen.id) {
+      return left('O relator atual não pode ser o próximo relator');
+    }
+    if (params.nextPresident.id === params.chosen.id) {
+      return left('O próximo presidente não pode ser o relator');
+    }
+    if (params.chosen.impeached) {
+      return left('O relator não pode ter sido cassado');
+    }
+
+    return right(true);
   }
 }

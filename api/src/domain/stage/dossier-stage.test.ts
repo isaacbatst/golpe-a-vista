@@ -52,7 +52,7 @@ describe('Estágio do Dossiê', () => {
       currentRapporteur,
       chosen: currentRapporteur,
     });
-    expect(error).toBe('O relator anterior não pode ser o relator');
+    expect(error).toBe('O relator atual não pode ser o próximo relator');
   });
 
   it('não deve permitir que o relator da próxima rodada seja o próximo presidente', () => {

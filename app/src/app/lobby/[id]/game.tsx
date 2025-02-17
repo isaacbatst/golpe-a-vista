@@ -12,6 +12,7 @@ import { useLobbySocketContext } from "./lobby-socket-context";
 import { PlayerContextProvider } from "./player-context";
 import PlayersGrid from "./players-grid";
 import LegislativeStage from "./stages/legislative-stage/legislative-stage";
+import SabotageStage from "@/app/lobby/[id]/stages/sabotage-stage/sabotage-stage";
 
 type Props = {
   userId: string;
@@ -67,6 +68,12 @@ export default function Game({ userId, lobby }: Props) {
               {lobby.currentGame.currentRound.currentStage.type ===
                 StageType.REPORT_DOSSIER && (
                 <DossierStage
+                  stage={lobby.currentGame.currentRound.currentStage}
+                />
+              )}
+              {lobby.currentGame.currentRound.currentStage.type ===
+                StageType.SABOTAGE && (
+                <SabotageStage
                   stage={lobby.currentGame.currentRound.currentStage}
                 />
               )}

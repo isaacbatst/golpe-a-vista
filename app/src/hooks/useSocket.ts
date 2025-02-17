@@ -1,8 +1,10 @@
+"use client";
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { mutate } from "swr";
 import { API_URL } from "../constants";
 import { getUseLobbyKey } from "./api/useLobby";
+import { toast } from "sonner";
 
 export default function useSocket(lobbyId: string) {
   const socket = useRef<Socket | null>(null);
@@ -28,8 +30,8 @@ export default function useSocket(lobbyId: string) {
         mutate(getUseLobbyKey(lobbyId), lobby);
       });
 
-      socket.current.on("error", (error: { message: string }) => { 
-        console.log('message', error.message);
+      socket.current.on("error", (error: { message: string }) => {
+        toast.error(error.message);
         setError(error.message);
       });
     };

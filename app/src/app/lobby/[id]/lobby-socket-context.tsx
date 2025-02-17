@@ -1,6 +1,10 @@
 import { createContext, PropsWithChildren, useContext } from "react";
 import useSocket from "../../../hooks/useSocket";
-import { LegislativeAction, StageType } from "../../../lib/api.types";
+import {
+  DossierAction,
+  LegislativeAction,
+  StageType,
+} from "../../../lib/api.types";
 
 type LobbySocketContextType = {
   error: string | null;
@@ -12,6 +16,7 @@ type LobbySocketContextType = {
   legislativeStageChooseLawForVoting: (lawId: string) => void;
   legislativeStageVoting: (vote: boolean) => void;
   legislativeStageAdvanceStage: () => void;
+  dossierStageSelectRapporteur: (playerId: string) => void;
 };
 
 export const LobbySocketContext = createContext<LobbySocketContextType>(
@@ -67,6 +72,15 @@ export const LobbySocketProvider = ({
           socket?.emit(
             `${StageType.LEGISLATIVE}:${LegislativeAction.ADVANCE_STAGE}`,
             { lobbyId }
+          );
+        },
+        dossierStageSelectRapporteur: (rapporteurId: string) => {
+          socket?.emit(
+            `${StageType.REPORT_DOSSIER}:${DossierAction.SELECT_RAPPORTEUR}`,
+            {
+              lobbyId,
+              rapporteurId,
+            }
           );
         },
       }}
