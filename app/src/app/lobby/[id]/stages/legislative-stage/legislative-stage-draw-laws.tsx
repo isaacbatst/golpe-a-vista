@@ -4,7 +4,7 @@ import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useLobbyContext } from "../../lobby-context";
 import { useLobbySocketContext } from "../../lobby-socket-context";
 import { usePlayerContext } from "../../player-context";
-import LawCardFolded from "../../law-card/law-card-folded";
+import LawCardFolded from "@/components/law-card/law-card-folded";
 
 const LegislativeStageDrawLaws = () => {
   const { player } = usePlayerContext();

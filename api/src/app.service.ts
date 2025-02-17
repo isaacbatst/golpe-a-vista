@@ -402,6 +402,65 @@ export class AppService {
     return right(lobby);
   }
 
+  async dossierStagePassDossier(input: {
+    lobbyId: string;
+    issuerId: string;
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException('Lobby não encontrado'));
+    }
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (stage instanceof DossierStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível receber o Dossiê fora do estágio de Dossiê',
+        ),
+      );
+    }
+    if (lobby.currentGame.rapporteur?.id !== input.issuerId) {
+      return left(
+        new UnprocessableEntityException(
+          'Apenas o relator pode receber o dossiê',
+        ),
+      );
+    }
+
+    const [error] = stage.passDossier(
+      lobby.currentGame.lawsDeck,
+      lobby.currentGame.rapporteur,
+    );
+    if (error) {
+      return left(new InternalServerErrorException(error));
+    }
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
+  async dossierStageAdvanceStage(input: {
+    lobbyId: string;
+    issuerId: string;
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException('Lobby não encontrado'));
+    }
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (stage instanceof DossierStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível avançar a ação fora do estágio de Dossiê',
+        ),
+      );
+    }
+    const [error] = this.advanceStage(lobby);
+    if (error) {
+      return left(new InternalServerErrorException(error));
+    }
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
   private advanceStage(lobby: Lobby): Either<string, void> {
     const [error, nextStage] = lobby.currentGame.currentRound.nextStage();
     if (error) {

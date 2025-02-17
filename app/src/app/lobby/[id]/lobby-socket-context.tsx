@@ -17,6 +17,8 @@ type LobbySocketContextType = {
   legislativeStageVoting: (vote: boolean) => void;
   legislativeStageAdvanceStage: () => void;
   dossierStageSelectRapporteur: (playerId: string) => void;
+  dossierStagePassDossier: () => void;
+  dossierStageAdvanceStage: () => void;
 };
 
 export const LobbySocketContext = createContext<LobbySocketContextType>(
@@ -81,6 +83,18 @@ export const LobbySocketProvider = ({
               lobbyId,
               rapporteurId,
             }
+          );
+        },
+        dossierStagePassDossier: () => {
+          socket?.emit(
+            `${StageType.REPORT_DOSSIER}:${DossierAction.PASS_DOSSIER}`,
+            { lobbyId }
+          );
+        },
+        dossierStageAdvanceStage: () => {
+          socket?.emit(
+            `${StageType.REPORT_DOSSIER}:${DossierAction.ADVANCE_STAGE}`,
+            { lobbyId }
           );
         },
       }}

@@ -1,7 +1,7 @@
 import React, { PropsWithChildren } from "react";
-import { Button } from "../../../../components/ui/button";
+import { Button } from "@/components/ui/button";
 import { DynamicIcon } from "lucide-react/dynamic";
-import { cn } from "../../../../lib/utils";
+import { cn } from "@/lib/utils";
 
 type Props = {
   icon: React.ComponentProps<typeof DynamicIcon>["name"];

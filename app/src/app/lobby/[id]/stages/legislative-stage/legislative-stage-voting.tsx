@@ -6,11 +6,11 @@ import {
 } from "@/lib/api.types";
 import { useLobbyContext } from "../../lobby-context";
 import { usePlayerContext } from "../../player-context";
-import LawCard from "../../law-card/law-card";
-import LawCardFolded from "../../law-card/law-card-folded";
-import LawCardOverlayDiscarded from "../../law-card/law-card-overlay-discarded";
-import LawCardOverlayVetoed from "../../law-card/law-card-overlay-vetoed";
-import LawCardOverlayVoting from "../../law-card/law-card-overlay-voting";
+import LawCard from "@/components/law-card/law-card";
+import LawCardFolded from "@/components/law-card/law-card-folded";
+import LawCardOverlayDiscarded from "@/app/lobby/[id]/law-card/law-card-overlay-discarded";
+import LawCardOverlayVetoed from "@/app/lobby/[id]/law-card/law-card-overlay-vetoed";
+import LawCardOverlayVoting from "@/app/lobby/[id]/law-card/law-card-overlay-voting";
 import LegislativeStageVotingStatus from "./legislative-stage-voting-status";
 
 const LegislativeStageVoting = () => {

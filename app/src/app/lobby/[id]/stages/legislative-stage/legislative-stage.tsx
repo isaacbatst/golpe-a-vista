@@ -26,7 +26,7 @@ const LegislativeStage = ({ stage }: Props) => {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="w-full max-w-[95%] xl:max-w-[80%] 2xl:max-w-screen-lg max-h-screen overflow-y-auto">
+      <DialogContent className="w-full max-w-[95%] xl:max-w-[80%] 2xl:max-w-screen-lg max-h-[90vh] overflow-y-auto">
         {stage.currentAction}
         {stage.currentAction === LegislativeAction.DRAW_LAWS && (
           <LegislativeStageDrawLaws />

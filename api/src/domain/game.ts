@@ -186,10 +186,6 @@ export class Game {
   }
 
   get nextRoundShouldImpeach() {
-    if (this.currentRound.hasApprovedLaw(LawType.CONSERVADORES)) {
-      return true;
-    }
-
     const crisesCount = this._rounds.filter((round) => round.crisis).length;
     if (crisesCount > 0 && crisesCount % this._crisesIntervalToImpeach === 0) {
       return true;

@@ -250,4 +250,36 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     this.server.to(data.lobbyId).emit('lobby:updated', lobby);
   }
+
+  @SubscribeMessage(`${StageType.REPORT_DOSSIER}:${DossierAction.PASS_DOSSIER}`)
+  async passDossier(client: Socket, data: { lobbyId: string }) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] = await this.service.dossierStagePassDossier({
+      issuerId: client.request.session.userId,
+      lobbyId: data.lobbyId,
+    });
+    if (error) {
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
+  }
+
+  @SubscribeMessage(
+    `${StageType.REPORT_DOSSIER}:${DossierAction.ADVANCE_STAGE}`,
+  )
+  async advanceDossierStage(client: Socket, data: { lobbyId: string }) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] = await this.service.dossierStageAdvanceStage({
+      issuerId: client.request.session.userId,
+      lobbyId: data.lobbyId,
+    });
+    if (error) {
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
+  }
 }

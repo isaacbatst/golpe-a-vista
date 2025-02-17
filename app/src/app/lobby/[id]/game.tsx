@@ -59,6 +59,7 @@ export default function Game({ userId, lobby }: Props) {
                 lawsToConservativeWin={lobby.currentGame.lawsToConservativeWin}
                 lawsToProgressiveWin={lobby.currentGame.lawsToProgressiveWin}
               />
+              {lobby.currentGame.currentRound.currentStage.type}
               {lobby.currentGame.currentRound.currentStage.type ===
                 StageType.LEGISLATIVE && (
                 <LegislativeStage

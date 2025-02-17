@@ -108,6 +108,7 @@ export type LegislativeStageDTO = {
 export type DossierStageDTO = {
   currentAction: DossierAction;
   type: StageType.REPORT_DOSSIER;
+  dossier: LawDTO[];
 };
 
 export type SabotageStageDTO = {
@@ -129,6 +130,7 @@ export type RoundDTO = {
   nextPresident: PlayerDTO;
   finished: boolean;
   currentStage: StageDTO;
+  rapporteur: string | null;
 };
 
 export type GameDTO = {

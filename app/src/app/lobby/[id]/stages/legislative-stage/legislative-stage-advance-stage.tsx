@@ -7,11 +7,11 @@ import { cn } from "@/lib/utils";
 import { useLobbyContext } from "../../lobby-context";
 import { useLobbySocketContext } from "../../lobby-socket-context";
 import { usePlayerContext } from "../../player-context";
-import LawCard from "../../law-card/law-card";
-import LawCardFolded from "../../law-card/law-card-folded";
-import LawCardOverlayDiscarded from "../../law-card/law-card-overlay-discarded";
-import LawCardOverlayRejected from "../../law-card/law-card-overlay-rejected";
-import LawCardOverlayVetoed from "../../law-card/law-card-overlay-vetoed";
+import LawCard from "@/components/law-card/law-card";
+import LawCardFolded from "@/components/law-card/law-card-folded";
+import LawCardOverlayDiscarded from "@/app/lobby/[id]/law-card/law-card-overlay-discarded";
+import LawCardOverlayRejected from "@/app/lobby/[id]/law-card/law-card-overlay-rejected";
+import LawCardOverlayVetoed from "@/app/lobby/[id]/law-card/law-card-overlay-vetoed";
 import LegislativeStageVotingStatus from "./legislative-stage-voting-status";
 import AlertIndicator from "@/components/alert-indicator";
 

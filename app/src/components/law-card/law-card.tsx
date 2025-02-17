@@ -1,12 +1,12 @@
-import React from "react";
-import { useOverlay } from "../../../../hooks/useOverlay";
-import { LawType, LegislativeStageLawDTO } from "../../../../lib/api.types";
-import { cn } from "../../../../lib/utils";
-import LawCardOverlay from "./law-card-overlay";
 import PaperCard from "@/components/paper-card";
+import { useOverlay } from "@/hooks/useOverlay";
+import { LawDTO, LawType } from "@/lib/api.types";
+import { cn } from "@/lib/utils";
+import React from "react";
+import LawCardOverlay from "./law-card-overlay";
 
 type Props = {
-  law: LegislativeStageLawDTO;
+  law: LawDTO;
   overlayContent?: React.ReactNode;
   showingOverlayInitialValue?: boolean;
   isOverlayFixed?: boolean;

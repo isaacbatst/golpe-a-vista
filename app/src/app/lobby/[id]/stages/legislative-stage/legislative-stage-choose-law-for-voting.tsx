@@ -4,10 +4,10 @@ import { LegislativeStageDTO } from "@/lib/api.types";
 import { useLobbyContext } from "../../lobby-context";
 import { useLobbySocketContext } from "../../lobby-socket-context";
 import { usePlayerContext } from "../../player-context";
-import LawCard from "../../law-card/law-card";
-import LawCardFolded from "../../law-card/law-card-folded";
-import LawCardOverlayActionButton from "../../law-card/law-card-overlay-action-button";
-import LawCardOverlayVetoed from "../../law-card/law-card-overlay-vetoed";
+import LawCard from "@/components/law-card/law-card";
+import LawCardFolded from "@/components/law-card/law-card-folded";
+import LawCardOverlayActionButton from "@/components/law-card/law-card-overlay-action-button";
+import LawCardOverlayVetoed from "@/app/lobby/[id]/law-card/law-card-overlay-vetoed";
 
 const LegislativeStageChooseLawForVoting = () => {
   const { player } = usePlayerContext();

@@ -1,5 +1,5 @@
 import React from "react";
-import LawCardOverlayActionButton from "../law-card/law-card-overlay-action-button";
+import LawCardOverlayActionButton from "../../../../components/law-card/law-card-overlay-action-button";
 import { useLobbySocketContext } from "../lobby-socket-context";
 
 type Props = {
