@@ -7,6 +7,7 @@ export type PlayerParams = {
   role: Role;
   impeached?: boolean;
   radicalized?: boolean;
+  saboteur?: boolean;
 };
 
 export class Player {
@@ -16,6 +17,7 @@ export class Player {
     private readonly _role: Role,
     public impeached = false,
     private _radicalized = false,
+    private readonly _saboteur = false,
   ) {}
 
   radicalize(): Either<string, boolean> {
@@ -58,6 +60,10 @@ export class Player {
     return this._role === Role.CONSERVADOR;
   }
 
+  get saboteur() {
+    return this._saboteur;
+  }
+
   toJSON() {
     return {
       id: this._id,
@@ -66,6 +72,7 @@ export class Player {
       impeached: this.impeached,
       radicalized: this._radicalized,
       canSeeTeamMembers: this.canSeeTeamMembers,
+      saboteur: this._saboteur,
     };
   }
 
@@ -76,6 +83,7 @@ export class Player {
       data.role,
       data.impeached,
       data.radicalized,
+      data.saboteur ?? false,
     );
   }
 }

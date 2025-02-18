@@ -30,10 +30,35 @@ export class Game {
     roles: Role[] = Game.rolesByPlayersLength(players.length),
   ): Map<string, Player> {
     const rolesToDistribute = [...roles];
+
+    let alreadyHasSaboteur = false;
+
     return new Map(
       players.map(([id, name]) => {
         const role = Random.extractFromArray(rolesToDistribute);
-        return [id, new Player(id, name, role)];
+        const areThereConservativesRemaining = rolesToDistribute.includes(
+          Role.CONSERVADOR,
+        );
+        let isSaboteur = false;
+        if (
+          role === Role.CONSERVADOR &&
+          !alreadyHasSaboteur &&
+          areThereConservativesRemaining
+        ) {
+          isSaboteur = Random.boolean();
+          alreadyHasSaboteur = isSaboteur;
+        }
+
+        if (
+          role === Role.CONSERVADOR &&
+          !alreadyHasSaboteur &&
+          !areThereConservativesRemaining
+        ) {
+          isSaboteur = true;
+          alreadyHasSaboteur = true;
+        }
+
+        return [id, new Player(id, name, role, false, false, isSaboteur)];
       }),
     );
   }

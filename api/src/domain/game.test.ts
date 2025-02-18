@@ -145,6 +145,28 @@ describe('Distribuição de Papéis', () => {
       game!.players.filter((p) => p.role === Role.CONSERVADOR).length,
     ).toBe(2);
   });
+
+  it('deve definir um dos conservadores como sabotador', () => {
+    const crisesDeck = makeCrisesDeck();
+    const lawsDeck = makeLawsDeck();
+
+    const [error, game] = Game.create({
+      players: Game.createPlayers([
+        ['p1', 'p1'],
+        ['p2', 'p2'],
+        ['p3', 'p3'],
+        ['p4', 'p4'],
+        ['p5', 'p5'],
+        ['p6', 'p6'],
+        ['p7', 'p7'],
+      ]),
+      crisesDeck,
+      lawsDeck,
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+    expect(game!.players.filter((p) => p.saboteur).length).toBe(1);
+  });
 });
 
 describe('Crises', () => {
