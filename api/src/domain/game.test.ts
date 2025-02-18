@@ -301,6 +301,7 @@ describe('Crises', () => {
     const crisesDeck = makeCrisesDeck();
     const lawsDeck = makeLawsDeck('progressive');
     const sabotageStage = new SabotageStage();
+    sabotageStage.sabotageOrSkip(true);
     sabotageStage.drawCrises(crisesDeck);
     sabotageStage.chooseSabotageCrisis(0);
     const players = Game.createPlayers([

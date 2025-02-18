@@ -5,6 +5,7 @@ import { Either, left, right } from '../either';
 import { Stage, StageType } from './stage';
 
 export enum SabotageAction {
+  SABOTAGE_OR_SKIP = 'SABOTAGE_OR_SKIP',
   DRAW_CRISIS = 'DRAW_CRISIS',
   CHOOSE_CRISIS = 'CHOOSE_CRISIS',
   ADVANCE_STAGE = 'ADVANCE_STAGE',
@@ -20,9 +21,29 @@ export class SabotageStage extends Stage {
     crisesDrawn?: Crisis[],
     selectedCrisis?: Crisis,
   ) {
-    super(['DRAW_CRISIS', 'CHOOSE_CRISIS', 'ADVANCE_STAGE'], currentAction);
+    super(
+      [
+        SabotageAction.SABOTAGE_OR_SKIP,
+        SabotageAction.DRAW_CRISIS,
+        SabotageAction.CHOOSE_CRISIS,
+        SabotageAction.ADVANCE_STAGE,
+      ],
+      currentAction,
+    );
     this._crisesDrawn = crisesDrawn ?? null;
     this._selectedCrisis = selectedCrisis ?? null;
+  }
+
+  sabotageOrSkip(sabotage: boolean): Either<string, void> {
+    const [error] = this.assertCurrentAction('SABOTAGE_OR_SKIP');
+    if (error) return left(error);
+
+    if (sabotage) {
+      this.advanceAction();
+    } else {
+      this.advanceAction(SabotageAction.ADVANCE_STAGE);
+    }
+    return right();
   }
 
   drawCrises(crisesDeck: Deck<Crisis>): Either<string, Crisis[]> {
