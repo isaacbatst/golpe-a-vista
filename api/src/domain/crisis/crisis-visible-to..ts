@@ -1,5 +1,5 @@
 export enum CrisisVisibleTo {
-  ALL = 'ALL',
-  PRESIDENT = 'PRESIDENT',
-  RAPPORTEUR = 'RAPPORTEUR',
+  ALL = 'Todos',
+  PRESIDENT = 'Presidente',
+  RAPPORTEUR = 'Relator',
 }

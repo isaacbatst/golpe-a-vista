@@ -1,18 +1,25 @@
+import { usePlayerContext } from "@/app/lobby/[id]/player-context";
+import SabotageStageConservative from "@/app/lobby/[id]/stages/sabotage-stage/sabotage-stage-conservative";
+import SabotageStageNonConservatives from "@/app/lobby/[id]/stages/sabotage-stage/sabotage-stage-non-conservatives";
+import SabotageStageSaboteur from "@/app/lobby/[id]/stages/sabotage-stage/sabotage-stage-saboteur";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { SabotageStageDTO } from "@/lib/api.types";
-import { DialogTitle } from "@radix-ui/react-dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Role, SabotageAction, SabotageStageDTO } from "@/lib/api.types";
+import { cn } from "@/lib/utils";
 import { Info } from "lucide-react";
 type Props = {
   stage: SabotageStageDTO;
 };
 
 const SabotageStage = ({ stage }: Props) => {
+  const { player } = usePlayerContext();
+
+  const isShowingCards =
+    player.saboteur &&
+    [SabotageAction.DRAW_CRISIS, SabotageAction.CHOOSE_CRISIS].includes(
+      stage.currentAction
+    );
+
   return (
     <Dialog defaultOpen={true}>
       <DialogTrigger asChild>
@@ -22,12 +29,23 @@ const SabotageStage = ({ stage }: Props) => {
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Sabotagem</DialogTitle>
-        </DialogHeader>
+      <DialogContent
+        className={cn({
+          "w-full max-w-[95%] xl:max-w-[80%] 2xl:max-w-screen-lg max-h-[90vh] overflow-y-auto":
+            isShowingCards,
+        })}
+      >
+        {stage.currentAction}
         <div>
-          {stage.currentAction}
+          {player.role !== Role.CONSERVADOR && (
+            <SabotageStageNonConservatives player={player} />
+          )}
+          {player.role === Role.CONSERVADOR && !player.saboteur && (
+            <SabotageStageConservative />
+          )}
+          {player.role === Role.CONSERVADOR && player.saboteur && (
+            <SabotageStageSaboteur stage={stage} />
+          )}
         </div>
       </DialogContent>
     </Dialog>

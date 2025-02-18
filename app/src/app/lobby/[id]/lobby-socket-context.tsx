@@ -3,6 +3,7 @@ import useSocket from "../../../hooks/useSocket";
 import {
   DossierAction,
   LegislativeAction,
+  SabotageAction,
   StageType,
 } from "../../../lib/api.types";
 
@@ -19,6 +20,9 @@ type LobbySocketContextType = {
   dossierStageSelectRapporteur: (playerId: string) => void;
   dossierStagePassDossier: () => void;
   dossierStageAdvanceStage: () => void;
+  sabotageStageSabotageOrSkip: (sabotage: boolean) => void;
+  sabotageStageDrawCrises: () => void;
+  sabotageStageAdvanceStage: () => void;
 };
 
 export const LobbySocketContext = createContext<LobbySocketContextType>(
@@ -94,6 +98,23 @@ export const LobbySocketProvider = ({
         dossierStageAdvanceStage: () => {
           socket?.emit(
             `${StageType.REPORT_DOSSIER}:${DossierAction.ADVANCE_STAGE}`,
+            { lobbyId }
+          );
+        },
+        sabotageStageSabotageOrSkip: (sabotage: boolean) => {
+          socket?.emit(
+            `${StageType.SABOTAGE}:${SabotageAction.SABOTAGE_OR_SKIP}`,
+            { lobbyId, sabotage }
+          );
+        },
+        sabotageStageDrawCrises: () => {
+          socket?.emit(`${StageType.SABOTAGE}:${SabotageAction.DRAW_CRISIS}`, {
+            lobbyId,
+          });
+        },
+        sabotageStageAdvanceStage: () => {
+          socket?.emit(
+            `${StageType.SABOTAGE}:${SabotageAction.ADVANCE_STAGE}`,
             { lobbyId }
           );
         },

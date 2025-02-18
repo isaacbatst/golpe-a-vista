@@ -13,6 +13,7 @@ import { LegislativeAction } from './domain/stage/legislative-stage';
 import { StageType } from './domain/stage/stage';
 import { WsExceptionFilter } from './filters/ws-exception.filter';
 import { DossierAction } from 'src/domain/stage/dossier-stage';
+import { SabotageAction } from 'src/domain/stage/sabotage-stage';
 
 @WebSocketGateway({
   cors: {
@@ -276,6 +277,55 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const [error, lobby] = await this.service.dossierStageAdvanceStage({
       issuerId: client.request.session.userId,
       lobbyId: data.lobbyId,
+    });
+    if (error) {
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
+  }
+
+  @SubscribeMessage(`${StageType.SABOTAGE}:${SabotageAction.SABOTAGE_OR_SKIP}`)
+  async sabotageOrSkip(
+    client: Socket,
+    data: { lobbyId: string; sabotage: boolean },
+  ) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] = await this.service.sabotageStageSabotageOrSkip({
+      issuerId: client.request.session.userId,
+      lobbyId: data.lobbyId,
+      sabotage: data.sabotage,
+    });
+    if (error) {
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
+  }
+
+  @SubscribeMessage(`${StageType.SABOTAGE}:${SabotageAction.ADVANCE_STAGE}`)
+  async advanceSabotageStage(client: Socket, data: { lobbyId: string }) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] = await this.service.sabotageStageAdvanceStage({
+      issuerId: client.request.session.userId,
+      lobbyId: data.lobbyId,
+    });
+    if (error) {
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
+  }
+
+  @SubscribeMessage(`${StageType.SABOTAGE}:${SabotageAction.DRAW_CRISIS}`)
+  async drawCrises(client: Socket, data: { lobbyId: string }) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] = await this.service.sabotageDrawCrises({
+      lobbyId: data.lobbyId,
+      issuerId: client.request.session.userId,
     });
     if (error) {
       return this.handleSocketError(client, error.message);

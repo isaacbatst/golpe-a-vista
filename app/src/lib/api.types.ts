@@ -24,15 +24,22 @@ export type CrisisDTO = {
   notVisibleTo: string[];
   currentAction: string;
   isComplete: boolean;
-  actions: string;
+  actions: string[];
 };
+
+export enum Role {
+  RADICAL = "Radical",
+  MODERADO = "Moderado",
+  CONSERVADOR = "Conservador",
+}
 
 export type PlayerDTO = {
   id: string;
   name: string;
-  role: string;
+  role: Role;
   impeached: boolean;
   radicalized: boolean;
+  saboteur: boolean;
   isPresident: boolean;
   isRapporteur: boolean;
   isNextPresident: boolean;
@@ -111,9 +118,18 @@ export type DossierStageDTO = {
   dossier: LawDTO[];
 };
 
+export enum SabotageAction {
+  SABOTAGE_OR_SKIP = "SABOTAGE_OR_SKIP",
+  DRAW_CRISIS = "DRAW_CRISIS",
+  CHOOSE_CRISIS = "CHOOSE_CRISIS",
+  ADVANCE_STAGE = "ADVANCE_STAGE",
+}
+
 export type SabotageStageDTO = {
-  currentAction: string;
+  currentAction: SabotageAction;
   type: StageType.SABOTAGE;
+  drawnCrises: CrisisDTO[]
+  selectedCrisis: CrisisDTO | null;
 };
 
 export type StageDTO = LegislativeStageDTO | DossierStageDTO | SabotageStageDTO;

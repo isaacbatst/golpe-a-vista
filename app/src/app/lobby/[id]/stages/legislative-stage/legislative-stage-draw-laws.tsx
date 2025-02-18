@@ -4,7 +4,7 @@ import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useLobbyContext } from "../../lobby-context";
 import { useLobbySocketContext } from "../../lobby-socket-context";
 import { usePlayerContext } from "../../player-context";
-import LawCardFolded from "@/components/law-card/law-card-folded";
+import CardFolded from "@/components/card-folded";
 
 const LegislativeStageDrawLaws = () => {
   const { player } = usePlayerContext();
@@ -12,12 +12,13 @@ const LegislativeStageDrawLaws = () => {
   const { legislativeStageDrawCards } = useLobbySocketContext();
 
   const round = lobby.currentGame.currentRound;
+  const roundPrefix = `Rodada ${round.index + 1} - `;
 
   if (!player.isPresident) {
     return (
       <>
         <DialogHeader>
-          <DialogTitle>{round.president.name} é o Presidente!</DialogTitle>
+          <DialogTitle>{roundPrefix}{round.president.name} é o Presidente!</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-4 text-sm text-muted-foreground">
           <p className="text-gray-700">
@@ -37,7 +38,7 @@ const LegislativeStageDrawLaws = () => {
           <ul className="flex flex-wrap gap-3 justify-center">
             {Array.from({ length: 3 }).map((_, index) => (
               <li key={index} className="flex justify-center">
-                <LawCardFolded key={index} />
+                <CardFolded key={index} />
               </li>
             ))}
           </ul>
@@ -49,7 +50,7 @@ const LegislativeStageDrawLaws = () => {
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Você é o Presidente!</DialogTitle>
+        <DialogTitle>{roundPrefix}Você é o Presidente!</DialogTitle>
       </DialogHeader>
       <div className="text-sm text-muted-foreground flex flex-col gap-2">
         <p className="text-gray-700">
@@ -66,7 +67,7 @@ const LegislativeStageDrawLaws = () => {
       <ul className="flex flex-wrap gap-3 justify-center">
         {Array.from({ length: 3 }).map((_, index) => (
           <li key={index} className="flex justify-center">
-            <LawCardFolded />
+            <CardFolded />
           </li>
         ))}
       </ul>

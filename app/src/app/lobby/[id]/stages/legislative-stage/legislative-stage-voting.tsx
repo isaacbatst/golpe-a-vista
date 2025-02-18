@@ -7,7 +7,7 @@ import {
 import { useLobbyContext } from "../../lobby-context";
 import { usePlayerContext } from "../../player-context";
 import LawCard from "@/components/law-card/law-card";
-import LawCardFolded from "@/components/law-card/law-card-folded";
+import CardFolded from "@/components/card-folded";
 import LawCardOverlayDiscarded from "@/app/lobby/[id]/law-card/law-card-overlay-discarded";
 import LawCardOverlayVetoed from "@/app/lobby/[id]/law-card/law-card-overlay-vetoed";
 import LawCardOverlayVoting from "@/app/lobby/[id]/law-card/law-card-overlay-voting";
@@ -61,7 +61,7 @@ const LegislativeStageVoting = () => {
                   overlayContent={getOverlay(law)}
                 />
               ) : (
-                <LawCardFolded
+                <CardFolded
                   isOverlayFixed={!law.isLawToVote || hasAlreadyVoted}
                   isShowingOverlay={!law.isLawToVote || hasAlreadyVoted}
                   overlay={getOverlay(law)}

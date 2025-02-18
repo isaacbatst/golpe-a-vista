@@ -6,7 +6,7 @@ type Props = {
   children?: React.ReactNode;
 };
 
-const LawCardOverlay = ({ isShowing, children }: PropsWithChildren<Props>) => {
+const CardOverlay = ({ isShowing, children }: PropsWithChildren<Props>) => {
   return (
     <div
       className={cn(
@@ -20,4 +20,4 @@ const LawCardOverlay = ({ isShowing, children }: PropsWithChildren<Props>) => {
   );
 };
 
-export default LawCardOverlay;
+export default CardOverlay;

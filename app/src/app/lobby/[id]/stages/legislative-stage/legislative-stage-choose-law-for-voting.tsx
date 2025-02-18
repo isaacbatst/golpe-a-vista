@@ -5,7 +5,7 @@ import { useLobbyContext } from "../../lobby-context";
 import { useLobbySocketContext } from "../../lobby-socket-context";
 import { usePlayerContext } from "../../player-context";
 import LawCard from "@/components/law-card/law-card";
-import LawCardFolded from "@/components/law-card/law-card-folded";
+import CardFolded from "@/components/card-folded";
 import LawCardOverlayActionButton from "@/components/law-card/law-card-overlay-action-button";
 import LawCardOverlayVetoed from "@/app/lobby/[id]/law-card/law-card-overlay-vetoed";
 
@@ -40,7 +40,7 @@ const LegislativeStageChooseLawForVoting = () => {
         <ul className="flex flex-wrap gap-3 justify-center">
           {stage.drawnLaws.map((law) => (
             <li key={law.name} className="flex justify-center">
-              <LawCardFolded
+              <CardFolded
                 isShowingOverlay={law.isVetoed}
                 isOverlayFixed
                 overlay={law.isVetoed ? <LawCardOverlayVetoed /> : null}

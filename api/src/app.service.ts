@@ -12,6 +12,7 @@ import { LegislativeStage } from './domain/stage/legislative-stage';
 import { User } from './domain/user';
 import { LobbyRepository } from './lobby.repository';
 import { DossierStage } from 'src/domain/stage/dossier-stage';
+import { SabotageStage } from 'src/domain/stage/sabotage-stage';
 
 @Injectable()
 export class AppService {
@@ -454,6 +455,79 @@ export class AppService {
       );
     }
     const [error] = this.advanceStage(lobby);
+    if (error) {
+      return left(new InternalServerErrorException(error));
+    }
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
+  async sabotageStageSabotageOrSkip(input: {
+    lobbyId: string;
+    issuerId: string;
+    sabotage: boolean;
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException('Lobby não encontrado'));
+    }
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (stage instanceof SabotageStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível sabotar ou pular fora do estágio de Sabotagem',
+        ),
+      );
+    }
+    const [error] = stage.sabotageOrSkip(input.sabotage);
+    if (error) {
+      return left(new InternalServerErrorException(error));
+    }
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
+  async sabotageStageAdvanceStage(input: {
+    lobbyId: string;
+    issuerId: string;
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException('Lobby não encontrado'));
+    }
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (stage instanceof SabotageStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível avançar a ação fora do estágio de Sabotagem',
+        ),
+      );
+    }
+    const [error] = this.advanceStage(lobby);
+    if (error) {
+      return left(new InternalServerErrorException(error));
+    }
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
+  async sabotageDrawCrises(input: {
+    lobbyId: string;
+    issuerId: string;
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException('Lobby não encontrado'));
+    }
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (stage instanceof SabotageStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível sacar crises fora do estágio de Sabotagem',
+        ),
+      );
+    }
+    const [error] = stage.drawCrises(lobby.currentGame.crisesDeck);
     if (error) {
       return left(new InternalServerErrorException(error));
     }

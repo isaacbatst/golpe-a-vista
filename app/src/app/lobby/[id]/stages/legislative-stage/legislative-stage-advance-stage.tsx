@@ -8,7 +8,7 @@ import { useLobbyContext } from "../../lobby-context";
 import { useLobbySocketContext } from "../../lobby-socket-context";
 import { usePlayerContext } from "../../player-context";
 import LawCard from "@/components/law-card/law-card";
-import LawCardFolded from "@/components/law-card/law-card-folded";
+import CardFolded from "@/components/card-folded";
 import LawCardOverlayDiscarded from "@/app/lobby/[id]/law-card/law-card-overlay-discarded";
 import LawCardOverlayRejected from "@/app/lobby/[id]/law-card/law-card-overlay-rejected";
 import LawCardOverlayVetoed from "@/app/lobby/[id]/law-card/law-card-overlay-vetoed";
@@ -74,7 +74,7 @@ const LegislativeStageAdvanceStage = () => {
                   overlayContent={getOverlay(law)}
                 />
               ) : (
-                <LawCardFolded
+                <CardFolded
                   isOverlayFixed
                   isShowingOverlay
                   overlay={getOverlay(law)}

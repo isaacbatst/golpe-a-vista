@@ -1,8 +1,8 @@
 import PaperCard from "@/components/paper-card";
 import { useOverlay } from "@/hooks/useOverlay";
-import LawCardOverlay from "./law-card-overlay";
+import CardOverlay from "./card-overlay";
 
-const LawCardFolded = ({
+const CardFolded = ({
   overlay,
   isOverlayFixed = false,
   isShowingOverlay = false,
@@ -18,7 +18,7 @@ const LawCardFolded = ({
       {...containerProps}
     >
       {overlay && (
-        <LawCardOverlay isShowing={showingOverlay}>{overlay}</LawCardOverlay>
+        <CardOverlay isShowing={showingOverlay}>{overlay}</CardOverlay>
       )}
       <div className="flex flex-col items-center justify-center">
         <p className="mt-2 text-gray-800 uppercase font-bold tracking-wide text-sm">
@@ -33,4 +33,4 @@ const LawCardFolded = ({
   );
 };
 
-export default LawCardFolded;
+export default CardFolded;
