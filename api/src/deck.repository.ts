@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Deck } from './domain/deck';
+import { CrisisFactory } from 'src/domain/crisis/crisis-factory';
+import CRISES from './data/crises';
 import { Law, LAWS } from './data/laws';
 import { Crisis } from './domain/crisis/crisis';
-import CRISES from './data/crises';
-import { CrisisEffectFactory } from './domain/crisis/crisis-effect-factory';
+import { Deck } from './domain/deck';
 
 @Injectable()
 export class DeckRepository {
@@ -19,7 +19,7 @@ export class DeckRepository {
 
     const [crisesDeckError, crisesDeck] = Deck.create(
       Object.keys(CRISES).map((key: keyof typeof CRISES) =>
-        CrisisEffectFactory.create({ name: key }),
+        CrisisFactory.create(key),
       ),
     );
     if (!crisesDeck) {

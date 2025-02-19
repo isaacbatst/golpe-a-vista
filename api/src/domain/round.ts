@@ -1,3 +1,4 @@
+import { CrisisFactory } from 'src/domain/crisis/crisis-factory';
 import { CrisisStageFactory } from 'src/domain/stage/crisis-stage.factory';
 import { DossierStageFactory } from 'src/domain/stage/dossier-stage.factory';
 import { ImpeachmentStageFactory } from 'src/domain/stage/impeachment-stage.factory';
@@ -6,7 +7,6 @@ import { RadicalizationStageFactory } from 'src/domain/stage/radicalization-stag
 import { SabotageStageFactory } from 'src/domain/stage/sabotage-stage.factory';
 import { Law } from '../data/laws';
 import { Crisis } from './crisis/crisis';
-import { CrisisEffectFactory } from './crisis/crisis-effect-factory';
 import { Either, left, right } from './either';
 import { Player } from './player';
 import { PresidentQueue } from './president-queue';
@@ -282,9 +282,7 @@ export class Round {
     const round = new Round({
       ...json,
       stageQueue: StageQueue.fromJSON(json.stageQueue),
-      crisis: json.crisis
-        ? Crisis.fromJSON(json.crisis, CrisisEffectFactory)
-        : null,
+      crisis: json.crisis ? CrisisFactory.fromJSON(json.crisis) : null,
       presidentQueue,
       legislativeForcedVotes: new Map(json.legislativeForcedVotes),
       rapporteurId: json.rapporteur ?? null,

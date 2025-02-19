@@ -74,11 +74,4 @@ export class Crisis {
       notVisibleTo: this.notVisibleTo,
     };
   }
-
-  static fromJSON(
-    data: CrisisJSON,
-    factory: { fromJSON: (json: CrisisJSON) => Crisis },
-  ) {
-    return factory.fromJSON(data);
-  }
 }

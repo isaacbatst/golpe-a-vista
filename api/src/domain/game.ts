@@ -1,7 +1,7 @@
+import { CrisisFactory } from 'src/domain/crisis/crisis-factory';
 import { DossierStage } from 'src/domain/stage/dossier-stage';
 import { Law } from '../data/laws';
 import { Crisis } from './crisis/crisis';
-import { CrisisEffectFactory } from './crisis/crisis-effect-factory';
 import { Deck } from './deck';
 import { Either, left, right } from './either';
 import { Player } from './player';
@@ -408,7 +408,7 @@ export class Game {
       json.players.map((player) => [player.id, Player.fromJSON(player)]),
     );
 
-    const crisesDeck = Deck.fromJSON(json.crisesDeck, CrisisEffectFactory);
+    const crisesDeck = Deck.fromJSON(json.crisesDeck, CrisisFactory);
     const lawsDeck = Deck.fromJSON(json.lawsDeck, Law);
     const presidentQueue = PresidentQueue.fromJSON({
       offset: json.presidentQueue.offset,
