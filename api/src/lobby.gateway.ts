@@ -14,6 +14,7 @@ import { StageType } from './domain/stage/stage';
 import { WsExceptionFilter } from './filters/ws-exception.filter';
 import { DossierAction } from 'src/domain/stage/dossier-stage';
 import { SabotageAction } from 'src/domain/stage/sabotage-stage';
+import { CrisisStageAction } from 'src/domain/stage/crisis-stage';
 
 @WebSocketGateway({
   cors: {
@@ -345,6 +346,21 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       lobbyId: data.lobbyId,
       issuerId: client.request.session.userId,
       crisisIndex: data.crisisIndex,
+    });
+    if (error) {
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
+  }
+
+  @SubscribeMessage(`${StageType.CRISIS}:${CrisisStageAction.START_CRISIS}`)
+  async startCrisis(client: Socket, data: { lobbyId: string }) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] = await this.service.crisisStageStartCrisis({
+      lobbyId: data.lobbyId,
+      issuerId: client.request.session.userId,
     });
     if (error) {
       return this.handleSocketError(client, error.message);

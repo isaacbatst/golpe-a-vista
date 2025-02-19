@@ -1,19 +1,19 @@
-import { DialogTitle } from "@radix-ui/react-dialog";
-import { ChevronsRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { DialogDescription, DialogHeader } from "@/components/ui/dialog";
-import { LegislativeStageDTO, LegislativeStageLawDTO } from "@/lib/api.types";
-import { cn } from "@/lib/utils";
-import { useLobbyContext } from "../../lobby-context";
-import { useLobbySocketContext } from "../../lobby-socket-context";
-import { usePlayerContext } from "../../player-context";
-import LawCard from "@/components/law-card/law-card";
-import CardFolded from "@/components/card-folded";
 import LawCardOverlayDiscarded from "@/app/lobby/[id]/law-card/law-card-overlay-discarded";
 import LawCardOverlayRejected from "@/app/lobby/[id]/law-card/law-card-overlay-rejected";
 import LawCardOverlayVetoed from "@/app/lobby/[id]/law-card/law-card-overlay-vetoed";
-import LegislativeStageVotingStatus from "./legislative-stage-voting-status";
 import AlertIndicator from "@/components/alert-indicator";
+import CardFolded from "@/components/card-folded";
+import LawCard from "@/components/law-card/law-card";
+import { Button } from "@/components/ui/button";
+import { DialogHeader } from "@/components/ui/dialog";
+import WaitButton from "@/components/wait-button";
+import { LegislativeStageDTO, LegislativeStageLawDTO } from "@/lib/api.types";
+import { cn } from "@/lib/utils";
+import { DialogTitle } from "@radix-ui/react-dialog";
+import { useLobbyContext } from "../../lobby-context";
+import { useLobbySocketContext } from "../../lobby-socket-context";
+import { usePlayerContext } from "../../player-context";
+import LegislativeStageVotingStatus from "./legislative-stage-voting-status";
 
 const LegislativeStageAdvanceStage = () => {
   const { player: me } = usePlayerContext();
@@ -36,8 +36,8 @@ const LegislativeStageAdvanceStage = () => {
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <DialogHeader className="flex flex-col items-center mb-3">
+    <div className="flex flex-col items-center gap-4">
+      <DialogHeader className="flex flex-col items-center">
         <DialogTitle className="text-2xl font-semibold">
           <span
             className={cn("font-bebas tracking-wider text-4xl", {
@@ -48,14 +48,10 @@ const LegislativeStageAdvanceStage = () => {
             {result}
           </span>
         </DialogTitle>
-        {!me.isPresident && (
-          <DialogDescription>
-            Aguade enquanto o Presidente avança para a próxima pauta.
-          </DialogDescription>
-        )}
       </DialogHeader>
       <LegislativeStageVotingStatus
         me={me}
+        isSecret={stage.isVotingSecret}
         players={lobby.currentGame.players}
         stage={stage}
       />
@@ -84,16 +80,19 @@ const LegislativeStageAdvanceStage = () => {
           );
         })}
       </ul>
-      {me.isPresident && (
+      {me.isPresident ? (
         <Button
-          className="mt-6 relative"
+          className="relative"
           size="lg"
           onClick={legislativeStageAdvanceStage}
         >
-          <ChevronsRight />
           Próxima Pauta
           <AlertIndicator />
         </Button>
+      ) : (
+        <WaitButton>
+          Aguade enquanto o Presidente avança para a próxima pauta.
+        </WaitButton>
       )}
     </div>
   );

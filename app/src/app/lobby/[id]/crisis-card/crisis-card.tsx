@@ -1,5 +1,11 @@
 import CardOverlay from "@/components/card-overlay";
 import PaperCard from "@/components/paper-card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useOverlay } from "@/hooks/useOverlay";
 import { CrisisDTO } from "@/lib/api.types";
 import { ScanEye } from "lucide-react";
@@ -43,10 +49,21 @@ const CrisisCard = ({
       </div>
 
       <div className="flex justify-between self-end items-center mt-4 gap-2">
-        <p className="font-semibold uppercase relative font-bebas tracking-wider pl-5 py-1 flex  rounded-md ">
-          <span className="text-gray-600">{crisis.visibleTo.join(", ")}</span>
-          <ScanEye className="h-4 w-4 text-gray-500 absolute top-0 left-0" />
-        </p>
+        <TooltipProvider>
+          <Tooltip delayDuration={300}>
+            <TooltipTrigger asChild>
+              <p className="font-semibold uppercase relative font-bebas tracking-wider pl-5 py-1 flex  rounded-md ">
+                <span className="text-gray-600">
+                  {crisis.visibleTo.join(", ")}
+                </span>
+                <ScanEye className="h-4 w-4 text-gray-500 absolute top-0 left-0" />
+              </p>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Jogadores que podem ver essa crise</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </PaperCard>
   );

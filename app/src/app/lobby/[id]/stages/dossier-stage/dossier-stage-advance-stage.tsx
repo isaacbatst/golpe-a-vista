@@ -40,7 +40,12 @@ const DossierStageAdvanceStage = ({ stage }: Props) => {
             <ul className="flex gap-3">
               {stage.dossier.map((law) => (
                 <li key={law.id}>
-                  <LawCard law={law} isOverlayFixed />
+                  <LawCard law={{
+                    type: law.type,
+                    name: 'XXXX',
+                    id: 'xxxx',
+                    description: 'xxxx xxxx xxxx xxx x x xxxxxx xxx xx x x x xxxx xx xxx xxx'
+                  }} isOverlayFixed />
                 </li>
               ))}
             </ul>

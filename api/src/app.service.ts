@@ -13,6 +13,7 @@ import { User } from './domain/user';
 import { LobbyRepository } from './lobby.repository';
 import { DossierStage } from 'src/domain/stage/dossier-stage';
 import { SabotageStage } from 'src/domain/stage/sabotage-stage';
+import { CrisisStage } from 'src/domain/stage/crisis-stage';
 
 @Injectable()
 export class AppService {
@@ -351,7 +352,7 @@ export class AppService {
         ),
       );
     }
-    const [error] = this.advanceStage(lobby);
+    const [error] = this.advanceStageOrRound(lobby);
     if (error) {
       return left(new InternalServerErrorException(error));
     }
@@ -393,7 +394,7 @@ export class AppService {
     }
 
     if (stage.isComplete) {
-      const [error] = this.advanceStage(lobby);
+      const [error] = this.advanceStageOrRound(lobby);
       if (error) {
         return left(new InternalServerErrorException(error));
       }
@@ -454,7 +455,7 @@ export class AppService {
         ),
       );
     }
-    const [error] = this.advanceStage(lobby);
+    const [error] = this.advanceStageOrRound(lobby);
     if (error) {
       return left(new InternalServerErrorException(error));
     }
@@ -503,7 +504,7 @@ export class AppService {
         ),
       );
     }
-    const [error] = this.advanceStage(lobby);
+    const [error] = this.advanceStageOrRound(lobby);
     if (error) {
       return left(new InternalServerErrorException(error));
     }
@@ -560,7 +561,50 @@ export class AppService {
     return right(lobby);
   }
 
-  private advanceStage(lobby: Lobby): Either<string, void> {
+  async crisisStageStartCrisis(input: {
+    lobbyId: string;
+    issuerId: string;
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException('Lobby não encontrado'));
+    }
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (stage instanceof CrisisStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível iniciar uma crise fora do estágio de Crise',
+        ),
+      );
+    }
+
+    if (!stage.crisis && stage.isComplete) {
+      const [error] = this.advanceStageOrRound(lobby);
+      if (error) {
+        return left(new InternalServerErrorException(error));
+      }
+
+      await this.lobbyRepository.save(lobby);
+      return right(lobby);
+    }
+
+    const [error] = stage.startCrisis(lobby.currentGame.currentRound);
+    if (error) {
+      return left(new UnprocessableEntityException(error));
+    }
+
+    if (stage.isComplete) {
+      const [error] = this.advanceStageOrRound(lobby);
+      if (error) {
+        return left(new InternalServerErrorException(error));
+      }
+    }
+
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
+  private advanceStageOrRound(lobby: Lobby): Either<string, void> {
     const [error, nextStage] = lobby.currentGame.currentRound.nextStage();
     if (error) {
       return left(error);

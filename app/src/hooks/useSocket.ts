@@ -32,7 +32,6 @@ export default function useSocket(lobbyId: string) {
 
       socket.current.on("error", (error: { message: string }) => {
         toast.error(error.message);
-        setError(error.message);
       });
     };
 

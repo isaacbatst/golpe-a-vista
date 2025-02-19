@@ -1,9 +1,6 @@
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { DialogHeader } from "@/components/ui/dialog";
-import {
-  LegislativeStageDTO,
-  LegislativeStageLawDTO,
-} from "@/lib/api.types";
+import { LegislativeStageDTO, LegislativeStageLawDTO } from "@/lib/api.types";
 import { useLobbyContext } from "../../lobby-context";
 import { usePlayerContext } from "../../player-context";
 import LawCard from "@/components/law-card/law-card";
@@ -36,14 +33,15 @@ const LegislativeStageVoting = () => {
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center gap-3">
       <DialogHeader>
-        <DialogTitle className="text-2xl font-semibold mb-3">
+        <DialogTitle className="text-2xl font-semibold">
           Votação em andamento
         </DialogTitle>
       </DialogHeader>
       <LegislativeStageVotingStatus
         me={me}
+        isSecret
         players={lobby.currentGame.players}
         stage={stage}
       />
@@ -71,6 +69,9 @@ const LegislativeStageVoting = () => {
           );
         })}
       </ul>
+      <p className="mt-3 text-xs text-muted-foreground opacity-70 text-center">
+        *Passe o mouse ou toque nas cartas para ver as opções de voto.
+      </p>
     </div>
   );
 };

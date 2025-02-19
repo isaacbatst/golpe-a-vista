@@ -17,11 +17,17 @@ export type LawDTO = {
   description: string;
 };
 
+export enum CrisisVisibleTo {
+  ALL = "Todos",
+  PRESIDENT = "Presidente",
+  RAPPORTEUR = "Relator",
+}
+
 export type CrisisDTO = {
   name: string;
   title: string;
   description: string;
-  visibleTo: string[];
+  visibleTo: CrisisVisibleTo[];
   notVisibleTo: string[];
   currentAction: string;
   isComplete: boolean;
@@ -57,9 +63,9 @@ export type PlayerDTO = {
 };
 
 export enum StageType {
-  LEGISLATIVE = "LEGISLATIVE",
   IMPEACHMENT = "IMPEACHMENT",
   CRISIS = "CRISIS",
+  LEGISLATIVE = "LEGISLATIVE",
   REPORT_DOSSIER = "REPORT_DOSSIER",
   SABOTAGE = "SABOTAGE",
   RADICALIZATION = "RADICALIZATION",
@@ -129,11 +135,26 @@ export enum SabotageAction {
 export type SabotageStageDTO = {
   currentAction: SabotageAction;
   type: StageType.SABOTAGE;
-  drawnCrises: CrisisDTO[]
+  drawnCrises: CrisisDTO[];
   selectedCrisis: CrisisDTO | null;
 };
 
-export type StageDTO = LegislativeStageDTO | DossierStageDTO | SabotageStageDTO;
+export enum CrisisStageAction {
+  START_CRISIS = "START_CRISIS",
+  ADVANCE_STAGE = "ADVANCE_STAGE",
+}
+
+export type CrisisStageDTO = {
+  currentAction: CrisisStageAction;
+  type: StageType.CRISIS;
+  crisis: CrisisDTO | null;
+};
+
+export type StageDTO =
+  | LegislativeStageDTO
+  | DossierStageDTO
+  | SabotageStageDTO
+  | CrisisStageDTO;
 
 export type RoundDTO = {
   index: number;

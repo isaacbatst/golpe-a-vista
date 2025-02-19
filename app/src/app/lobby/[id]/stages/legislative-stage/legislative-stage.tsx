@@ -14,11 +14,12 @@ import LegislativeStageAdvanceStage from "./legislative-stage-advance-stage";
 
 type Props = {
   stage: LegislativeStageDTO;
+  roundIndex: number;
 };
 
-const LegislativeStage = ({ stage }: Props) => {
+const LegislativeStage = ({ stage, roundIndex }: Props) => {
   return (
-    <Dialog defaultOpen={true}>
+    <Dialog defaultOpen={roundIndex === 0}>
       <DialogTrigger asChild>
         <Button variant="secondary" className="self-center">
           <Info />

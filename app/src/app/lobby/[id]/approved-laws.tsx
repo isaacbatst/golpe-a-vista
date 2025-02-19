@@ -14,7 +14,7 @@ const ApprovedLaws = ({
   lawsToConservativeWin,
 }: Props) => {
   return (
-    <div className="flex justify-center  divide-solid divide-x-2">
+    <div className="flex flex-col items-center sm:flex-row justify-center  sm:divide-solid divide-x-2 divide-none">
       <div className="text-left px-2">
         <h3 className="text-lg font-semibold mb-2">Leis Progressistas</h3>
         <div className="flex space-x-1">

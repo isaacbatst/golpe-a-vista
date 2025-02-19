@@ -1,6 +1,7 @@
 import { createContext, PropsWithChildren, useContext } from "react";
 import useSocket from "../../../hooks/useSocket";
 import {
+  CrisisStageAction,
   DossierAction,
   LegislativeAction,
   SabotageAction,
@@ -24,6 +25,7 @@ type LobbySocketContextType = {
   sabotageStageDrawCrises: () => void;
   sabotageStageChooseCrisis: (index: number) => void;
   sabotageStageAdvanceStage: () => void;
+  crisisStageStartCrisis: () => void;
 };
 
 export const LobbySocketContext = createContext<LobbySocketContextType>(
@@ -123,6 +125,14 @@ export const LobbySocketProvider = ({
           socket?.emit(
             `${StageType.SABOTAGE}:${SabotageAction.ADVANCE_STAGE}`,
             { lobbyId }
+          );
+        },
+        crisisStageStartCrisis: () => {
+          socket?.emit(
+            `${StageType.CRISIS}:${CrisisStageAction.START_CRISIS}`,
+            {
+              lobbyId,
+            }
           );
         },
       }}

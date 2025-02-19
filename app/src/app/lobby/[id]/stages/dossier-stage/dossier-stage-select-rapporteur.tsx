@@ -50,7 +50,7 @@ const DossierStageSelectRapporteur = () => {
       <div className="grid grid-cols-3 gap-4">
         {lobby.currentGame.players.map((player) => (
           <TooltipProvider key={player.id}>
-            <Tooltip delayDuration={400}>
+            <Tooltip delayDuration={300}>
               <TooltipTrigger asChild>
                <div>
                <Button

@@ -138,7 +138,7 @@ export class Round {
   get stageFactories(): StageFactory[] {
     return [
       new ImpeachmentStageFactory(this.president.id, this._hasImpeachment),
-      new CrisisStageFactory(this._crisis),
+      new CrisisStageFactory(this._crisis, this.index),
       new LegislativeStageFactory(
         this.requiredVeto,
         this.isLegislativeVotingSecret,

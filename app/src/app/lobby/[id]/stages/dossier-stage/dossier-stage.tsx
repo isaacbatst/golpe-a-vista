@@ -9,15 +9,17 @@ import { cn } from "@/lib/utils";
 import { Info } from "lucide-react";
 type Props = {
   stage: DossierStageDTO;
+  roundIndex: number;
 };
 
-const DossierStage = ({ stage }: Props) => {
+const DossierStage = ({ stage, roundIndex }: Props) => {
   const { player } = usePlayerContext();
   const isShowingCards =
     stage.currentAction === DossierAction.ADVANCE_STAGE && player.isRapporteur;
+  
 
   return (
-    <Dialog defaultOpen={true}>
+    <Dialog defaultOpen={roundIndex === 0}>
       <DialogTrigger asChild>
         <Button variant="secondary" className="self-center">
           <Info />

@@ -6,7 +6,7 @@ import { Stage, StageType } from './stage';
 import { CrisisFactory } from 'src/domain/crisis/crisis-factory';
 import { Either, left, right } from 'src/domain/either';
 
-enum CrisisStageAction {
+export enum CrisisStageAction {
   START_CRISIS = 'START_CRISIS',
   ADVANCE_STAGE = 'ADVANCE_STAGE',
 }
@@ -15,13 +15,13 @@ export class CrisisStage extends Stage {
   readonly type = StageType.CRISIS;
 
   constructor(
-    readonly crisis: Crisis,
+    readonly crisis: Crisis | null,
     private _crisisEffect: CrisisEffect | null = null,
     currentAction?: CrisisStageAction,
   ) {
     super(
       [CrisisStageAction.START_CRISIS, CrisisStageAction.ADVANCE_STAGE],
-      currentAction,
+      currentAction ?? (!crisis ? CrisisStageAction.ADVANCE_STAGE : undefined),
     );
   }
 
@@ -31,7 +31,7 @@ export class CrisisStage extends Stage {
       return left(error);
     }
 
-    this._crisisEffect = this.crisis.start();
+    this._crisisEffect = this.crisis!.start();
 
     if (!this._crisisEffect.hasPendingActions) {
       this._crisisEffect.apply(round);
@@ -47,7 +47,7 @@ export class CrisisStage extends Stage {
       ...super.toJSON(),
       type: this.type,
       currentAction: this.currentAction as CrisisStageAction,
-      crisis: this.crisis.toJSON(),
+      crisis: this.crisis?.toJSON(),
       crisisEffect: this._crisisEffect?.toJSON(),
     } as const;
   }
@@ -58,7 +58,7 @@ export class CrisisStage extends Stage {
 
   static fromJSON(data: ReturnType<CrisisStage['toJSON']>): CrisisStage {
     return new CrisisStage(
-      CrisisFactory.fromJSON(data.crisis),
+      data.crisis ? CrisisFactory.fromJSON(data.crisis) : null,
       data.crisisEffect
         ? CrisisEffectFactory.fromJSON(data.crisisEffect)
         : null,

@@ -36,7 +36,7 @@ const CRISES: Record<
     ],
     description:
       'O Relator do Dossiê terá um encontro inesperado, ele não lembrará de nada. Em termos de jogo, ele não receberá o Dossiê.',
-    visibleTo: [CrisisVisibleTo.RAPPORTEUR],
+    visibleTo: [CrisisVisibleTo.RAPPORTEUR, CrisisVisibleTo.PRESIDENT],
   },
   // OPERACAO_MAOS_LIMPAS: {
   //   titles: [
@@ -61,12 +61,12 @@ const CRISES: Record<
       'Forças Ocultas',
       'Illuminati Confirmed',
       'Os Rothschild Intervêm',
-      'Reptilianos dão as caras',
-      'Nova Ordem Mundial Contra-Ataca!',
-      'Anunnaki na Área',
+      'Reptilianos no Poder',
+      'Nova Ordem Mundial Assume!',
+      'Anunnakis no Planalto',
     ],
     description:
-      "O Presidente é obrigado a vetar uma lei progressista. 'Por motivos de força maior, a decisão foi tomada por nós.'",
+      "O Presidente é obrigado a vetar uma lei progressista. '[...] As forças e os interesses contra o povo coordenaram-se novamente e se desencadeiam sobre mim.'",
     visibleTo: [CrisisVisibleTo.PRESIDENT],
   },
   // REGIME_DE_URGENCIA: {

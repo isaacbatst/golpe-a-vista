@@ -15,11 +15,12 @@ type DossierStageParams = {
   fakeDossier?: boolean;
   currentAction?: DossierAction;
   isDossierVisibleToRapporteur?: boolean;
+  nextRapporteurId?: string;
 };
 
 export class DossierStage extends Stage {
   readonly type = StageType.REPORT_DOSSIER;
-  private _nextRapporteurId: string | null = null;
+  private _nextRapporteurId: string | null;
   private _isDossierVisibleToRapporteur: boolean;
   private _dossier: Law[];
   private _fakeDossier: boolean;
@@ -33,6 +34,7 @@ export class DossierStage extends Stage {
     this._fakeDossier = params.fakeDossier ?? false;
     this._isDossierVisibleToRapporteur =
       params.isDossierVisibleToRapporteur ?? false;
+    this._nextRapporteurId = params.nextRapporteurId ?? null;
   }
 
   chooseNextRapporteur(params: {
@@ -120,6 +122,7 @@ export class DossierStage extends Stage {
   static fromJSON(data: ReturnType<DossierStage['toJSON']>) {
     return new DossierStage({
       ...data,
+      nextRapporteurId: data.nextRapporteurId ?? undefined,
       drawnLaws: data.dossier.map((law) => Law.fromJSON(law)),
     });
   }

@@ -18,4 +18,8 @@ export class GolpeDeEstado extends CrisisEffect {
   apply(round: Round): void {
     round.presidentQueue.shift();
   }
+
+  static fromJSON(data: ReturnType<GolpeDeEstado['toJSON']>) {
+    return new GolpeDeEstado(data.currentAction as GolpeDeEstadoAction);
+  }
 }

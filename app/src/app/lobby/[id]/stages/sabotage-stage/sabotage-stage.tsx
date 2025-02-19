@@ -9,9 +9,10 @@ import { cn } from "@/lib/utils";
 import { Info } from "lucide-react";
 type Props = {
   stage: SabotageStageDTO;
+  roundIndex: number;
 };
 
-const SabotageStage = ({ stage }: Props) => {
+const SabotageStage = ({ stage, roundIndex }: Props) => {
   const { player } = usePlayerContext();
 
   const isShowingCards =
@@ -25,7 +26,7 @@ const SabotageStage = ({ stage }: Props) => {
   stage.selectedCrisis
 
   return (
-    <Dialog defaultOpen={true}>
+    <Dialog defaultOpen={roundIndex === 0}>
       <DialogTrigger asChild>
         <Button variant="secondary" className="self-center">
           <Info />

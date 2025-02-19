@@ -1,5 +1,5 @@
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { DialogHeader } from "@/components/ui/dialog";
+import { DialogFooter, DialogHeader } from "@/components/ui/dialog";
 import { useLobbyContext } from "../../lobby-context";
 import { useLobbySocketContext } from "../../lobby-socket-context";
 import { usePlayerContext } from "../../player-context";
@@ -7,6 +7,7 @@ import LawCard from "@/components/law-card/law-card";
 import CardFolded from "@/components/card-folded";
 import LawCardOverlayActionButton from "@/components/law-card/law-card-overlay-action-button";
 import { LegislativeStageDTO } from "@/lib/api.types";
+import WaitButton from "@/components/wait-button";
 
 const LegislativeStageVetoLaw = () => {
   const { player } = usePlayerContext();
@@ -18,44 +19,52 @@ const LegislativeStageVetoLaw = () => {
 
   if (!player.isPresident) {
     return (
-      <div className="flex flex-col items-center">
+      <>
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold mb-3">
             {president.name} é o Presidente!
           </DialogTitle>
         </DialogHeader>
-        <div className="text-muted-foreground flex flex-col gap-4 max-w-md text-center mb-6">
-          <p className="text-sm">
+        <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+          <p className="text-gray-700">
             Nesta rodada,{" "}
-            <span className="font-semibold">{president.name}</span> assumiu o
-            cargo de Presidente e agora está analisando as leis disponíveis.
+            <span className="font-semibold">
+              {lobby.currentGame.currentRound.president.name}
+            </span>{" "}
+            assumiu o cargo de Presidente e agora está analisando as leis
+            disponíveis.
+          </p>
+          <p className="text-gray-700">
             Como primeira ação, ele(a) deve{" "}
             <strong>vetar uma das três cartas</strong> antes de encaminhar as
             demais para votação.
           </p>
-          <p className="text-sm text-gray-500 italic">
-            Aguarde enquanto o Presidente toma sua decisão.
-          </p>
+          <p className="text-sm text-gray-500 italic"></p>
+          <ul className="flex flex-wrap gap-3 justify-center">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <li key={index} className="flex justify-center">
+                <CardFolded key={index} />
+              </li>
+            ))}
+          </ul>
         </div>
-        <ul className="flex flex-wrap gap-3 justify-center">
-          {stage.drawnLaws.map((law) => (
-            <li key={law.name} className="flex justify-center">
-              <CardFolded isOverlayFixed />
-            </li>
-          ))}
-        </ul>
-      </div>
+        <DialogFooter className="sm:justify-center">
+          <WaitButton>
+            Aguarde enquanto o Presidente toma sua decisão.
+          </WaitButton>
+        </DialogFooter>
+      </>
     );
   }
 
   return (
-    <div className="flex flex-col items-center">
+    <>
       <DialogHeader>
-        <DialogTitle className="text-2xl font-semibold mb-3">
+        <DialogTitle className="text-2xl font-semiboldx">
           Você é o Presidente!
         </DialogTitle>
       </DialogHeader>
-      <div className="text-muted-foreground flex flex-col gap-4 max-w-md text-center mb-6">
+      <div className="text-muted-foreground flex flex-col">
         <p className="text-sm">
           Parabéns, <span className="font-semibold">{player.name}</span>! Você
           assumiu o cargo de Presidente nesta rodada. Como sua primeira ação,
@@ -84,7 +93,7 @@ const LegislativeStageVetoLaw = () => {
           </li>
         ))}
       </ul>
-    </div>
+    </>
   );
 };
 
