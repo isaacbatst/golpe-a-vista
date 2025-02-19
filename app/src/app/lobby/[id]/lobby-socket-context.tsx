@@ -26,6 +26,7 @@ type LobbySocketContextType = {
   sabotageStageChooseCrisis: (index: number) => void;
   sabotageStageAdvanceStage: () => void;
   crisisStageStartCrisis: () => void;
+  updateSession: (userId: string) => void;
 };
 
 export const LobbySocketContext = createContext<LobbySocketContextType>(
@@ -46,6 +47,9 @@ export const LobbySocketProvider = ({
         error: error,
         kickUser: (userId: string) => {
           socket?.emit("kick", { lobbyId, userId });
+        },
+        updateSession: (userId: string) => {
+          socket?.emit("session:updated", { lobbyId, userId });
         },
         startGame: () => {
           socket?.emit("start", { lobbyId });

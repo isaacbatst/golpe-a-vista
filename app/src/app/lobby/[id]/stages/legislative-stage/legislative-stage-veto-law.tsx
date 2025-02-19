@@ -1,13 +1,11 @@
-import { DialogTitle } from "@radix-ui/react-dialog";
-import { DialogFooter, DialogHeader } from "@/components/ui/dialog";
+import CardFolded from "@/components/card-folded";
+import LawCard from "@/components/law-card/law-card";
+import LawCardOverlayActionButton from "@/components/law-card/law-card-overlay-action-button";
+import WaitButton from "@/components/wait-button";
 import { useLobbyContext } from "../../lobby-context";
 import { useLobbySocketContext } from "../../lobby-socket-context";
 import { usePlayerContext } from "../../player-context";
-import LawCard from "@/components/law-card/law-card";
-import CardFolded from "@/components/card-folded";
-import LawCardOverlayActionButton from "@/components/law-card/law-card-overlay-action-button";
 import { LegislativeStageDTO } from "@/lib/api.types";
-import WaitButton from "@/components/wait-button";
 
 const LegislativeStageVetoLaw = () => {
   const { player } = usePlayerContext();
@@ -16,63 +14,60 @@ const LegislativeStageVetoLaw = () => {
   const stage = lobby.currentGame.currentRound
     .currentStage as LegislativeStageDTO;
   const president = lobby.currentGame.currentRound.president;
+  const roundPrefix = `Rodada ${lobby.currentGame.currentRound.index + 1} - `;
 
   if (!player.isPresident) {
     return (
       <>
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold mb-3">
-            {president.name} é o Presidente!
-          </DialogTitle>
-        </DialogHeader>
-        <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+        <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
+          {roundPrefix}
+          {president.name} é o Presidente!
+        </h2>
+        <div className="text-sm max-w-lg text-muted-foreground flex flex-col gap-2">
           <p className="text-gray-700">
             Nesta rodada,{" "}
-            <span className="font-semibold">
-              {lobby.currentGame.currentRound.president.name}
-            </span>{" "}
+            <span className="font-semibold">{president.name}</span>{" "}
             assumiu o cargo de Presidente e agora está analisando as leis
             disponíveis.
           </p>
-          <p className="text-gray-700">
-            Como primeira ação, ele(a) deve{" "}
-            <strong>vetar uma das três cartas</strong> antes de encaminhar as
-            demais para votação.
-          </p>
-          <p className="text-sm text-gray-500 italic"></p>
-          <ul className="flex flex-wrap gap-3 justify-center">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <li key={index} className="flex justify-center">
-                <CardFolded key={index} />
-              </li>
-            ))}
+          <ul className="list-disc list-inside text-gray-700">
+            <li>Sortear três cartas de leis</li>
+            <li>Vetar uma delas</li>
+            <li>Escolher uma das leis restantes para votação</li>
           </ul>
         </div>
-        <DialogFooter className="sm:justify-center">
-          <WaitButton>
-            Aguarde enquanto o Presidente toma sua decisão.
-          </WaitButton>
-        </DialogFooter>
+        <ul className="flex flex-wrap gap-3 justify-center">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <li key={index} className="flex justify-center">
+              <CardFolded key={index} />
+            </li>
+          ))}
+        </ul>
+        <WaitButton className="self-center">
+          Aguarde enquanto o Presidente toma sua decisão.
+        </WaitButton>
       </>
     );
   }
 
   return (
     <>
-      <DialogHeader>
-        <DialogTitle className="text-2xl font-semiboldx">
-          Você é o Presidente!
-        </DialogTitle>
-      </DialogHeader>
-      <div className="text-muted-foreground flex flex-col">
-        <p className="text-sm">
-          Parabéns, <span className="font-semibold">{player.name}</span>! Você
-          assumiu o cargo de Presidente nesta rodada. Como sua primeira ação,
-          você deve analisar três cartas de leis e{" "}
-          <strong>vetar uma delas</strong>. As duas restantes serão enviadas
-          para votação.
-        </p>
-      </div>
+      <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
+        {roundPrefix}Você é o Presidente!
+      </h2>
+      <div className="text-sm max-w-lg text-muted-foreground flex flex-col gap-2">
+          <p className="text-gray-700">
+            Nesta rodada,{" "}
+            <span className="font-semibold">{president.name}</span>{" "}
+            assumiu o cargo de Presidente e agora está analisando as leis
+            disponíveis.
+          </p>
+          <ul className="list-disc list-inside text-gray-700">
+            <li>Sortear três cartas de leis</li>
+            <li className="font-bold underline">Vetar uma delas</li>
+            <li>Escolher uma das leis restantes para votação</li>
+          </ul>
+        </div>
       <ul className="flex flex-wrap gap-3 justify-center">
         {stage.drawnLaws.map((law) => (
           <li key={law.name} className="flex justify-center">

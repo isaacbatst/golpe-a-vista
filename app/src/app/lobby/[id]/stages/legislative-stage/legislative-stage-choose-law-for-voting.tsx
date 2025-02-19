@@ -1,5 +1,3 @@
-import { DialogTitle } from "@radix-ui/react-dialog";
-import { DialogHeader } from "@/components/ui/dialog";
 import { LegislativeStageDTO } from "@/lib/api.types";
 import { useLobbyContext } from "../../lobby-context";
 import { useLobbySocketContext } from "../../lobby-socket-context";
@@ -16,17 +14,17 @@ const LegislativeStageChooseLawForVoting = () => {
   const stage = lobby.currentGame.currentRound
     .currentStage as LegislativeStageDTO;
   const president = lobby.currentGame.currentRound.president;
+  const roundPrefix = `Rodada ${lobby.currentGame.currentRound.index + 1} - `;
 
   if (!player.isPresident) {
     return (
-      <div className="flex flex-col items-center">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold mb-3">
-            {president.name} é o Presidente!
-          </DialogTitle>
-        </DialogHeader>
-        <div className="text-muted-foreground flex flex-col gap-4 max-w-md text-center mb-6">
-          <p className="text-sm">
+      <>
+        <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
+          {roundPrefix}
+          {president.name} é o Presidente!
+        </h2>
+        <div className="text-sm max-w-lg text-muted-foreground flex flex-col gap-2">
+          <p className="text-gray-700">
             Nesta rodada,{" "}
             <span className="font-semibold">{president.name}</span> assumiu o
             cargo de Presidente e agora está analisando as leis disponíveis. Ele
@@ -48,19 +46,17 @@ const LegislativeStageChooseLawForVoting = () => {
             </li>
           ))}
         </ul>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="flex flex-col items-center">
-      <DialogHeader>
-        <DialogTitle className="text-2xl font-semibold mb-3">
-          Você é o Presidente!
-        </DialogTitle>
-      </DialogHeader>
-      <div className="text-muted-foreground flex flex-col gap-4 max-w-md text-center mb-6">
-        <p className="text-sm">
+    <>
+      <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
+        {roundPrefix}Você é o Presidente!
+      </h2>
+      <div className="text-sm max-w-lg text-muted-foreground flex flex-col gap-2">
+        <p className="text-gray-700">
           Parabéns, <span className="font-semibold">{player.name}</span>! Você
           assumiu o cargo de Presidente nesta rodada. Como sua primeira ação,
           você deve analisar três cartas de leis e{" "}
@@ -94,7 +90,7 @@ const LegislativeStageChooseLawForVoting = () => {
           </li>
         ))}
       </ul>
-    </div>
+    </>
   );
 };
 

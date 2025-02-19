@@ -15,6 +15,7 @@ import { WsExceptionFilter } from './filters/ws-exception.filter';
 import { DossierAction } from 'src/domain/stage/dossier-stage';
 import { SabotageAction } from 'src/domain/stage/sabotage-stage';
 import { CrisisStageAction } from 'src/domain/stage/crisis-stage';
+import { ConfigService } from '@nestjs/config';
 
 @WebSocketGateway({
   cors: {
@@ -30,6 +31,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   constructor(
     private readonly service: AppService,
+    private readonly configService: ConfigService,
     @Inject('SESSION_MIDDLEWARE')
     private readonly sessionMiddleware: ReturnType<typeof session>,
   ) {}
@@ -80,6 +82,27 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return this.handleSocketError(client, error.message);
     }
     this.server.to(lobby.id).emit('lobby:updated', lobby);
+  }
+
+  @SubscribeMessage('session:updated')
+  setSession(client: Socket, data: { userId: string }) {
+    if (this.configService.get('NODE_ENV') === 'production') {
+      return this.handleSocketError(client, 'Operação não permitida');
+    }
+    client.request.session.reload((err) => {
+      if (err) {
+        return client.disconnect();
+      }
+
+      client.request.session.userId = data.userId;
+      client.request.session.save(() => {
+        if (err) {
+          return client.disconnect();
+        }
+
+        client.emit('session:updated', { userId: data.userId });
+      });
+    });
   }
 
   @SubscribeMessage('kick')

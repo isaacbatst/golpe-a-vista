@@ -1,5 +1,3 @@
-import { DialogTitle } from "@radix-ui/react-dialog";
-import { DialogHeader } from "@/components/ui/dialog";
 import { LegislativeStageDTO, LegislativeStageLawDTO } from "@/lib/api.types";
 import { useLobbyContext } from "../../lobby-context";
 import { usePlayerContext } from "../../player-context";
@@ -34,11 +32,9 @@ const LegislativeStageVoting = () => {
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <DialogHeader>
-        <DialogTitle className="text-2xl font-semibold">
-          Votação em andamento
-        </DialogTitle>
-      </DialogHeader>
+      <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
+        Votação em andamento
+      </h2>
       <LegislativeStageVotingStatus
         me={me}
         isSecret

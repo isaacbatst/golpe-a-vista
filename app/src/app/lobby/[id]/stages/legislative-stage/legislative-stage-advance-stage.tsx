@@ -5,11 +5,9 @@ import AlertIndicator from "@/components/alert-indicator";
 import CardFolded from "@/components/card-folded";
 import LawCard from "@/components/law-card/law-card";
 import { Button } from "@/components/ui/button";
-import { DialogHeader } from "@/components/ui/dialog";
 import WaitButton from "@/components/wait-button";
 import { LegislativeStageDTO, LegislativeStageLawDTO } from "@/lib/api.types";
 import { cn } from "@/lib/utils";
-import { DialogTitle } from "@radix-ui/react-dialog";
 import { useLobbyContext } from "../../lobby-context";
 import { useLobbySocketContext } from "../../lobby-socket-context";
 import { usePlayerContext } from "../../player-context";
@@ -37,18 +35,16 @@ const LegislativeStageAdvanceStage = () => {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <DialogHeader className="flex flex-col items-center">
-        <DialogTitle className="text-2xl font-semibold">
-          <span
-            className={cn("font-bebas tracking-wider text-4xl", {
-              "text-green-600": stage.voting?.result,
-              "text-red-500": !stage.voting?.result,
-            })}
-          >
-            {result}
-          </span>
-        </DialogTitle>
-      </DialogHeader>
+      <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
+        <span
+          className={cn("font-bebas tracking-wider text-4xl", {
+            "text-green-600": stage.voting?.result,
+            "text-red-500": !stage.voting?.result,
+          })}
+        >
+          {result}
+        </span>
+      </h2>
       <LegislativeStageVotingStatus
         me={me}
         isSecret={stage.isVotingSecret}
@@ -91,7 +87,7 @@ const LegislativeStageAdvanceStage = () => {
         </Button>
       ) : (
         <WaitButton>
-          Aguade enquanto o Presidente avança para a próxima pauta.
+          Aguarde enquanto o Presidente avança para a próxima pauta.
         </WaitButton>
       )}
     </div>

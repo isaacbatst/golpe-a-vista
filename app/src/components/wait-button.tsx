@@ -1,12 +1,15 @@
-import { Button } from "@/components/ui/button";
+import { Button, ButtonProps } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import React, { PropsWithChildren } from "react";
 
-const WaitButton = (props: PropsWithChildren) => {
+const WaitButton = ({
+  children,
+  ...props
+}: PropsWithChildren & ButtonProps) => {
   return (
-    <Button className="flex" variant="default" disabled>
+    <Button {...props} variant="default" disabled>
       <Loader2 className="animate-spin" />
-      {props.children}
+      {children}
     </Button>
   );
 };
