@@ -4,12 +4,9 @@ import { Round } from '../round';
 
 export abstract class CrisisEffect {
   protected _actionController: ActionController | null;
+  abstract readonly crisis: CRISIS_NAMES;
 
-  constructor(
-    readonly crisis: CRISIS_NAMES,
-    actions?: string[],
-    currentAction?: string,
-  ) {
+  constructor(actions?: string[], currentAction?: string) {
     this._actionController = actions
       ? new ActionController(actions, currentAction)
       : null;
@@ -35,7 +32,6 @@ export abstract class CrisisEffect {
 
   toJSON() {
     return {
-      crisis: this.crisis,
       currentAction: this.currentAction,
       isComplete: this.isComplete,
       actions: this.actions,

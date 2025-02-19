@@ -7,16 +7,21 @@ export enum CafeComAbinAction {
 }
 
 export class CafeComAbin extends CrisisEffect {
+  readonly crisis = CRISIS_NAMES.CAFE_COM_A_ABIN;
+
   constructor(currentAction?: CafeComAbinAction) {
-    super(
-      CRISIS_NAMES.CAFE_COM_A_ABIN,
-      [CafeComAbinAction.ADVANCE_STAGE],
-      currentAction,
-    );
+    super([CafeComAbinAction.ADVANCE_STAGE], currentAction);
   }
 
   apply(round: Round): void {
     round.isDossierOmitted = true;
+  }
+
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      crisis: this.crisis,
+    } as const;
   }
 
   static fromJSON(data: ReturnType<CafeComAbin['toJSON']>) {

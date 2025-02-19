@@ -8,6 +8,16 @@ import { Mensalao } from 'src/domain/crisis/mensalao';
 import { PlanoCohen } from 'src/domain/crisis/plano-cohen';
 import { SessaoSecreta } from 'src/domain/crisis/sessao-secreta';
 
+type ToJson<T extends { toJSON: any }> = ReturnType<T['toJSON']>;
+type CrisisEffectJSON =
+  | ToJson<CafeComAbin>
+  | ToJson<SessaoSecreta>
+  | ToJson<PlanoCohen>
+  | ToJson<ForcasOcultas>
+  | ToJson<FmiMandou>
+  | ToJson<Mensalao>
+  | ToJson<GolpeDeEstado>;
+
 export class CrisisEffectFactory {
   static create(crisis: CRISIS_NAMES): CrisisEffect {
     switch (crisis) {
@@ -30,7 +40,7 @@ export class CrisisEffectFactory {
     }
   }
 
-  static fromJSON(data: ReturnType<CrisisEffect['toJSON']>) {
+  static fromJSON(data: CrisisEffectJSON): CrisisEffect {
     switch (data.crisis) {
       case CRISIS_NAMES.CAFE_COM_A_ABIN:
         return CafeComAbin.fromJSON(data);
@@ -44,8 +54,12 @@ export class CrisisEffectFactory {
         return FmiMandou.fromJSON(data);
       case CRISIS_NAMES.GOLPE_DE_ESTADO:
         return GolpeDeEstado.fromJSON(data);
+      case CRISIS_NAMES.MENSALAO:
+        return Mensalao.fromJSON(data);
       default:
-        throw new Error(`Invalid crisis name: ${data.crisis}`);
+        throw new Error(
+          `Invalid crisis name: ${(data as { crisis: string }).crisis}`,
+        );
     }
   }
 }

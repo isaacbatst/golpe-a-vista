@@ -7,16 +7,19 @@ export enum SessaoSecretaAction {
 }
 
 export class SessaoSecreta extends CrisisEffect {
+  readonly crisis = CRISIS_NAMES.SESSAO_SECRETA;
   constructor(currentAction?: SessaoSecretaAction) {
-    super(
-      CRISIS_NAMES.SESSAO_SECRETA,
-      [SessaoSecretaAction.ADVANCE_STAGE],
-      currentAction,
-    );
+    super([SessaoSecretaAction.ADVANCE_STAGE], currentAction);
   }
 
   apply(round: Round): void {
     round.isLegislativeVotingSecret = true;
+  }
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      crisis: this.crisis,
+    } as const;
   }
 
   static fromJSON(data: ReturnType<SessaoSecreta['toJSON']>) {

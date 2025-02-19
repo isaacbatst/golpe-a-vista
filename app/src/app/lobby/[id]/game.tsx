@@ -37,15 +37,17 @@ export default function Game({ userId, lobby }: Props) {
       <div className="lg:h-screen bg-gray-100 flex flex-col lg:flex-row lg:items-center justify-center p-5 gap-5">
         <Card className="bg-white shadow-2xl flex-grow">
           <CardHeader className="flex flex-col gap-4 sm:flex-row sm:justify-between items-center">
-            <CardTitle className="text-center text-2xl font-bold flex items-center justify-between">
-              Golpe à Vista
+            <CardTitle>
+              <h1 className="text-center text-4xl font-bold flex items-center justify-between">
+                Golpe à Vista
+              </h1>
             </CardTitle>
             {process.env.NEXT_PUBLIC_DEV_MODE === "true" && myUser && (
-              <DevOptions
-                users={lobby.users}
-                me={myUser}
-              />
+              <DevOptions users={lobby.users} me={myUser} />
             )}
+            <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight text-center">
+              {lobby.currentGame.currentRound.index + 1}ª Rodada
+            </h3>
           </CardHeader>
           <CardContent className="">
             <div className="flex flex-col gap-6">
@@ -61,14 +63,12 @@ export default function Game({ userId, lobby }: Props) {
                   StageType.REPORT_DOSSIER && (
                   <DossierStage
                     stage={lobby.currentGame.currentRound.currentStage}
-                    roundIndex={lobby.currentGame.currentRound.index}
                   />
                 )}
                 {lobby.currentGame.currentRound.currentStage.type ===
                   StageType.SABOTAGE && (
                   <SabotageStage
                     stage={lobby.currentGame.currentRound.currentStage}
-                    roundIndex={lobby.currentGame.currentRound.index}
                   />
                 )}
                 {lobby.currentGame.currentRound.currentStage.type ===
@@ -80,21 +80,23 @@ export default function Game({ userId, lobby }: Props) {
                 )}
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                {Object.values(StageType).map((stageType) => (
-                  <Button
-                    key={stageType}
-                    variant={
-                      lobby.currentGame.currentRound.currentStage.type ===
-                      stageType
-                        ? "default"
-                        : "outline"
-                    }
-                    disabled
-                  >
-                    {readableStageType[stageType]}
-                  </Button>
-                ))}
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                  {Object.values(StageType).map((stageType) => (
+                    <Button
+                      key={stageType}
+                      variant={
+                        lobby.currentGame.currentRound.currentStage.type ===
+                        stageType
+                          ? "default"
+                          : "outline"
+                      }
+                      className="cursor-default"
+                    >
+                      {readableStageType[stageType]}
+                    </Button>
+                  ))}
+                </div>
               </div>
               <ApprovedLaws
                 approvedConservativeLaws={

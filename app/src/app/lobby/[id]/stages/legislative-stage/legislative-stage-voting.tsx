@@ -38,6 +38,7 @@ const LegislativeStageVoting = () => {
       <LegislativeStageVotingStatus
         me={me}
         isSecret
+        isTotalSecret
         players={lobby.currentGame.players}
         stage={stage}
       />

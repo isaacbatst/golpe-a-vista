@@ -1,9 +1,7 @@
 import { useLobbySocketContext } from "@/app/lobby/[id]/lobby-socket-context";
 import { usePlayerContext } from "@/app/lobby/[id]/player-context";
 import { Button } from "@/components/ui/button";
-import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import WaitButton from "@/components/wait-button";
-import { DialogDescription } from "@radix-ui/react-dialog";
 import { FileText } from "lucide-react";
 
 const DossierStagePassDossier = () => {
@@ -12,19 +10,19 @@ const DossierStagePassDossier = () => {
 
   return (
     <div className="space-y-4">
-      <DialogHeader>
-        <DialogTitle>Delação do Dossiê</DialogTitle>
-        <DialogDescription>
+      <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
+        Delação do Dossiê
+      </h2>
+      <div className="text-sm max-w-lg text-muted-foreground flex flex-col gap-2">
+        <p className="text-gray-700">
           {player.isRapporteur
             ? "Realize a leitura do Dossiê e prepare-se para a próxima rodada."
             : "O Relator do Dossiê está fazendo a leitura do documento."}
-        </DialogDescription>
-      </DialogHeader>
+        </p>
+      </div>
       <div>
         {player.isRapporteur ? (
-          <Button
-            onClick={() => dossierStagePassDossier()}
-          >
+          <Button onClick={() => dossierStagePassDossier()}>
             <FileText />
             Receber Dossiê
           </Button>

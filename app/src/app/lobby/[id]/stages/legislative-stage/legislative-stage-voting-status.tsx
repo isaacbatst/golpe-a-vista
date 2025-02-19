@@ -7,6 +7,7 @@ type Props = {
   players: PlayerDTO[];
   me: PlayerDTO;
   isSecret?: boolean;
+  isTotalSecret?: boolean;
 };
 
 const LegislativeStageVotingStatus = ({
@@ -14,15 +15,20 @@ const LegislativeStageVotingStatus = ({
   players,
   me,
   isSecret = false,
+  isTotalSecret = false,
 }: Props) => {
   return (
     <>
-      <div className="text-muted-foreground flex flex-col gap-4 max-w-md text-center">
-        <p className="text-sm font-semibold">
-          <span className="text-green-500">{stage.voting?.count.yes} SIM</span>{" "}
-          / <span className="text-red-500">{stage.voting?.count.no} NÃO</span>
-        </p>
-      </div>
+      {!isTotalSecret && (
+        <div className="text-muted-foreground flex flex-col gap-4 max-w-md text-center">
+          <p className="text-sm font-semibold">
+            <span className="text-green-500">
+              {stage.voting?.count.yes} SIM
+            </span>{" "}
+            / <span className="text-red-500">{stage.voting?.count.no} NÃO</span>
+          </p>
+        </div>
+      )}
       <div className="text-muted-foreground flex flex-col gap-4  text-center">
         <ul className="flex flex-wrap gap-5 justify-center">
           {stage.voting?.votes.map((vote) => {

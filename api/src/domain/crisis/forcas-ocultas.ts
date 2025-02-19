@@ -8,16 +8,19 @@ export enum ForcasOcultasAction {
 }
 
 export class ForcasOcultas extends CrisisEffect {
+  readonly crisis = CRISIS_NAMES.FORCAS_OCULTAS;
   constructor(currentAction?: ForcasOcultasAction) {
-    super(
-      CRISIS_NAMES.FORCAS_OCULTAS,
-      [ForcasOcultasAction.ADVANCE_STAGE],
-      currentAction,
-    );
+    super([ForcasOcultasAction.ADVANCE_STAGE], currentAction);
   }
 
   apply(round: Round): void {
     round.requiredVeto = LawType.PROGRESSISTAS;
+  }
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      crisis: this.crisis,
+    } as const;
   }
 
   static fromJSON(data: ReturnType<ForcasOcultas['toJSON']>) {

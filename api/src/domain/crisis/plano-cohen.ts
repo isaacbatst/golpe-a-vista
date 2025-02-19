@@ -7,16 +7,19 @@ export enum PlanoCohenAction {
 }
 
 export class PlanoCohen extends CrisisEffect {
+  readonly crisis = CRISIS_NAMES.PLANO_COHEN;
   constructor(currentAction?: PlanoCohenAction) {
-    super(
-      CRISIS_NAMES.PLANO_COHEN,
-      [PlanoCohenAction.ADVANCE_STAGE],
-      currentAction,
-    );
+    super([PlanoCohenAction.ADVANCE_STAGE], currentAction);
   }
 
   apply(round: Round): void {
     round.isDossierFake = true;
+  }
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      crisis: this.crisis,
+    } as const;
   }
 
   static fromJSON(data: ReturnType<PlanoCohen['toJSON']>) {

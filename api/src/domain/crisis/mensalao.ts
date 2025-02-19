@@ -9,11 +9,11 @@ export enum MensalaoAction {
 }
 
 export class Mensalao extends CrisisEffect {
+  readonly crisis = CRISIS_NAMES.MENSALAO;
   chosenPlayer: string | null = null;
 
   constructor(currentAction?: MensalaoAction) {
     super(
-      CRISIS_NAMES.MENSALAO,
       [MensalaoAction.CHOOSE_PLAYER, MensalaoAction.ADVANCE_STAGE],
       currentAction,
     );
@@ -42,8 +42,9 @@ export class Mensalao extends CrisisEffect {
   toJSON() {
     return {
       ...super.toJSON(),
+      crisis: this.crisis,
       chosenPlayer: this.chosenPlayer,
-    };
+    } as const;
   }
 
   static fromJSON(data: ReturnType<Mensalao['toJSON']>) {
