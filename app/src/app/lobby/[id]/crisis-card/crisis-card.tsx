@@ -43,10 +43,8 @@ const CrisisCard = ({
       </div>
 
       <div className="flex justify-between self-end items-center mt-4 gap-2">
-        <p className="font-semibold uppercase relative font-bebas tracking-wider px-5 py-1 flex  rounded-md ">
-          <span className="text-gray-600">
-            {crisis.visibleTo.concat('Relator').join(", ") || "Todos"}
-          </span>
+        <p className="font-semibold uppercase relative font-bebas tracking-wider pl-5 py-1 flex  rounded-md ">
+          <span className="text-gray-600">{crisis.visibleTo.join(", ")}</span>
           <ScanEye className="h-4 w-4 text-gray-500 absolute top-0 left-0" />
         </p>
       </div>

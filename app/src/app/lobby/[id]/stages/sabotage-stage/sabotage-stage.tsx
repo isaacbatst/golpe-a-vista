@@ -15,10 +15,14 @@ const SabotageStage = ({ stage }: Props) => {
   const { player } = usePlayerContext();
 
   const isShowingCards =
-    player.saboteur &&
-    [SabotageAction.DRAW_CRISIS, SabotageAction.CHOOSE_CRISIS].includes(
-      stage.currentAction
-    );
+    (player.saboteur &&
+      [SabotageAction.DRAW_CRISIS, SabotageAction.CHOOSE_CRISIS].includes(
+        stage.currentAction
+      ))
+
+  const isShowingSelectedCrisis =player.role === Role.CONSERVADOR &&
+  stage.currentAction === SabotageAction.ADVANCE_STAGE &&
+  stage.selectedCrisis
 
   return (
     <Dialog defaultOpen={true}>
@@ -33,6 +37,7 @@ const SabotageStage = ({ stage }: Props) => {
         className={cn({
           "w-full max-w-[95%] xl:max-w-[80%] 2xl:max-w-screen-lg max-h-[90vh] overflow-y-auto":
             isShowingCards,
+          "overflow-y-auto max-h-[90vh]": isShowingSelectedCrisis
         })}
       >
         {stage.currentAction}
@@ -41,7 +46,7 @@ const SabotageStage = ({ stage }: Props) => {
             <SabotageStageNonConservatives player={player} />
           )}
           {player.role === Role.CONSERVADOR && !player.saboteur && (
-            <SabotageStageConservative />
+            <SabotageStageConservative stage={stage} />
           )}
           {player.role === Role.CONSERVADOR && player.saboteur && (
             <SabotageStageSaboteur stage={stage} />

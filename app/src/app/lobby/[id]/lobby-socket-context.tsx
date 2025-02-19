@@ -22,6 +22,7 @@ type LobbySocketContextType = {
   dossierStageAdvanceStage: () => void;
   sabotageStageSabotageOrSkip: (sabotage: boolean) => void;
   sabotageStageDrawCrises: () => void;
+  sabotageStageChooseCrisis: (index: number) => void;
   sabotageStageAdvanceStage: () => void;
 };
 
@@ -111,6 +112,12 @@ export const LobbySocketProvider = ({
           socket?.emit(`${StageType.SABOTAGE}:${SabotageAction.DRAW_CRISIS}`, {
             lobbyId,
           });
+        },
+        sabotageStageChooseCrisis: (index: number) => {
+          socket?.emit(
+            `${StageType.SABOTAGE}:${SabotageAction.CHOOSE_CRISIS}`,
+            { lobbyId, crisisIndex: index }
+          );
         },
         sabotageStageAdvanceStage: () => {
           socket?.emit(

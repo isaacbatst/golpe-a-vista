@@ -535,6 +535,31 @@ export class AppService {
     return right(lobby);
   }
 
+  async sabotageChooseCrisis(input: {
+    lobbyId: string;
+    issuerId: string;
+    crisisIndex: number;
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException('Lobby não encontrado'));
+    }
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (stage instanceof SabotageStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível escolher uma crise fora do estágio de Sabotagem',
+        ),
+      );
+    }
+    const [error] = stage.chooseSabotageCrisis(input.crisisIndex);
+    if (error) {
+      return left(new InternalServerErrorException(error));
+    }
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
   private advanceStage(lobby: Lobby): Either<string, void> {
     const [error, nextStage] = lobby.currentGame.currentRound.nextStage();
     if (error) {

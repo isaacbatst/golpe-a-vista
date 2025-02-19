@@ -332,4 +332,23 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     this.server.to(data.lobbyId).emit('lobby:updated', lobby);
   }
+
+  @SubscribeMessage(`${StageType.SABOTAGE}:${SabotageAction.CHOOSE_CRISIS}`)
+  async chooseCrisis(
+    client: Socket,
+    data: { lobbyId: string; crisisIndex: number },
+  ) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] = await this.service.sabotageChooseCrisis({
+      lobbyId: data.lobbyId,
+      issuerId: client.request.session.userId,
+      crisisIndex: data.crisisIndex,
+    });
+    if (error) {
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
+  }
 }

@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { SabotageAction, SabotageStageDTO } from "@/lib/api.types";
-import { ChevronsRight, Dices } from "lucide-react";
+import { ChevronsRight, Dices, MousePointer2 } from "lucide-react";
 
 type Props = {
   stage: SabotageStageDTO;
@@ -20,6 +20,7 @@ const SabotageStageSaboteur = ({ stage }: Props) => {
     sabotageStageSabotageOrSkip,
     sabotageStageAdvanceStage,
     sabotageStageDrawCrises,
+    sabotageStageChooseCrisis,
   } = useLobbySocketContext();
 
   if (stage.currentAction === SabotageAction.SABOTAGE_OR_SKIP) {
@@ -92,29 +93,42 @@ const SabotageStageSaboteur = ({ stage }: Props) => {
         </DialogHeader>
         <ul className="flex gap-3 justify-center">
           {stage.drawnCrises.map((crisis, index) => (
-            <li key={index}>
-              <CrisisCard crisis={crisis} />
+            <li key={crisis.name}>
+              <CrisisCard crisis={crisis} 
+                overlayContent={
+                  <Button
+                    onClick={() => sabotageStageChooseCrisis(index)}
+                  >
+                    <MousePointer2 />
+                    Escolher
+                  </Button>
+                }
+              />
             </li>
           ))}
         </ul>
-        <Button onClick={() => sabotageStageDrawCrises()}>
-          <Dices />
-          Sortear Crises
-        </Button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 flex flex-col">
       <DialogHeader>
         <DialogTitle>Você é o Golpista!</DialogTitle>
         <DialogDescription>
           {stage.selectedCrisis
-            ? stage.selectedCrisis.title
-            : "Você escolheu não sabotar o governo."}
+             ? "O restante dos Conservadores está recebendo informações sobre a crise que você escolheu."
+             :"Você escolheu não sabotar o governo."}
         </DialogDescription>
       </DialogHeader>
+      {stage.selectedCrisis && (
+        <div className="flex justify-center">
+        <CrisisCard
+          crisis={stage.selectedCrisis}
+          isOverlayFixed
+        />
+      </div>
+      )}
       <DialogFooter>
         <Button onClick={() => sabotageStageAdvanceStage()}>
           <ChevronsRight />

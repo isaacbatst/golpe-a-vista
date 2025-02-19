@@ -18,6 +18,7 @@ export type LawDTO = {
 };
 
 export type CrisisDTO = {
+  name: string;
   title: string;
   description: string;
   visibleTo: string[];
