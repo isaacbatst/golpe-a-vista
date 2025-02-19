@@ -1,3 +1,4 @@
+import { CrisisEffectFactory } from 'src/domain/crisis/crisis-effect-factory';
 import { CrisisStage } from './crisis-stage';
 import { DossierStage } from './dossier-stage';
 import { ImpeachmentStage } from './impeachment-stage';
@@ -22,7 +23,7 @@ export abstract class StageFactory {
   static fromJSON(json: StageJSON): Stage {
     switch (json.type) {
       case StageType.CRISIS:
-        return CrisisStage.fromJSON(json);
+        return CrisisStage.fromJSON(json, CrisisEffectFactory);
       case StageType.LEGISLATIVE:
         return LegislativeStage.fromJSON(json);
       case StageType.IMPEACHMENT:

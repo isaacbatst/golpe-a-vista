@@ -244,6 +244,7 @@ describe('Crises', () => {
       const president = new Player('p1', 'p1', Role.MODERADO);
       const nextPresident = new Player('p2', 'p2', Role.MODERADO);
       const round = new Round({
+        index: 1,
         presidentQueue: new PresidentQueue([president, nextPresident]),
         crisis: new Crisis(CRISES.PLANO_COHEN),
       });
@@ -260,6 +261,7 @@ describe('Crises', () => {
       const president = new Player('p1', 'p1', Role.MODERADO);
       const nextPresident = new Player('p2', 'p2', Role.MODERADO);
       const round = new Round({
+        index: 1,
         presidentQueue: new PresidentQueue([president, nextPresident]),
         crisis: new Crisis(CRISES.CAFE_COM_A_ABIN),
       });
@@ -281,6 +283,7 @@ describe('Crises', () => {
       const president = new Player('p1', 'p1', Role.MODERADO);
       const nextPresident = new Player('p2', 'p2', Role.MODERADO);
       const round = new Round({
+        index: 1,
         presidentQueue: new PresidentQueue([president, nextPresident]),
         crisis: factory(),
       });
@@ -301,6 +304,7 @@ describe('Crises', () => {
       const president = new Player('p1', 'p1', Role.MODERADO);
       const nextPresident = new Player('p2', 'p2', Role.MODERADO);
       const round = new Round({
+        index: 1,
         presidentQueue: new PresidentQueue([president, nextPresident]),
         crisis: new Crisis(CRISES.SESSAO_SECRETA),
       });

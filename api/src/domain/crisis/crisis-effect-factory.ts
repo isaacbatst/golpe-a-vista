@@ -1,5 +1,6 @@
 import { CafeComAbin } from 'src/domain/crisis/cafe-com-abin';
 import { CrisisEffect } from 'src/domain/crisis/crisis-effect';
+import { CrisisEffectJSON } from 'src/domain/crisis/crisis-effect-json';
 import { CRISIS_NAMES } from 'src/domain/crisis/crisis-names';
 import { FmiMandou } from 'src/domain/crisis/fmi-mandou';
 import { ForcasOcultas } from 'src/domain/crisis/forcas-ocultas';
@@ -7,16 +8,6 @@ import { GolpeDeEstado } from 'src/domain/crisis/golpe-de-estado';
 import { Mensalao } from 'src/domain/crisis/mensalao';
 import { PlanoCohen } from 'src/domain/crisis/plano-cohen';
 import { SessaoSecreta } from 'src/domain/crisis/sessao-secreta';
-
-type ToJson<T extends { toJSON: any }> = ReturnType<T['toJSON']>;
-type CrisisEffectJSON =
-  | ToJson<CafeComAbin>
-  | ToJson<SessaoSecreta>
-  | ToJson<PlanoCohen>
-  | ToJson<ForcasOcultas>
-  | ToJson<FmiMandou>
-  | ToJson<Mensalao>
-  | ToJson<GolpeDeEstado>;
 
 export class CrisisEffectFactory {
   static create(crisis: CRISIS_NAMES): CrisisEffect {

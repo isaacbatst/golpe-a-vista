@@ -1,10 +1,10 @@
 import { CrisisEffect } from 'src/domain/crisis/crisis-effect';
-import { Crisis } from '../crisis/crisis';
-import { CrisisEffectFactory } from '../crisis/crisis-effect-factory';
-import { Round } from '../round';
-import { Stage, StageType } from './stage';
+import { CrisisEffectJSON } from 'src/domain/crisis/crisis-effect-json';
 import { CrisisFactory } from 'src/domain/crisis/crisis-factory';
 import { Either, left, right } from 'src/domain/either';
+import { Crisis } from '../crisis/crisis';
+import { Round } from '../round';
+import { Stage, StageType } from './stage';
 
 export enum CrisisStageAction {
   START_CRISIS = 'START_CRISIS',
@@ -48,7 +48,7 @@ export class CrisisStage extends Stage {
       type: this.type,
       currentAction: this.currentAction as CrisisStageAction,
       crisis: this.crisis?.toJSON(),
-      crisisEffect: this._crisisEffect?.toJSON(),
+      crisisEffect: this._crisisEffect?.toJSON() as CrisisEffectJSON,
     } as const;
   }
 
@@ -56,11 +56,16 @@ export class CrisisStage extends Stage {
     return this._crisisEffect;
   }
 
-  static fromJSON(data: ReturnType<CrisisStage['toJSON']>): CrisisStage {
+  static fromJSON(
+    data: ReturnType<CrisisStage['toJSON']>,
+    crisisEffectFactory: {
+      fromJSON: (data: CrisisEffectJSON) => CrisisEffect;
+    },
+  ): CrisisStage {
     return new CrisisStage(
       data.crisis ? CrisisFactory.fromJSON(data.crisis) : null,
       data.crisisEffect
-        ? CrisisEffectFactory.fromJSON(data.crisisEffect)
+        ? crisisEffectFactory.fromJSON(data.crisisEffect)
         : null,
       data.currentAction,
     );
