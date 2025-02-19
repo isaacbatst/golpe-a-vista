@@ -4,6 +4,7 @@ import { CrisisVisibleTo } from '../domain/crisis/crisis-visible-to.';
 const CRISES: Record<
   CRISIS_NAMES,
   {
+    name: CRISIS_NAMES;
     titles: string[];
     description: string;
     visibleTo?: CrisisVisibleTo[];
@@ -11,18 +12,21 @@ const CRISES: Record<
   }
 > = {
   PLANO_COHEN: {
+    name: CRISIS_NAMES.PLANO_COHEN,
     titles: ['Plano Cohen', 'Dossiê Fake do PCC', 'Arquivo Secreto da CPI'],
     description:
       "O Presidente descobre que o Dossiê dessa rodada contém informação falsificada. 'A verdade é um campo de batalha.'",
     visibleTo: [CrisisVisibleTo.PRESIDENT],
   },
-  // MENSALAO: {
-  //   titles: ["Mensalão", "Caixa 2", "Propina"],
-  //   description:
-  //     "O Presidente forçará um jogador a votar a favor da próxima lei. 'Democracia é bom, mas dinheiro é melhor.'",
-  //   visibleTo: [CrisisVisibleTo.PRESIDENT],
-  // },
+  MENSALAO: {
+    name: CRISIS_NAMES.MENSALAO,
+    titles: ['Mensalão', 'Caixa 2', 'Propina'],
+    description:
+      "O Presidente forçará um jogador a votar a favor da próxima lei. 'Democracia é bom, mas dinheiro é melhor.'",
+    visibleTo: [CrisisVisibleTo.PRESIDENT],
+  },
   CAFE_COM_A_ABIN: {
+    name: CRISIS_NAMES.CAFE_COM_A_ABIN,
     titles: [
       'Café com a ABIN',
       'Visita do FBI',
@@ -45,12 +49,14 @@ const CRISES: Record<
   //   visibleTo: [CrisisVisibleTo.PRESIDENT],
   // },
   O_FMI_MANDOU: {
+    name: CRISIS_NAMES.O_FMI_MANDOU,
     titles: ['O FMI Mandou', 'O Dolár Subiu', 'A Bolsa Caiu'],
     description:
       "O Presidente deve vetar uma lei progressista, se houver. Um famoso editorial disse que 'o mercado não gostou', e agora não há mais o que fazer.",
     visibleTo: [CrisisVisibleTo.PRESIDENT],
   },
   FORCAS_OCULTAS: {
+    name: CRISIS_NAMES.FORCAS_OCULTAS,
     titles: [
       'Forças Ocultas',
       'Illuminati Confirmed',
@@ -70,12 +76,14 @@ const CRISES: Record<
   //   visibleTo: [CrisisVisibleTo.ALL],
   // },
   SESSAO_SECRETA: {
+    name: CRISIS_NAMES.SESSAO_SECRETA,
     titles: ['Sessão Secreta', 'O Que Os Olhos Não Veem...'],
     description:
       "A votação desta rodada é feita secretamente. 'Foi tudo resolvido em uma reunião discreta na calada da noite.'",
     visibleTo: [CrisisVisibleTo.ALL],
   },
   GOLPE_DE_ESTADO: {
+    name: CRISIS_NAMES.GOLPE_DE_ESTADO,
     titles: [
       'Golpe de Estado',
       'Pedalada Fiscal',

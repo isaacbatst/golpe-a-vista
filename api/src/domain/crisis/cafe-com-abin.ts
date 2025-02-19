@@ -1,21 +1,25 @@
-import CRISES from '../../data/crises';
+import { CrisisEffect } from 'src/domain/crisis/crisis-effect';
 import { Round } from '../round';
-import { Crisis, CrisisParams } from './crisis';
-import { CRISIS_NAMES } from './crisis-names';
+import { CRISIS_NAMES } from 'src/domain/crisis/crisis-names';
 
-export class CafeComAbin extends Crisis {
-  constructor(params: Partial<CrisisParams> = {}) {
-    super({
-      name: CRISIS_NAMES.CAFE_COM_A_ABIN,
-      description: CRISES.CAFE_COM_A_ABIN.description,
-      titles: CRISES.CAFE_COM_A_ABIN.titles,
-      visibleTo: CRISES.CAFE_COM_A_ABIN.visibleTo,
-      notVisibleTo: CRISES.CAFE_COM_A_ABIN.notVisibleTo,
-      ...params,
-    });
+export enum CafeComAbinAction {
+  ADVANCE_STAGE = 'ADVANCE_STAGE',
+}
+
+export class CafeComAbin extends CrisisEffect {
+  constructor(currentAction?: CafeComAbinAction) {
+    super(
+      CRISIS_NAMES.CAFE_COM_A_ABIN,
+      [CafeComAbinAction.ADVANCE_STAGE],
+      currentAction,
+    );
   }
 
-  effect(round: Round): void {
+  apply(round: Round): void {
     round.isDossierOmitted = true;
+  }
+
+  static fromJSON(data: ReturnType<CafeComAbin['toJSON']>) {
+    return new CafeComAbin(data.currentAction as CafeComAbinAction);
   }
 }

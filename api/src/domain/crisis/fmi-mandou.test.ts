@@ -7,7 +7,7 @@ describe('Café com a Abin', () => {
   it('não deve permitir que o relator veja o dossiê', () => {
     const fmiMandou = new FmiMandou();
     const round = makeRound();
-    fmiMandou.effect(round);
+    fmiMandou.apply(round);
     expect(round.requiredVeto).toBe(LawType.PROGRESSISTAS);
   });
 });

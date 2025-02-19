@@ -7,7 +7,7 @@ describe('Café com a Abin', () => {
     const cafeComAAbin = new CafeComAbin();
     const round = makeRound();
 
-    cafeComAAbin.effect(round);
+    cafeComAAbin.apply(round);
 
     expect(round.isDossierOmitted).toBe(true);
   });

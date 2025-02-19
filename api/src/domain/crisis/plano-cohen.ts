@@ -1,21 +1,25 @@
-import CRISES from '../../data/crises';
 import { Round } from '../round';
-import { Crisis, CrisisParams } from './crisis';
+import { CrisisEffect } from './crisis-effect';
 import { CRISIS_NAMES } from './crisis-names';
 
-export class PlanoCohen extends Crisis {
-  constructor(params: Partial<CrisisParams> = {}) {
-    super({
-      name: CRISIS_NAMES.PLANO_COHEN,
-      description: CRISES.PLANO_COHEN.description,
-      titles: CRISES.PLANO_COHEN.titles,
-      visibleTo: CRISES.PLANO_COHEN.visibleTo,
-      notVisibleTo: CRISES.PLANO_COHEN.notVisibleTo,
-      ...params,
-    });
+export enum PlanoCohenAction {
+  ADVANCE_STAGE = 'ADVANCE_STAGE',
+}
+
+export class PlanoCohen extends CrisisEffect {
+  constructor(currentAction?: PlanoCohenAction) {
+    super(
+      CRISIS_NAMES.PLANO_COHEN,
+      [PlanoCohenAction.ADVANCE_STAGE],
+      currentAction,
+    );
   }
 
-  effect(round: Round): void {
+  apply(round: Round): void {
     round.isDossierFake = true;
+  }
+
+  static fromJSON(data: ReturnType<PlanoCohen['toJSON']>) {
+    return new PlanoCohen(data.currentAction as PlanoCohenAction);
   }
 }

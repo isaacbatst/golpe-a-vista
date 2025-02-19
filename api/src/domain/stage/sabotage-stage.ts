@@ -1,5 +1,5 @@
 import { Crisis } from '../crisis/crisis';
-import { CrisisFactory } from '../crisis/crisis-factory';
+import { CrisisEffectFactory } from '../crisis/crisis-effect-factory';
 import { Deck } from '../deck';
 import { Either, left, right } from '../either';
 import { Stage, StageType } from './stage';
@@ -89,9 +89,9 @@ export class SabotageStage extends Stage {
   static fromJSON(data: ReturnType<SabotageStage['toJSON']>): SabotageStage {
     const stage = new SabotageStage(
       data.currentAction,
-      data.drawnCrises?.map((crisis) => Crisis.fromJSON(crisis, CrisisFactory)),
+      data.drawnCrises?.map((crisis) => Crisis.fromJSON(crisis, CrisisEffectFactory)),
       data.selectedCrisis
-        ? Crisis.fromJSON(data.selectedCrisis, CrisisFactory)
+        ? Crisis.fromJSON(data.selectedCrisis, CrisisEffectFactory)
         : undefined,
     );
     return stage;

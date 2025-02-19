@@ -1,11 +1,8 @@
+import CRISES from 'src/data/crises';
+import { Crisis } from 'src/domain/crisis/crisis';
 import { StageType } from 'src/domain/stage/stage';
 import { describe, expect, it } from 'vitest';
 import { Law } from '../data/laws';
-import { CafeComAbin } from './crisis/cafe-com-abin';
-import { FmiMandou } from './crisis/fmi-mandou';
-import { ForcasOcultas } from './crisis/forcas-ocultas';
-import { PlanoCohen } from './crisis/plano-cohen';
-import { SessaoSecreta } from './crisis/sessao-secreta';
 import { makeCrisesDeck, makeLawsDeck } from './mock';
 import { Player } from './player';
 import { PresidentQueue } from './president-queue';
@@ -169,7 +166,7 @@ describe('Estágios', () => {
       minRadicalizationProgressiveLaws: 2,
       previouslyApprovedConservativeLaws: 2,
       previouslyApprovedProgressiveLaws: 2,
-      crisis: new PlanoCohen(),
+      crisis: new Crisis(CRISES.PLANO_COHEN),
       stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION),
       stages: [
         new LegislativeStage({
@@ -196,7 +193,7 @@ describe('Estágios', () => {
       minRadicalizationProgressiveLaws: 2,
       previouslyApprovedConservativeLaws: 2,
       previouslyApprovedProgressiveLaws: 2,
-      crisis: new PlanoCohen(),
+      crisis: new Crisis(CRISES.PLANO_COHEN),
       stages: [new SabotageStage(SabotageAction.ADVANCE_STAGE)],
       stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION),
       hasLastRoundBeenSabotaged: true,
@@ -248,12 +245,12 @@ describe('Crises', () => {
       const nextPresident = new Player('p2', 'p2', Role.MODERADO);
       const round = new Round({
         presidentQueue: new PresidentQueue([president, nextPresident]),
-        crisis: new PlanoCohen(),
+        crisis: new Crisis(CRISES.PLANO_COHEN),
       });
 
       expect(round.currentStage.type).toBe(StageType.CRISIS);
       const crisisStage = round.currentStage as CrisisStage;
-      crisisStage.executeEffect(round);
+      crisisStage.startCrisis(round);
       expect(round.isDossierFake).toBe(true);
     });
   });
@@ -264,18 +261,21 @@ describe('Crises', () => {
       const nextPresident = new Player('p2', 'p2', Role.MODERADO);
       const round = new Round({
         presidentQueue: new PresidentQueue([president, nextPresident]),
-        crisis: new CafeComAbin(),
+        crisis: new Crisis(CRISES.CAFE_COM_A_ABIN),
       });
       expect(round.currentStage.type).toBe(StageType.CRISIS);
       const crisisStage = round.currentStage as CrisisStage;
-      crisisStage.executeEffect(round);
+      crisisStage.startCrisis(round);
       expect(round.isDossierOmitted).toBe(true);
     });
   });
 
   describe.each([
-    { name: 'FMI Mandou', factory: () => new FmiMandou() },
-    { name: 'Forças Ocultas', factory: () => new ForcasOcultas() },
+    { name: 'FMI Mandou', factory: () => new Crisis(CRISES.O_FMI_MANDOU) },
+    {
+      name: 'Forças Ocultas',
+      factory: () => new Crisis(CRISES.FORCAS_OCULTAS),
+    },
   ])('$name', ({ factory }) => {
     it('Deve ser obrigatório vetar uma lei progressista', () => {
       const president = new Player('p1', 'p1', Role.MODERADO);
@@ -286,7 +286,7 @@ describe('Crises', () => {
       });
       expect(round.currentStage.type).toBe(StageType.CRISIS);
       const crisisStage = round.currentStage as CrisisStage;
-      crisisStage.executeEffect(round);
+      crisisStage.startCrisis(round);
       expect(round.requiredVeto).toBe(LawType.PROGRESSISTAS);
       const [nextStageError] = round.nextStage();
       expect(nextStageError).toBeUndefined();
@@ -302,11 +302,11 @@ describe('Crises', () => {
       const nextPresident = new Player('p2', 'p2', Role.MODERADO);
       const round = new Round({
         presidentQueue: new PresidentQueue([president, nextPresident]),
-        crisis: new SessaoSecreta(),
+        crisis: new Crisis(CRISES.SESSAO_SECRETA),
       });
       expect(round.currentStage.type).toBe(StageType.CRISIS);
       const crisisStage = round.currentStage as CrisisStage;
-      crisisStage.executeEffect(round);
+      crisisStage.startCrisis(round);
       expect(round.isLegislativeVotingSecret).toBe(true);
     });
   });

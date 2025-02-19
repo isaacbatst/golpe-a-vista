@@ -1,21 +1,25 @@
-import CRISES from '../../data/crises';
 import { Round } from '../round';
-import { Crisis, CrisisParams } from './crisis';
+import { CrisisEffect } from './crisis-effect';
 import { CRISIS_NAMES } from './crisis-names';
 
-export class SessaoSecreta extends Crisis {
-  constructor(params: Partial<CrisisParams> = {}) {
-    super({
-      name: CRISIS_NAMES.SESSAO_SECRETA,
-      description: CRISES.SESSAO_SECRETA.description,
-      titles: CRISES.SESSAO_SECRETA.titles,
-      visibleTo: CRISES.SESSAO_SECRETA.visibleTo,
-      notVisibleTo: CRISES.SESSAO_SECRETA.notVisibleTo,
-      ...params,
-    });
+export enum SessaoSecretaAction {
+  ADVANCE_STAGE = 'ADVANCE_STAGE',
+}
+
+export class SessaoSecreta extends CrisisEffect {
+  constructor(currentAction?: SessaoSecretaAction) {
+    super(
+      CRISIS_NAMES.SESSAO_SECRETA,
+      [SessaoSecretaAction.ADVANCE_STAGE],
+      currentAction,
+    );
   }
 
-  effect(round: Round): void {
+  apply(round: Round): void {
     round.isLegislativeVotingSecret = true;
+  }
+
+  static fromJSON(data: ReturnType<SessaoSecreta['toJSON']>) {
+    return new SessaoSecreta(data.currentAction as SessaoSecretaAction);
   }
 }

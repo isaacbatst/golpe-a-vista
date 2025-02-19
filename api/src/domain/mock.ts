@@ -1,6 +1,6 @@
+import { Crisis } from 'src/domain/crisis/crisis';
 import CRISES from '../data/crises';
 import { Law } from '../data/laws';
-import { PlanoCohen } from './crisis/plano-cohen';
 import { Deck } from './deck';
 import { Player } from './player';
 import { PresidentQueue } from './president-queue';
@@ -9,7 +9,7 @@ import { Round, RoundParams } from './round';
 
 export const makeCrisesDeck = () => {
   const [error, deck] = Deck.create(
-    Object.values(CRISES).map(() => new PlanoCohen()),
+    Object.values(CRISES).map(() => new Crisis(CRISES.CAFE_COM_A_ABIN)),
   );
   if (!deck) {
     throw new Error(error);

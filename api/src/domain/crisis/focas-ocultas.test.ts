@@ -7,7 +7,7 @@ describe('Forças Ocultas', () => {
   it('não deve permitir que o relator veja o dossiê', () => {
     const forcasOcultas = new ForcasOcultas();
     const round = makeRound();
-    forcasOcultas.effect(round);
+    forcasOcultas.apply(round);
     expect(round.requiredVeto).toBe(LawType.PROGRESSISTAS);
   });
 });

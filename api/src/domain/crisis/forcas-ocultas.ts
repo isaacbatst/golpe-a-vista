@@ -1,22 +1,26 @@
-import CRISES from '../../data/crises';
 import { LawType } from '../role';
 import { Round } from '../round';
-import { Crisis, CrisisParams } from './crisis';
+import { CrisisEffect } from './crisis-effect';
 import { CRISIS_NAMES } from './crisis-names';
 
-export class ForcasOcultas extends Crisis {
-  constructor(params: Partial<CrisisParams> = {}) {
-    super({
-      name: CRISIS_NAMES.FORCAS_OCULTAS,
-      description: CRISES.FORCAS_OCULTAS.description,
-      titles: CRISES.FORCAS_OCULTAS.titles,
-      visibleTo: CRISES.FORCAS_OCULTAS.visibleTo,
-      notVisibleTo: CRISES.FORCAS_OCULTAS.notVisibleTo,
-      ...params,
-    });
+export enum ForcasOcultasAction {
+  ADVANCE_STAGE = 'ADVANCE_STAGE',
+}
+
+export class ForcasOcultas extends CrisisEffect {
+  constructor(currentAction?: ForcasOcultasAction) {
+    super(
+      CRISIS_NAMES.FORCAS_OCULTAS,
+      [ForcasOcultasAction.ADVANCE_STAGE],
+      currentAction,
+    );
   }
 
-  effect(round: Round): void {
+  apply(round: Round): void {
     round.requiredVeto = LawType.PROGRESSISTAS;
+  }
+
+  static fromJSON(data: ReturnType<ForcasOcultas['toJSON']>) {
+    return new ForcasOcultas(data.currentAction as ForcasOcultasAction);
   }
 }

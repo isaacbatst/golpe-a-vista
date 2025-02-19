@@ -6,7 +6,7 @@ describe('Golpe de Estado', () => {
   it('deve pular o presidente', () => {
     const golpeDeEstado = new GolpeDeEstado();
     const round = makeRound();
-    golpeDeEstado.effect(round);
+    golpeDeEstado.apply(round);
     expect(round.president.name).toBe('p2');
   });
 });

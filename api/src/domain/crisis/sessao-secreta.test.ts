@@ -6,7 +6,7 @@ describe('Sessão Secreta', () => {
   it('deve tornar a sessão legislativa secreta', () => {
     const sessaoSecreta = new SessaoSecreta();
     const round = makeRound();
-    sessaoSecreta.effect(round);
+    sessaoSecreta.apply(round);
     expect(round.isLegislativeVotingSecret).toBe(true);
   });
 });

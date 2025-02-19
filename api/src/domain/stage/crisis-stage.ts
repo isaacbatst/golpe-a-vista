@@ -1,10 +1,13 @@
+import { CrisisEffect } from 'src/domain/crisis/crisis-effect';
 import { Crisis } from '../crisis/crisis';
-import { CrisisFactory } from '../crisis/crisis-factory';
+import { CrisisEffectFactory } from '../crisis/crisis-effect-factory';
 import { Round } from '../round';
 import { Stage, StageType } from './stage';
+import { CrisisFactory } from 'src/domain/crisis/crisis-factory';
+import { Either, left, right } from 'src/domain/either';
 
 enum CrisisStageAction {
-  EFFECT = 'EFFECT',
+  START_CRISIS = 'START_CRISIS',
   ADVANCE_STAGE = 'ADVANCE_STAGE',
 }
 
@@ -13,22 +16,30 @@ export class CrisisStage extends Stage {
 
   constructor(
     readonly crisis: Crisis,
+    private _crisisEffect: CrisisEffect | null = null,
     currentAction?: CrisisStageAction,
   ) {
     super(
-      [CrisisStageAction.EFFECT, CrisisStageAction.ADVANCE_STAGE],
+      [CrisisStageAction.START_CRISIS, CrisisStageAction.ADVANCE_STAGE],
       currentAction,
     );
   }
 
-  executeEffect(round: Round): void {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
-    if (this.currentAction !== CrisisStageAction.EFFECT) {
-      throw new Error('Invalid action');
+  startCrisis(round: Round): Either<string, void> {
+    const [error] = this.assertCurrentAction(CrisisStageAction.START_CRISIS);
+    if (error) {
+      return left(error);
     }
 
-    this.crisis.effect(round);
-    this.advanceAction();
+    this._crisisEffect = this.crisis.start();
+
+    if (!this._crisisEffect.hasPendingActions) {
+      this._crisisEffect.apply(round);
+      this.advanceAction();
+      return right();
+    }
+
+    return right();
   }
 
   toJSON() {
@@ -37,10 +48,21 @@ export class CrisisStage extends Stage {
       type: this.type,
       currentAction: this.currentAction as CrisisStageAction,
       crisis: this.crisis.toJSON(),
+      crisisEffect: this._crisisEffect?.toJSON(),
     } as const;
   }
 
+  get crisisEffect(): CrisisEffect | null {
+    return this._crisisEffect;
+  }
+
   static fromJSON(data: ReturnType<CrisisStage['toJSON']>): CrisisStage {
-    return new CrisisStage(Crisis.fromJSON(data.crisis, CrisisFactory));
+    return new CrisisStage(
+      CrisisFactory.fromJSON(data.crisis),
+      data.crisisEffect
+        ? CrisisEffectFactory.fromJSON(data.crisisEffect)
+        : null,
+      data.currentAction,
+    );
   }
 }

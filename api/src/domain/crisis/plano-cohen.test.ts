@@ -7,7 +7,7 @@ describe('Plano Cohen', () => {
     const planoCohen = new PlanoCohen();
     const round = makeRound();
 
-    planoCohen.effect(round);
+    planoCohen.apply(round);
 
     expect(round.isDossierFake).toBe(true);
   });

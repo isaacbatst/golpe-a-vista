@@ -6,7 +6,7 @@ import { RadicalizationStageFactory } from 'src/domain/stage/radicalization-stag
 import { SabotageStageFactory } from 'src/domain/stage/sabotage-stage.factory';
 import { Law } from '../data/laws';
 import { Crisis } from './crisis/crisis';
-import { CrisisFactory } from './crisis/crisis-factory';
+import { CrisisEffectFactory } from './crisis/crisis-effect-factory';
 import { Either, left, right } from './either';
 import { Player } from './player';
 import { PresidentQueue } from './president-queue';
@@ -35,6 +35,7 @@ export type RoundParams = {
   isLegislativeVotingSecret?: boolean;
   requiredVeto?: LawType | null;
   stageQueue?: StageQueue;
+  legislativeForcedVotes?: Map<string, boolean>;
 };
 
 export class Round {
@@ -55,7 +56,7 @@ export class Round {
   private readonly _previouslyApprovedProgressiveLaws: number;
   private readonly _stages: Stage[] = [];
   private readonly _stageQueue: StageQueue;
-
+  readonly legislativeForcedVotes: Map<string, boolean>;
   constructor(props: RoundParams) {
     this._crisis = props.crisis ?? null;
     this._hasImpeachment = props.hasImpeachment ?? false;
@@ -71,6 +72,8 @@ export class Round {
       props.previouslyApprovedProgressiveLaws ?? 0;
     this.index = props.index ?? 0;
     this.presidentQueue = props.presidentQueue;
+    this.legislativeForcedVotes =
+      props.legislativeForcedVotes ?? new Map<string, boolean>();
     this._stageQueue = props.stageQueue ?? new StageQueue();
     this._stages = props.stages ?? [this.createFirstStage()];
   }
@@ -267,6 +270,7 @@ export class Round {
       previouslyApprovedProgressiveLaws:
         this._previouslyApprovedProgressiveLaws,
       presidentQueue: this.presidentQueue.toJSON(),
+      legislativeForcedVotes: Array.from(this.legislativeForcedVotes),
       stageQueue: this._stageQueue.toJSON(),
     };
   }
@@ -278,8 +282,11 @@ export class Round {
     const round = new Round({
       ...json,
       stageQueue: StageQueue.fromJSON(json.stageQueue),
-      crisis: json.crisis ? Crisis.fromJSON(json.crisis, CrisisFactory) : null,
+      crisis: json.crisis
+        ? Crisis.fromJSON(json.crisis, CrisisEffectFactory)
+        : null,
       presidentQueue,
+      legislativeForcedVotes: new Map(json.legislativeForcedVotes),
       rapporteurId: json.rapporteur ?? null,
       stages: json.stages.map((stage) => StageFactory.fromJSON(stage)),
     });

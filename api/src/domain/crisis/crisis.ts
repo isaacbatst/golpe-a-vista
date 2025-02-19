@@ -1,19 +1,16 @@
-import { ActionController } from '../action-controller';
+import { CrisisEffect } from 'src/domain/crisis/crisis-effect';
 import { Random } from '../random';
-import { Round } from '../round';
 import { CRISIS_NAMES } from './crisis-names';
 import { CrisisVisibleTo } from './crisis-visible-to.';
-type CrisisAction = 'ADVANDCE_STAGE' | (string & {});
+import { CrisisEffectFactory } from 'src/domain/crisis/crisis-effect-factory';
 
 export type CrisisParams = {
   name: CRISIS_NAMES;
   description: string;
-  actions?: CrisisAction[];
-  currentAction?: CrisisAction;
-  visibleTo?: CrisisVisibleTo[];
-  notVisibleTo?: CrisisVisibleTo[];
   titles: readonly string[];
   title?: string;
+  visibleTo?: CrisisVisibleTo[];
+  notVisibleTo?: CrisisVisibleTo[];
 };
 
 export type CrisisJSON = {
@@ -23,12 +20,9 @@ export type CrisisJSON = {
   description: string;
   visibleTo: CrisisVisibleTo[];
   notVisibleTo: CrisisVisibleTo[];
-  currentAction: CrisisAction | null;
-  isComplete: boolean;
-  actions: CrisisAction[] | null;
 };
 
-export abstract class Crisis {
+export class Crisis {
   readonly cardType = 'CRISIS';
   private _name: CRISIS_NAMES;
   private _description: string;
@@ -36,7 +30,6 @@ export abstract class Crisis {
   private _notVisibleTo: CrisisVisibleTo[];
   private _title: string;
   private _titles: readonly string[];
-  protected _actionController: ActionController | null;
 
   constructor(params: CrisisParams) {
     this._description = params.description;
@@ -45,12 +38,11 @@ export abstract class Crisis {
     this._visibleTo = params.visibleTo ?? [];
     this._notVisibleTo = params.notVisibleTo ?? [];
     this._title = params.title ?? Random.getFromArray(params.titles);
-    this._actionController = params.actions
-      ? new ActionController(params.actions, params.currentAction)
-      : null;
   }
 
-  abstract effect(round: Round): void;
+  start(): CrisisEffect {
+    return CrisisEffectFactory.create(this._name);
+  }
 
   get name(): CRISIS_NAMES {
     return this._name;
@@ -72,18 +64,6 @@ export abstract class Crisis {
     return this._notVisibleTo;
   }
 
-  get currentAction(): string | null {
-    return this._actionController?.currentAction ?? null;
-  }
-
-  get isComplete(): boolean {
-    return this._actionController?.isComplete ?? true;
-  }
-
-  get actions(): CrisisAction[] | null {
-    return this._actionController?.actions ?? null;
-  }
-
   toJSON(): CrisisJSON {
     return {
       name: this.name,
@@ -92,9 +72,6 @@ export abstract class Crisis {
       description: this.description,
       visibleTo: this.visibleTo,
       notVisibleTo: this.notVisibleTo,
-      currentAction: this.currentAction,
-      isComplete: this.isComplete,
-      actions: this.actions,
     };
   }
 

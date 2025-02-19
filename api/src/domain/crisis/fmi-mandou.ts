@@ -1,22 +1,26 @@
-import CRISES from '../../data/crises';
 import { LawType } from '../role';
 import { Round } from '../round';
-import { Crisis, CrisisParams } from './crisis';
+import { CrisisEffect } from './crisis-effect';
 import { CRISIS_NAMES } from './crisis-names';
 
-export class FmiMandou extends Crisis {
-  constructor(params: Partial<CrisisParams> = {}) {
-    super({
-      name: CRISIS_NAMES.O_FMI_MANDOU,
-      description: CRISES.O_FMI_MANDOU.description,
-      titles: CRISES.O_FMI_MANDOU.titles,
-      visibleTo: CRISES.O_FMI_MANDOU.visibleTo,
-      notVisibleTo: CRISES.O_FMI_MANDOU.notVisibleTo,
-      ...params,
-    });
+export enum FmiMandouAction {
+  ADVANCE_STAGE = 'ADVANCE_STAGE',
+}
+
+export class FmiMandou extends CrisisEffect {
+  constructor(currentAction?: FmiMandouAction) {
+    super(
+      CRISIS_NAMES.O_FMI_MANDOU,
+      [FmiMandouAction.ADVANCE_STAGE],
+      currentAction,
+    );
   }
 
-  effect(round: Round): void {
+  apply(round: Round): void {
     round.requiredVeto = LawType.PROGRESSISTAS;
+  }
+
+  static fromJSON(data: ReturnType<FmiMandou['toJSON']>) {
+    return new FmiMandou(data.currentAction as FmiMandouAction);
   }
 }

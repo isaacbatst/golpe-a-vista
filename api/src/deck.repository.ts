@@ -3,7 +3,7 @@ import { Deck } from './domain/deck';
 import { Law, LAWS } from './data/laws';
 import { Crisis } from './domain/crisis/crisis';
 import CRISES from './data/crises';
-import { CrisisFactory } from './domain/crisis/crisis-factory';
+import { CrisisEffectFactory } from './domain/crisis/crisis-effect-factory';
 
 @Injectable()
 export class DeckRepository {
@@ -19,7 +19,7 @@ export class DeckRepository {
 
     const [crisesDeckError, crisesDeck] = Deck.create(
       Object.keys(CRISES).map((key: keyof typeof CRISES) =>
-        CrisisFactory.create({ name: key }),
+        CrisisEffectFactory.create({ name: key }),
       ),
     );
     if (!crisesDeck) {

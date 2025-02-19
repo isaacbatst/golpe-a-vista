@@ -1,21 +1,21 @@
-import CRISES from '../../data/crises';
+import { CRISIS_NAMES } from 'src/domain/crisis/crisis-names';
 import { Round } from '../round';
-import { Crisis, CrisisParams } from './crisis';
-import { CRISIS_NAMES } from './crisis-names';
+import { CrisisEffect } from './crisis-effect';
 
-export class GolpeDeEstado extends Crisis {
-  constructor(params: Partial<CrisisParams> = {}) {
-    super({
-      name: CRISIS_NAMES.GOLPE_DE_ESTADO,
-      description: CRISES.GOLPE_DE_ESTADO.description,
-      titles: CRISES.GOLPE_DE_ESTADO.titles,
-      notVisibleTo: CRISES.GOLPE_DE_ESTADO.notVisibleTo,
-      visibleTo: CRISES.GOLPE_DE_ESTADO.visibleTo,
-      ...params,
-    });
+export enum GolpeDeEstadoAction {
+  ADVANCE_STAGE = 'ADVANCE_STAGE',
+}
+
+export class GolpeDeEstado extends CrisisEffect {
+  constructor(currentAction?: GolpeDeEstadoAction) {
+    super(
+      CRISIS_NAMES.GOLPE_DE_ESTADO,
+      [GolpeDeEstadoAction.ADVANCE_STAGE],
+      currentAction,
+    );
   }
 
-  effect(round: Round): void {
+  apply(round: Round): void {
     round.presidentQueue.shift();
   }
 }
