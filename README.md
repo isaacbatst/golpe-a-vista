@@ -20,7 +20,7 @@ Seja sutil como um operador de gabinete ou implacável como um líder autoritár
 ## **2️⃣ Condição de Vitória**
 📌 **O jogo termina quando um time atinge um dos objetivos:** 
    - ✅ **Moderados vencem** ao aprovar **6 leis progressistas** 
-   - ✅ **Radical vence** ao cassar **2 conservadores** ou radicalizar a **maioria dos moderados**.
+   - ✅ **Radical vence** ao cassar **2 conservadores** ou radicalizar a **metade dos moderados**.
    - ✅ **Conservadores vencem** ao cassar **o radical** ou aprovar **7 leis conservadoras**.  
 
 ---
@@ -71,14 +71,14 @@ Crises são eventos adversos gerados pela situação instável que o país se en
 
 ## **5️⃣ Cassação**
 - 📌 A cada 3 crises, o próximo presidente deverá propor uma cassação.
-- 📌 A cassação é realizada mediante votação. Caso aprovada, o jogador cassado **sai do jogo sem revelar sua identidade**.  
+- 📌 A cassação é realizada mediante votação. Caso aprovada, o jogador cassado **sai do jogo sem revelar sua identidade**. 
 - 📌 Se a cassação for rejeitada, uma lei conservadora é aprovada, pois o establishment não está do nosso lado.
 
 ---
 
 ## **6️⃣ Dossiê**
 - 📌 Antes de finalizar a rodada, **o Presidente escolhe** quem **receberá um Dossiê** no próximo turno.  
-- 📌 O jogador escolhido será o **Relator do Dossiê**. Ele receberá **informação privilegiada** sobre as leis do Presidente daquele turno após a votação.
+- 📌 O jogador escolhido será o **Relator do Dossiê**. Ele receberá um documento informando quais leis o presidente recebeu, **menos a lei vetada**.
 - 📌 O Presidente **não pode** escolher a si mesmo, o Relator do Dossiê da rodada atual ou o Presidente da rodada seguinte.
 
 ---
