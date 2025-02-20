@@ -86,7 +86,9 @@ Crises são eventos adversos gerados pela situação instável que o país se en
 ## **7️⃣ Poderes do Radical**
 
 📌 **Radicalização**
-   - **Efeito:** O jogador radicalizado passa a jogar do lado do radical, sem revelar sua identidade. Se o radicalizado for um conservador, nada acontece. Apenas o radical e o radicalizado sabem da mudança.
+   - **Efeito:** 
+      - Se o jogador radicalizado for um **moderado**, ele ganha o status **radicalizado** perdendo o seu **receio**. Apenas o radical e o radicalizado sabem da mudança.
+      - Se o radicalizado for um conservador, nada acontece. Apenas o radical sabe da tentativa.
    - **Restrição:** 
       - Deve haver uma **crise ativa** na rodada.
       - São necessárias **4 leis progressistas aprovadas** ou **4 leis conservadoras aprovadas**.
@@ -94,7 +96,7 @@ Crises são eventos adversos gerados pela situação instável que o país se en
 📌 **Revolução Armada**
    - **Efeito:** A cassação é aprovada automaticamente, sem votação.
    - **Restrição:**
-      - O alvo da cassação deve ser um conservador e um conservador já deve ter sido cassado.
+      - O alvo da cassação deve ser o último conservador para a vitória do radical.
    
 ---
 
