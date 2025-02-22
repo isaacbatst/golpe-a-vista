@@ -1,3 +1,4 @@
+import { LegislativeProposal } from 'src/domain/stage/legislative-proposal';
 import { Law } from '../../data/laws';
 import { Deck } from '../deck';
 import { Either, left, right } from '../either';
@@ -11,8 +12,9 @@ export enum DossierAction {
 }
 
 type DossierStageParams = {
-  drawnLaws: Law[];
+  proposals: LegislativeProposal[];
   fakeDossier?: boolean;
+  fakeDossierProposals?: LegislativeProposal[];
   currentAction?: DossierAction;
   isDossierVisibleToRapporteur?: boolean;
   nextRapporteurId?: string;
@@ -22,19 +24,21 @@ export class DossierStage extends Stage {
   readonly type = StageType.REPORT_DOSSIER;
   private _nextRapporteurId: string | null;
   private _isDossierVisibleToRapporteur: boolean;
-  private _dossier: Law[];
+  private _proposals: LegislativeProposal[];
   private _fakeDossier: boolean;
+  private _fakeDossierProposals: LegislativeProposal[] | null;
 
   constructor(params: DossierStageParams) {
     super(
       ['SELECT_RAPPORTEUR', 'PASS_DOSSIER', 'ADVANCE_STAGE'],
       params.currentAction,
     );
-    this._dossier = params.drawnLaws;
+    this._proposals = params.proposals;
     this._fakeDossier = params.fakeDossier ?? false;
     this._isDossierVisibleToRapporteur =
       params.isDossierVisibleToRapporteur ?? false;
     this._nextRapporteurId = params.nextRapporteurId ?? null;
+    this._fakeDossierProposals = params.fakeDossierProposals ?? null;
   }
 
   chooseNextRapporteur(params: {
@@ -87,7 +91,10 @@ export class DossierStage extends Stage {
     }
 
     if (this._fakeDossier) {
-      this._dossier = lawsDeck.show(3);
+      const notVetoedLaws = this._proposals.filter((law) => !law.isVetoed);
+      const randomLaws = lawsDeck.show(notVetoedLaws.length);
+      const fakeDossier = randomLaws.map((law) => new LegislativeProposal(law));
+      this._fakeDossierProposals = fakeDossier;
     }
 
     this._isDossierVisibleToRapporteur = true;
@@ -104,7 +111,10 @@ export class DossierStage extends Stage {
   }
 
   get dossier(): Law[] {
-    return this._dossier;
+    if (this._fakeDossierProposals) {
+      return this._fakeDossierProposals.map((law) => law.law);
+    }
+    return this._proposals.filter((law) => !law.isVetoed).map((law) => law.law);
   }
 
   toJSON() {
@@ -114,8 +124,8 @@ export class DossierStage extends Stage {
       currentAction: this.currentAction as DossierAction,
       nextRapporteurId: this._nextRapporteurId,
       isDossierVisibleToRapporteur: this._isDossierVisibleToRapporteur,
-      dossier: this._dossier.map((law) => law.toJSON()),
-      drawnLaws: this._dossier.map((law) => law.toJSON()),
+      dossier: this._proposals.map((law) => law.toJSON()),
+      proposals: this._proposals.map((law) => law.toJSON()),
     } as const;
   }
 
@@ -123,7 +133,7 @@ export class DossierStage extends Stage {
     return new DossierStage({
       ...data,
       nextRapporteurId: data.nextRapporteurId ?? undefined,
-      drawnLaws: data.dossier.map((law) => Law.fromJSON(law)),
+      proposals: data.dossier.map((law) => LegislativeProposal.fromJSON(law)),
     });
   }
 

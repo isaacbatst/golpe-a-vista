@@ -86,7 +86,7 @@ describe('Rodadas', () => {
     const crisesDeck = makeCrisesDeck();
     const lawsDeck = makeLawsDeck();
     const dossierStage = new DossierStage({
-      drawnLaws: [],
+      proposals: [],
     });
     const [chooseNextRapporteurError] = dossierStage.chooseNextRapporteur({
       chosen: players.get('p3')!,

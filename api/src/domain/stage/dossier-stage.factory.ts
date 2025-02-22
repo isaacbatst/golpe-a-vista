@@ -17,7 +17,7 @@ export class DossierStageFactory extends StageFactory {
 
   create(): Stage {
     return new DossierStage({
-      drawnLaws: this.drawnLaws,
+      proposals: this.drawnLaws,
       fakeDossier: this.isDossierFake,
     });
   }

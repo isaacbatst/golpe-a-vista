@@ -105,7 +105,7 @@ describe('Estágios', () => {
       stageQueue: new StageQueue(RoundStageIndex.DOSSIER),
       stages: [
         new DossierStage({
-          drawnLaws: [],
+          proposals: [],
           currentAction: DossierAction.ADVANCE_STAGE,
         }),
       ],
@@ -152,7 +152,7 @@ describe('Estágios', () => {
       stages: [
         legislativeStage,
         new DossierStage({
-          drawnLaws: [],
+          proposals: [],
           currentAction: DossierAction.ADVANCE_STAGE,
         }),
       ],
@@ -179,7 +179,7 @@ describe('Estágios', () => {
           currentAction: LegislativeAction.ADVANCE_STAGE,
         }),
         new DossierStage({
-          drawnLaws: [],
+          proposals: [],
           currentAction: DossierAction.ADVANCE_STAGE,
         }),
       ],
@@ -225,7 +225,7 @@ describe('Estágios', () => {
     const president = new Player('p1', 'p1', Role.MODERADO);
     const nextPresident = new Player('p2', 'p2', Role.MODERADO);
     const dossierStage = new DossierStage({
-      drawnLaws: [],
+      proposals: [],
     });
     const nextRapporteur = new Player('p4', 'p4', Role.MODERADO);
     dossierStage.chooseNextRapporteur({
