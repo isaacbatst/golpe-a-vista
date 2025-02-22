@@ -247,6 +247,7 @@ export class Game {
 
     return (
       this.president.role === Role.MODERADO &&
+      !this.president.radicalized &&
       this.currentRound.hasApprovedLaw(LawType.PROGRESSISTAS) &&
       lastRounds.length >= this._progressiveLawsToFear &&
       lastRoundsApprovedProgressiveLaws

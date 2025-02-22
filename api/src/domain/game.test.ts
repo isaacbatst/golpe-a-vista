@@ -172,7 +172,7 @@ describe('Distribuição de Papéis', () => {
 
 describe('Crises', () => {
   it.each([2, 3, 4])(
-    'deve iniciar rodada com crise se moderado aprovar %dª lei progressita consecutiva',
+    'deve iniciar rodada com crise por Receio ao moderado aprovar %dª lei progressita consecutiva',
     (n) => {
       const crisesDeck = makeCrisesDeck();
       const lawsDeck = makeLawsDeck('progressive');
@@ -232,6 +232,76 @@ describe('Crises', () => {
       const [errorNextRound] = game!.nextRound();
       expect(errorNextRound).toBeUndefined();
       expect(game!.currentRound.crisis).not.toBeNull();
+    },
+  );
+
+  it.each([2, 3, 4])(
+    'não deve iniciar rodada com crise por Receio ao moderado aprovar %dª lei progressita consecutiva se moderado estiver radicalizado',
+    (n) => {
+      const crisesDeck = makeCrisesDeck();
+      const lawsDeck = makeLawsDeck('progressive');
+      const playersNames: [string, string][] = [
+        ['p1', 'p1'],
+        ['p2', 'p2'],
+        ['p3', 'p3'],
+        ['p4', 'p4'],
+        ['p5', 'p5'],
+        ['p6', 'p6'],
+        ['p7', 'p7'],
+      ];
+      const players = Game.createPlayers(
+        playersNames,
+        Array.from(
+          {
+            length: 6,
+          },
+          () => Role.MODERADO,
+        ),
+      );
+
+      // for each player => player.radicalized = true
+      players.forEach((player) => {
+        player.radicalize();
+        expect(player.radicalized).toBe(true);
+      });
+
+      const rounds = Array.from({ length: n }, (_, i) => {
+        const legislativeStage = new LegislativeStage();
+        const presidentQueue = new PresidentQueue(Array.from(players.values()));
+        const president = presidentQueue.getByRoundNumber(i);
+        legislativeStage.drawLaws(
+          makeLawsDeck('progressive'),
+          president.id,
+          president.id,
+        );
+        legislativeStage.vetoLaw(0, president.id, president.id);
+        legislativeStage.chooseLawForVoting(1, president.id, president.id);
+        legislativeStage.startVoting(playersNames.map(([id]) => id));
+        for (const player of players) {
+          legislativeStage.vote(player[0], true);
+        }
+        return new Round({
+          presidentQueue,
+          stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION),
+          stages: [
+            legislativeStage,
+            new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE),
+          ],
+        });
+      });
+
+      const [error, game] = Game.create({
+        players,
+        crisesDeck,
+        lawsDeck,
+        minProgressiveLawsToFearCrisis: n,
+        rounds,
+      });
+      expect(error).toBeUndefined();
+      expect(game).toBeDefined();
+      const [errorNextRound] = game!.nextRound();
+      expect(errorNextRound).toBeUndefined();
+      expect(game!.currentRound.crisis).toBeNull();
     },
   );
 
