@@ -14,6 +14,7 @@ import { ImpeachmentAction, ImpeachmentStage } from './stage/impeachment-stage';
 import { LegislativeAction, LegislativeStage } from './stage/legislative-stage';
 import { SabotageAction, SabotageStage } from './stage/sabotage-stage';
 import { RoundStageIndex, StageQueue } from './stage/stage-queue';
+import { LegislativeProposal } from 'src/domain/stage/legislative-proposal';
 
 describe('Estágios', () => {
   it('Deve iniciar Estágio Legislativo', () => {
@@ -80,7 +81,11 @@ describe('Estágios', () => {
       stages: [
         new LegislativeStage({
           currentAction: LegislativeAction.ADVANCE_STAGE,
-          drawnLaws: [new Law('1', LawType.PROGRESSISTAS, 'Lei 1')],
+          proposals: [
+            new LegislativeProposal(
+              new Law('1', LawType.PROGRESSISTAS, 'Lei 1'),
+            ),
+          ],
         }),
       ],
       stageQueue: new StageQueue(RoundStageIndex.DOSSIER),

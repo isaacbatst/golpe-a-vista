@@ -4,6 +4,7 @@ import { Either, left, right } from '../either';
 import { LawType } from '../role';
 import { Voting } from '../voting';
 import { Stage, StageType } from './stage';
+import { LegislativeProposal } from './legislative-proposal';
 
 export enum LegislativeAction {
   DRAW_LAWS = 'DRAW_LAWS',
@@ -18,26 +19,20 @@ type LegislativeStageParams = {
   mustVeto?: LawType | null;
   currentAction?: LegislativeAction;
   isVotingSecret?: boolean;
-  drawnLaws?: Law[];
-  vetoedLaw?: Law | null;
-  lawToVote?: Law | null;
+  proposals?: LegislativeProposal[];
   voting?: Voting | null;
 };
 
 export class LegislativeStage extends Stage {
   readonly type = StageType.LEGISLATIVE;
-  private _drawnLaws: Law[] = [];
-  private _vetoedLaw: Law | null;
-  private _lawToVote: Law | null;
+  private _proposals: LegislativeProposal[] = [];
   private _voting: Voting | null;
   private _isVotingSecret: boolean;
   private _mustVeto: LawType | null;
 
   constructor(params: LegislativeStageParams = {}) {
     const {
-      drawnLaws = [],
-      lawToVote = null,
-      vetoedLaw = null,
+      proposals = [],
       voting = null,
       mustVeto = null,
       currentAction = LegislativeAction.DRAW_LAWS,
@@ -56,9 +51,7 @@ export class LegislativeStage extends Stage {
     );
     this._mustVeto = mustVeto;
     this._isVotingSecret = isVotingSecret;
-    this._drawnLaws = drawnLaws;
-    this._vetoedLaw = vetoedLaw;
-    this._lawToVote = lawToVote;
+    this._proposals = proposals;
     this._voting = voting;
   }
 
@@ -66,15 +59,16 @@ export class LegislativeStage extends Stage {
     lawsDeck: Deck<Law>,
     issuerId: string,
     presidentId: string,
-  ): Either<string, Law[]> {
+  ): Either<string, LegislativeProposal[]> {
     const [error] = this.assertCurrentAction(LegislativeAction.DRAW_LAWS);
     if (error) return left(error);
     if (issuerId !== presidentId) {
       return left('Apenas o presidente pode sortear leis.');
     }
-    this._drawnLaws = lawsDeck.draw(3);
+    const laws = lawsDeck.draw(3);
+    this._proposals = laws.map((law) => new LegislativeProposal(law));
     this.advanceAction();
-    return right(this._drawnLaws);
+    return right(this._proposals);
   }
 
   vetoLaw(
@@ -89,16 +83,16 @@ export class LegislativeStage extends Stage {
       return left('Apenas o presidente pode vetar leis.');
     }
 
-    if (index < 0 || index >= this._drawnLaws.length) {
+    if (index < 0 || index >= this._proposals.length) {
       return left('Índice inválido.');
     }
 
-    const law = this._drawnLaws[index];
-    if (!this.vetoableLaws.includes(law)) {
-      return left('Essa lei não pode ser vetada.');
+    const proposal = this._proposals[index];
+    if (!this.vetoableProposals.includes(proposal)) {
+      return left('Essa proposta não pode ser vetada.');
     }
 
-    this._vetoedLaw = this._drawnLaws[index];
+    proposal.veto();
     this.advanceAction();
     return right();
   }
@@ -116,11 +110,11 @@ export class LegislativeStage extends Stage {
       return left('Apenas o presidente pode escolher leis para votação.');
     }
 
-    const law = this._drawnLaws[index];
-    if (!law) return left('Índice inválido.');
-    if (law === this._vetoedLaw) return left('Essa lei foi vetada.');
+    const proposal = this._proposals[index];
+    if (!proposal) return left('Índice inválido.');
+    if (proposal.isVetoed) return left('Essa proposta foi vetada.');
 
-    this._lawToVote = law;
+    proposal.chooseForVoting();
     this.advanceAction();
     return right();
   }
@@ -129,8 +123,10 @@ export class LegislativeStage extends Stage {
     const [error] = this.assertCurrentAction(LegislativeAction.START_VOTING);
     if (error) return left(error);
 
-    if (!this._lawToVote)
-      return left('Nenhuma lei foi escolhida para votação.');
+    const lawToVote = this._proposals.find(
+      (proposal) => proposal.isChosenForVoting,
+    )?.law;
+    if (!lawToVote) return left('Nenhuma lei foi escolhida para votação.');
 
     const [voteError, voting] = Voting.create(players);
     if (!voting) return left(voteError);
@@ -164,15 +160,15 @@ export class LegislativeStage extends Stage {
   }
 
   get drawnLaws() {
-    return [...this._drawnLaws];
+    return this._proposals.map((proposal) => proposal.law);
   }
 
   get lawToVote() {
-    return this._lawToVote;
+    return this._proposals.find((proposal) => proposal.isChosenForVoting)?.law;
   }
 
   get vetoedLaw() {
-    return this._vetoedLaw;
+    return this._proposals.find((proposal) => proposal.isVetoed)?.law;
   }
 
   get votingCount() {
@@ -195,12 +191,16 @@ export class LegislativeStage extends Stage {
     return this._mustVeto;
   }
 
-  get vetoableLaws() {
-    if (this._mustVeto === null) return this._drawnLaws;
-    if (this._drawnLaws.every((law) => law.type !== this._mustVeto)) {
-      return this.drawnLaws;
+  get vetoableProposals() {
+    if (this._mustVeto === null) return this._proposals;
+    if (
+      this._proposals.every((proposal) => proposal.law.type !== this._mustVeto)
+    ) {
+      return this._proposals;
     }
-    return this._drawnLaws.filter((law) => law.type === this._mustVeto);
+    return this._proposals.filter(
+      (proposal) => proposal.law.type === this._mustVeto,
+    );
   }
 
   get isVotingSecret() {
@@ -211,7 +211,7 @@ export class LegislativeStage extends Stage {
     return (
       (this.currentAction as LegislativeAction) ===
         LegislativeAction.ADVANCE_STAGE &&
-      this._lawToVote &&
+      this._proposals.some((proposal) => proposal.isChosenForVoting) &&
       this._voting?.result
     );
   }
@@ -221,20 +221,10 @@ export class LegislativeStage extends Stage {
       ...super.toJSON(),
       type: this.type,
       currentAction: this.currentAction as LegislativeAction,
-      drawnLaws: this._drawnLaws.map((law) => ({
-        ...law.toJSON(),
-        isVetoable: Boolean(
-          this.vetoableLaws.find((vetoableLaw) => vetoableLaw.id === law.id),
-        ),
-        isVetoed: this._vetoedLaw?.id === law.id,
-        isLawToVote: this.lawToVote ? this._lawToVote?.id === law.id : null,
-      })),
-      vetoedLaw: this._vetoedLaw?.toJSON(),
-      lawToVote: this._lawToVote?.toJSON(),
+      proposals: this._proposals.map((proposal) => proposal.toJSON()),
       voting: this._voting?.toJSON(),
       mustVeto: this._mustVeto,
       isVotingSecret: this._isVotingSecret,
-      vetoableLaws: this.vetoableLaws.map((law) => law.toJSON()),
       isLawToVoteVisible: this.isLawToVoteVisible,
     } as const;
   }
@@ -243,9 +233,9 @@ export class LegislativeStage extends Stage {
     return new LegislativeStage({
       ...data,
       currentAction: data.currentAction,
-      drawnLaws: data.drawnLaws.map((law) => Law.fromJSON(law)),
-      vetoedLaw: data.vetoedLaw ? Law.fromJSON(data.vetoedLaw) : null,
-      lawToVote: data.lawToVote ? Law.fromJSON(data.lawToVote) : null,
+      proposals: data.proposals.map((proposal) =>
+        LegislativeProposal.fromJSON(proposal),
+      ),
       voting: data.voting ? Voting.fromJSON(data.voting) : null,
     });
   }

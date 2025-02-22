@@ -1,11 +1,12 @@
+import CRISES from 'src/data/crises';
+import { Crisis } from 'src/domain/crisis/crisis';
+import { StageType } from 'src/domain/stage/stage';
 import { describe, expect, it } from 'vitest';
-import { PlanoCohen } from './crisis/plano-cohen';
 import { Game } from './game';
 import { makeCrisesDeck, makeLawsDeck } from './mock';
 import { PresidentQueue } from './president-queue';
 import { Role } from './role';
 import { Round } from './round';
-import { RoundStageIndex, StageQueue } from './stage/stage-queue';
 import { DossierStage } from './stage/dossier-stage';
 import { ImpeachmentStage } from './stage/impeachment-stage';
 import { LegislativeStage } from './stage/legislative-stage';
@@ -14,7 +15,7 @@ import {
   RadicalizationStage,
 } from './stage/radicalization-stage';
 import { SabotageStage } from './stage/sabotage-stage';
-import { StageType } from 'src/domain/stage/stage';
+import { RoundStageIndex, StageQueue } from './stage/stage-queue';
 
 describe('Rodadas', () => {
   it('não deve finalizar rodada se ainda houver estágios a serem jogados', () => {
@@ -355,7 +356,7 @@ describe('Cassações', () => {
         return new Round({
           stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
           stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION),
-          crisis: new PlanoCohen(),
+          crisis: new Crisis(CRISES.PLANO_COHEN),
           presidentQueue: new PresidentQueue(Array.from(players.values())),
         });
       });

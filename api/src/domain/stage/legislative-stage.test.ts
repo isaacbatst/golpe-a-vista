@@ -29,11 +29,15 @@ describe('Estágio Legislativo', () => {
 
   it('deve vetar uma das leis', () => {
     const stage = new LegislativeStage();
-    const [, laws] = stage.drawLaws(makeLawsDeck(), 'president', 'president');
-    expect(laws).toBeDefined();
+    const [, proposals] = stage.drawLaws(
+      makeLawsDeck(),
+      'president',
+      'president',
+    );
+    expect(proposals).toBeDefined();
     stage.vetoLaw(0, 'president', 'president');
-    const law = laws![0];
-    expect(stage.vetoedLaw).toBe(law);
+    const proposal = proposals![0];
+    expect(stage.vetoedLaw).toBe(proposal.law);
   });
 
   it('não deve escolher uma das leis vetadas', () => {
@@ -41,17 +45,21 @@ describe('Estágio Legislativo', () => {
     stage.drawLaws(makeLawsDeck(), 'president', 'president');
     stage.vetoLaw(0, 'president', 'president');
     const [error] = stage.chooseLawForVoting(0, 'president', 'president');
-    expect(error).toBe('Essa lei foi vetada.');
+    expect(error).toBe('Essa proposta foi vetada.');
   });
 
   it('deve escolher uma das leis para votação', () => {
     const stage = new LegislativeStage();
-    const [, laws] = stage.drawLaws(makeLawsDeck(), 'president', 'president');
-    expect(laws).toBeDefined();
-    const law = laws![0];
+    const [, proposals] = stage.drawLaws(
+      makeLawsDeck(),
+      'president',
+      'president',
+    );
+    expect(proposals).toBeDefined();
+    const proposal = proposals![0];
     stage.vetoLaw(1, 'president', 'president');
     stage.chooseLawForVoting(0, 'president', 'president');
-    expect(stage.lawToVote).toBe(law);
+    expect(stage.lawToVote).toBe(proposal.law);
   });
 
   it('não deve iniciar votação sem escolher uma lei', () => {
@@ -192,13 +200,15 @@ describe('Estágio Legislativo', () => {
     stage.drawLaws(makeLawsDeck(cards), 'president', 'president');
     stage.chooseLawForVoting(0, 'president', 'president');
     expect(stage.mustVeto).toBe(LawType.PROGRESSISTAS);
-    expect(stage.vetoableLaws).toHaveLength(1);
-    expect(stage.vetoableLaws).toContainEqual(cards[0]);
+    expect(stage.vetoableProposals).toHaveLength(1);
+    expect(stage.vetoableProposals).toContainEqual(
+      expect.objectContaining({ law: cards[0] }),
+    );
     const forbiddenIndex = stage.drawnLaws.findIndex(
       (law) => law.type !== LawType.PROGRESSISTAS,
     );
     const [error] = stage.vetoLaw(forbiddenIndex, 'president', 'president');
-    expect(error).toBe('Essa lei não pode ser vetada.');
+    expect(error).toBe('Essa proposta não pode ser vetada.');
   });
 
   it('deve permitir veto em outro tipo de lei se o tipo obrigatório não for sorteado', () => {
@@ -208,7 +218,7 @@ describe('Estágio Legislativo', () => {
     stage.drawLaws(makeLawsDeck(), 'president', 'president');
     stage.chooseLawForVoting(0, 'president', 'president');
     expect(stage.mustVeto).toBe(LawType.PROGRESSISTAS);
-    expect(stage.vetoableLaws).toHaveLength(3);
+    expect(stage.vetoableProposals).toHaveLength(3);
     const [error] = stage.vetoLaw(0, 'president', 'president');
     expect(error).toBeUndefined();
   });
