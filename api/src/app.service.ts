@@ -14,6 +14,7 @@ import { LobbyRepository } from './lobby.repository';
 import { DossierStage } from 'src/domain/stage/dossier-stage';
 import { SabotageStage } from 'src/domain/stage/sabotage-stage';
 import { CrisisStage } from 'src/domain/stage/crisis-stage';
+import { RadicalizationStage } from './domain/stage/radicalization-stage';
 
 @Injectable()
 export class AppService {
@@ -600,6 +601,59 @@ export class AppService {
       }
     }
 
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
+  async radicalizationStageRadicalize(input: {
+    lobbyId: string;
+    issuerId: string;
+    targetId: string;
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException('Lobby não encontrado'));
+    }
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (stage instanceof RadicalizationStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível radicalizar fora do estágio de Radicalização',
+        ),
+      );
+    }
+    const target = lobby.currentGame.getPlayerById(input.targetId);
+    if (!target) {
+      return left(new NotFoundException('Jogador alvo não encontrado'));
+    }
+    const [error] = stage.radicalize(target);
+    if (error) {
+      return left(new InternalServerErrorException(error));
+    }
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
+  async radicalizationStageAdvanceStage(input: {
+    lobbyId: string;
+    issuerId: string;
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException('Lobby não encontrado'));
+    }
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (stage instanceof RadicalizationStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível avançar a ação fora do estágio de Radicalização',
+        ),
+      );
+    }
+    const [error] = this.advanceStageOrRound(lobby);
+    if (error) {
+      return left(new InternalServerErrorException(error));
+    }
     await this.lobbyRepository.save(lobby);
     return right(lobby);
   }

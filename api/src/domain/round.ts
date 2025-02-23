@@ -17,6 +17,7 @@ import { SabotageStage } from './stage/sabotage-stage';
 import { Stage } from './stage/stage';
 import { StageQueue } from './stage/stage-queue';
 import { StageFactory, StageJSON } from './stage/stage.factory';
+import { LegislativeProposal } from 'src/domain/stage/legislative-proposal';
 
 export type RoundParams = {
   index?: number;
@@ -143,7 +144,7 @@ export class Round {
         this.requiredVeto,
         this.isLegislativeVotingSecret,
       ),
-      new DossierStageFactory(this.drawnLaws, this.isDossierFake),
+      new DossierStageFactory(this.legislativeProposals, this.isDossierFake),
       new SabotageStageFactory(
         this.hasApprovedLaw(LawType.PROGRESSISTAS),
         this._hasLastRoundBeenSabotaged,
@@ -224,6 +225,14 @@ export class Round {
         (stage): stage is LegislativeStage => stage instanceof LegislativeStage,
       )
       .flatMap((stage) => stage.drawnLaws);
+  }
+
+  get legislativeProposals(): LegislativeProposal[] {
+    return this._stages
+      .filter(
+        (stage): stage is LegislativeStage => stage instanceof LegislativeStage,
+      )
+      .flatMap((stage) => stage.proposals);
   }
 
   get nextRapporteur(): string | null {

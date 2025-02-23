@@ -36,12 +36,12 @@ const LegislativeStageChooseLawForVoting = () => {
           </p>
         </div>
         <ul className="flex flex-wrap gap-3 justify-center">
-          {stage.drawnLaws.map((law) => (
-            <li key={law.name} className="flex justify-center">
+          {stage.proposals.map((proposal) => (
+            <li key={proposal.law.name} className="flex justify-center">
               <CardFolded
-                isShowingOverlay={law.isVetoed}
+                isShowingOverlay={proposal.isVetoed}
                 isOverlayFixed
-                overlay={law.isVetoed ? <LawCardOverlayVetoed /> : null}
+                overlay={proposal.isVetoed ? <LawCardOverlayVetoed /> : null}
               />
             </li>
           ))}
@@ -65,21 +65,21 @@ const LegislativeStageChooseLawForVoting = () => {
         </p>
       </div>
       <ul className="flex flex-wrap gap-3 justify-center">
-        {stage.drawnLaws.map((law) => (
-          <li key={law.name} className="flex justify-center">
+        {stage.proposals.map((proposal) => (
+          <li key={proposal.law.name} className="flex justify-center">
             <LawCard
-              law={law}
-              showingOverlayInitialValue={law.isVetoed}
-              isOverlayFixed={law.isVetoed}
+              law={proposal.law}
+              showingOverlayInitialValue={proposal.isVetoed}
+              isOverlayFixed={proposal.isVetoed}
               overlayContent={
-                law.isVetoed ? (
+                proposal.isVetoed ? (
                   <LawCardOverlayVetoed />
                 ) : (
                   <LawCardOverlayActionButton
                     variant="outline"
                     icon="vote"
                     onClick={() => {
-                      legislativeStageChooseLawForVoting(law.id);
+                      legislativeStageChooseLawForVoting(proposal.law.id);
                     }}
                   >
                     Escolher

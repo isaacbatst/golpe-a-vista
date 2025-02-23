@@ -6,7 +6,7 @@ import CardFolded from "@/components/card-folded";
 import LawCard from "@/components/law-card/law-card";
 import { Button } from "@/components/ui/button";
 import WaitButton from "@/components/wait-button";
-import { LegislativeStageDTO, LegislativeStageLawDTO } from "@/lib/api.types";
+import { LegislativeStageDTO, LegislativeProposalDTO } from "@/lib/api.types";
 import { cn } from "@/lib/utils";
 import { useLobbyContext } from "../../lobby-context";
 import { useLobbySocketContext } from "../../lobby-socket-context";
@@ -22,11 +22,11 @@ const LegislativeStageAdvanceStage = () => {
 
   const result = stage.voting?.result ? "Lei Aprovada" : "Lei Rejeitada";
 
-  const getOverlay = (law: LegislativeStageLawDTO) => {
+  const getOverlay = (law: LegislativeProposalDTO) => {
     if (law.isVetoed) {
       return <LawCardOverlayVetoed />;
     }
-    if (law.isLawToVote === false) {
+    if (law.isChosenForVoting === false) {
       return <LawCardOverlayDiscarded />;
     }
 
@@ -52,24 +52,24 @@ const LegislativeStageAdvanceStage = () => {
         stage={stage}
       />
       <ul className="flex flex-wrap gap-3 justify-center">
-        {stage.drawnLaws.map((law) => {
+        {stage.proposals.map((proposal) => {
           return (
-            <li key={law.name} className="flex justify-center">
+            <li key={proposal.law.name} className="flex justify-center">
               {me.isPresident ||
-              (stage.isLawToVoteVisible && law.isLawToVote) ? (
+              (stage.isLawToVoteVisible && proposal.isChosenForVoting) ? (
                 <LawCard
-                  law={law}
+                  law={proposal.law}
                   isOverlayFixed
                   showingOverlayInitialValue={Boolean(
-                    !law.isLawToVote && stage.voting?.result
+                    !proposal.isChosenForVoting && stage.voting?.result
                   )}
-                  overlayContent={getOverlay(law)}
+                  overlayContent={getOverlay(proposal)}
                 />
               ) : (
                 <CardFolded
                   isOverlayFixed
                   isShowingOverlay
-                  overlay={getOverlay(law)}
+                  overlay={getOverlay(proposal)}
                 />
               )}
             </li>

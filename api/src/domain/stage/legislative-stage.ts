@@ -159,6 +159,10 @@ export class LegislativeStage extends Stage {
     return right(true);
   }
 
+  get proposals() {
+    return this._proposals;
+  }
+
   get drawnLaws() {
     return this._proposals.map((proposal) => proposal.law);
   }
@@ -222,6 +226,12 @@ export class LegislativeStage extends Stage {
       type: this.type,
       currentAction: this.currentAction as LegislativeAction,
       proposals: this._proposals.map((proposal) => proposal.toJSON()),
+      notVetoableProposals: this._proposals
+        .filter((proposal) => !this.vetoableProposals.includes(proposal))
+        .map((proposal) => ({
+          id: proposal.law.id,
+          reason: `É obrigatório vetar uma lei do tipo "${this._mustVeto}".`,
+        })),
       voting: this._voting?.toJSON(),
       mustVeto: this._mustVeto,
       isVotingSecret: this._isVotingSecret,

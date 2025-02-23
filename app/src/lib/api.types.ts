@@ -100,22 +100,27 @@ export type VotingDTO = {
   hasEnded: boolean;
 };
 
-export type LegislativeStageLawDTO = LawDTO & {
+export type LegislativeProposalDTO = {
+  law: LawDTO;
   isVetoable: boolean;
   isVetoed: boolean;
-  isLawToVote: boolean | null;
+  isChosenForVoting: boolean | null;
 };
 
 export type LegislativeStageDTO = {
   currentAction: LegislativeAction;
-  drawnLaws: LegislativeStageLawDTO[];
+  proposals: LegislativeProposalDTO[];
+  notVetoableProposals: {
+    id: string;
+    reason: string;
+  }[]
   isComplete: boolean;
   isVotingSecret: boolean;
   mustVeto: boolean;
   type: StageType.LEGISLATIVE;
   vetoableLaws: LawDTO[];
   voting: VotingDTO | null;
-  lawToVote: LegislativeStageLawDTO | null;
+  lawToVote: LegislativeProposalDTO | null;
   isLawToVoteVisible: boolean;
 };
 
@@ -150,11 +155,23 @@ export type CrisisStageDTO = {
   crisis: CrisisDTO | null;
 };
 
+export enum RadicalizationAction {
+  RADICALIZE = 'RADICALIZE',
+  ADVANCE_STAGE = 'ADVANCE_STAGE',
+}
+
+export type RadicalizationStageDTO = {
+  currentAction: RadicalizationAction;
+  type: StageType.RADICALIZATION;
+  targetId: string | null;
+};
+
 export type StageDTO =
   | LegislativeStageDTO
   | DossierStageDTO
   | SabotageStageDTO
-  | CrisisStageDTO;
+  | CrisisStageDTO
+  | RadicalizationStageDTO;
 
 export type RoundDTO = {
   index: number;

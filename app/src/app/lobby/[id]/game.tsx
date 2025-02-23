@@ -14,6 +14,7 @@ import ApprovedLaws from "./approved-laws";
 import { PlayerContextProvider } from "./player-context";
 import PlayersGrid from "./players-grid";
 import LegislativeStage from "./stages/legislative-stage/legislative-stage";
+import RadicalizationStage from "@/app/lobby/[id]/stages/radicalization-stage/radicalization-stage";
 
 type Props = {
   userId: string;
@@ -76,6 +77,20 @@ export default function Game({ userId, lobby }: Props) {
                   <CrisisStage
                     stage={lobby.currentGame.currentRound.currentStage}
                     roundIndex={lobby.currentGame.currentRound.index}
+                  />
+                )}
+                {
+                  // lobby.currentGame.currentRound.currentStage.type ===
+                  // StageType.IMPEACHMENT && (
+                  //   <ImpeachmentStage
+                  //     stage={lobby.currentGame.currentRound.currentStage}
+                  //   />
+                  // )
+                }
+                {lobby.currentGame.currentRound.currentStage.type ===
+                  StageType.RADICALIZATION && (
+                  <RadicalizationStage
+                    stage={lobby.currentGame.currentRound.currentStage}
                   />
                 )}
               </div>

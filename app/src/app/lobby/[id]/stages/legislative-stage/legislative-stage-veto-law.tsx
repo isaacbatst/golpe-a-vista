@@ -6,6 +6,12 @@ import { useLobbyContext } from "../../lobby-context";
 import { useLobbySocketContext } from "../../lobby-socket-context";
 import { usePlayerContext } from "../../player-context";
 import { LegislativeStageDTO } from "@/lib/api.types";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const LegislativeStageVetoLaw = () => {
   const { player } = usePlayerContext();
@@ -26,9 +32,8 @@ const LegislativeStageVetoLaw = () => {
         <div className="text-sm max-w-lg text-muted-foreground flex flex-col gap-2">
           <p className="text-gray-700">
             Nesta rodada,{" "}
-            <span className="font-semibold">{president.name}</span>{" "}
-            assumiu o cargo de Presidente e agora está analisando as leis
-            disponíveis.
+            <span className="font-semibold">{president.name}</span> assumiu o
+            cargo de Presidente e agora está analisando as leis disponíveis.
           </p>
           <ul className="list-disc list-inside text-gray-700">
             <li>Sortear três cartas de leis</li>
@@ -56,37 +61,61 @@ const LegislativeStageVetoLaw = () => {
         {roundPrefix}Você é o Presidente!
       </h2>
       <div className="text-sm max-w-lg text-muted-foreground flex flex-col gap-2">
-          <p className="text-gray-700">
-            Nesta rodada,{" "}
-            <span className="font-semibold">{president.name}</span>{" "}
-            assumiu o cargo de Presidente e agora está analisando as leis
-            disponíveis.
-          </p>
-          <ul className="list-disc list-inside text-gray-700">
-            <li>Sortear três cartas de leis</li>
-            <li className="font-bold underline">Vetar uma delas</li>
-            <li>Escolher uma das leis restantes para votação</li>
-          </ul>
-        </div>
+        <p className="text-gray-700">
+          Nesta rodada, <span className="font-semibold">{president.name}</span>{" "}
+          assumiu o cargo de Presidente e agora está analisando as leis
+          disponíveis.
+        </p>
+        <ul className="list-disc list-inside text-gray-700">
+          <li>Sortear três cartas de leis</li>
+          <li className="font-bold underline">Vetar uma delas</li>
+          <li>Escolher uma das leis restantes para votação</li>
+        </ul>
+      </div>
       <ul className="flex flex-wrap gap-3 justify-center">
-        {stage.drawnLaws.map((law) => (
-          <li key={law.name} className="flex justify-center">
-            <LawCard
-              law={law}
-              overlayContent={
-                <LawCardOverlayActionButton
-                  variant="destructive"
-                  icon="ban"
-                  onClick={() => {
-                    legislativeStageVetoLaw(law.id);
-                  }}
-                >
-                  Vetar Lei
-                </LawCardOverlayActionButton>
-              }
-            />
-          </li>
-        ))}
+        {stage.proposals.map((proposal) => {
+          const notVetoable = stage.notVetoableProposals.find(
+            ({ id }) => id === proposal.law.id
+          );
+          const button = (disabled: boolean) => (
+            <LawCardOverlayActionButton
+              variant="destructive"
+              icon="ban"
+              disabled={disabled}
+              onClick={() => {
+                legislativeStageVetoLaw(proposal.law.id);
+              }}
+            >
+              Vetar Lei
+            </LawCardOverlayActionButton>
+          );
+
+          return (
+            <li key={proposal.law.id} className="flex justify-center">
+              <LawCard
+                law={proposal.law}
+                overlayContent={
+                    <TooltipProvider key={player.id}>
+                      <Tooltip delayDuration={300}>
+                        <TooltipTrigger asChild>
+                          <div>{button(Boolean(notVetoable))}</div>
+                        </TooltipTrigger>
+                        {
+                          notVetoable && (
+                            <TooltipContent>
+                              <p>
+                                {notVetoable.reason}
+                              </p>
+                            </TooltipContent>
+                          )
+                        }
+                      </Tooltip>
+                    </TooltipProvider>
+                }
+              />
+            </li>
+          );
+        })}
       </ul>
     </>
   );

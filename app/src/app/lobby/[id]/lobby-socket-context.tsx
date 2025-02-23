@@ -6,6 +6,7 @@ import {
   LegislativeAction,
   SabotageAction,
   StageType,
+  RadicalizationAction,
 } from "../../../lib/api.types";
 
 type LobbySocketContextType = {
@@ -27,6 +28,8 @@ type LobbySocketContextType = {
   sabotageStageAdvanceStage: () => void;
   crisisStageStartCrisis: () => void;
   updateSession: (userId: string) => void;
+  radicalizationStageChooseTarget: (targetId: string) => void;
+  radicalizationStageAdvanceStage: () => void;
 };
 
 export const LobbySocketContext = createContext<LobbySocketContextType>(
@@ -137,6 +140,18 @@ export const LobbySocketProvider = ({
             {
               lobbyId,
             }
+          );
+        },
+        radicalizationStageChooseTarget: (targetId: string) => {
+          socket?.emit(
+            `${StageType.RADICALIZATION}:${RadicalizationAction.RADICALIZE}`,
+            { lobbyId, targetId }
+          );
+        },
+        radicalizationStageAdvanceStage: () => {
+          socket?.emit(
+            `${StageType.RADICALIZATION}:${RadicalizationAction.ADVANCE_STAGE}`,
+            { lobbyId }
           );
         },
       }}

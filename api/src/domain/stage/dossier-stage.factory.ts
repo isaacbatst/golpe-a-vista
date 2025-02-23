@@ -1,23 +1,23 @@
-import { Law } from 'src/data/laws';
 import { DossierStage } from 'src/domain/stage/dossier-stage';
+import { LegislativeProposal } from 'src/domain/stage/legislative-proposal';
 import { Stage } from 'src/domain/stage/stage';
 import { StageFactory } from 'src/domain/stage/stage.factory';
 
 export class DossierStageFactory extends StageFactory {
   constructor(
-    private drawnLaws: Law[] = [],
+    private proposals: LegislativeProposal[] = [],
     private isDossierFake: boolean = false,
   ) {
     super();
   }
 
   shouldSkip(): boolean {
-    return this.drawnLaws.length === 0;
+    return this.proposals.length === 0;
   }
 
   create(): Stage {
     return new DossierStage({
-      proposals: this.drawnLaws,
+      proposals: this.proposals,
       fakeDossier: this.isDossierFake,
     });
   }

@@ -1,4 +1,4 @@
-import { LegislativeStageDTO, LegislativeStageLawDTO } from "@/lib/api.types";
+import { LegislativeStageDTO, LegislativeProposalDTO } from "@/lib/api.types";
 import { useLobbyContext } from "../../lobby-context";
 import { usePlayerContext } from "../../player-context";
 import LawCard from "@/components/law-card/law-card";
@@ -17,14 +17,14 @@ const LegislativeStageVoting = () => {
     stage.voting?.votes.find((vote) => vote.player === me.id)?.vote ?? null;
   const hasAlreadyVoted = myVote !== undefined && myVote !== null;
 
-  const getOverlay = (law: LegislativeStageLawDTO) => {
+  const getOverlay = (law: LegislativeProposalDTO) => {
     if (law.isVetoed) {
       return <LawCardOverlayVetoed />;
     }
-    if (law.isLawToVote) {
+    if (law.isChosenForVoting) {
       return <LawCardOverlayVoting vote={myVote} />;
     }
-    if (law.isLawToVote === false) {
+    if (law.isChosenForVoting === false) {
       return <LawCardOverlayDiscarded />;
     }
     return null;
@@ -43,23 +43,23 @@ const LegislativeStageVoting = () => {
         stage={stage}
       />
       <ul className="flex flex-wrap gap-3 justify-center">
-        {stage.drawnLaws.map((law) => {
+        {stage.proposals.map((proposal) => {
           return (
-            <li key={law.name} className="flex justify-center">
+            <li key={proposal.law.name} className="flex justify-center">
               {me.isPresident ? (
                 <LawCard
-                  law={law}
-                  isOverlayFixed={!law.isLawToVote || hasAlreadyVoted}
+                  law={proposal.law}
+                  isOverlayFixed={!proposal.isChosenForVoting || hasAlreadyVoted}
                   showingOverlayInitialValue={
-                    !law.isLawToVote || hasAlreadyVoted
+                    !proposal.isChosenForVoting || hasAlreadyVoted
                   }
-                  overlayContent={getOverlay(law)}
+                  overlayContent={getOverlay(proposal)}
                 />
               ) : (
                 <CardFolded
-                  isOverlayFixed={!law.isLawToVote || hasAlreadyVoted}
-                  isShowingOverlay={!law.isLawToVote || hasAlreadyVoted}
-                  overlay={getOverlay(law)}
+                  isOverlayFixed={!proposal.isChosenForVoting || hasAlreadyVoted}
+                  isShowingOverlay={!proposal.isChosenForVoting || hasAlreadyVoted}
+                  overlay={getOverlay(proposal)}
                 />
               )}
             </li>
