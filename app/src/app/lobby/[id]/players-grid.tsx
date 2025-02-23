@@ -12,7 +12,7 @@ type Props = {
 
 const PlayersGrid = ({ me, players, users }: Props) => {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 text-center">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-1 xl:grid-cols-2 text-center">
       {players
         .slice()
         .sort((a, b) => (a.id === me.id ? -1 : b.id === me.id ? 1 : 0))
@@ -26,7 +26,7 @@ const PlayersGrid = ({ me, players, users }: Props) => {
           return (
             <div
               key={player.id}
-              className={`relative flex flex-col justify-center items-center py-6 px-8 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
+              className={`relative flex flex-col justify-center items-center py-6 px-8 rounded-xl shadow-lg transition-all duration-300 ${
                 isMe
                   ? "border-4 border-primary bg-blue-50 shadow-md"
                   : "bg-gradient-to-br from-white to-gray-100"

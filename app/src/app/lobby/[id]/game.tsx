@@ -106,7 +106,7 @@ export default function Game({ userId, lobby }: Props) {
                           ? "default"
                           : "outline"
                       }
-                      className="cursor-default"
+                      className="cursor-default pointer-events-none"
                     >
                       {readableStageType[stageType]}
                     </Button>
@@ -127,7 +127,10 @@ export default function Game({ userId, lobby }: Props) {
           </CardContent>
         </Card>
         <Card className="lg:max-h-full lg:overflow-y-auto">
-          <CardContent className="pt-6">
+          <CardContent className="pt-6 space-y-6">
+            <h2 className="text-2xl font-semibold text-center">
+              Jogadores
+            </h2>
             <PlayersGrid
               me={me}
               players={lobby.currentGame.players}
