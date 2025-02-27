@@ -9,6 +9,7 @@ import { PresidentQueue } from './president-queue';
 import { Random } from './random';
 import { LawType, Role } from './role';
 import { Round } from './round';
+import { CrisisControlledBy } from 'src/domain/crisis/crisis-controlled-by';
 
 type GameParams = {
   players: Map<string, Player>;
@@ -347,6 +348,48 @@ export class Game {
     return this._presidentQueue;
   }
 
+  get crisisControlledBy(): string | null {
+    if (!this.currentRound.crisis) {
+      return null;
+    }
+    if (this.currentRound.crisis.controlledBy.length === 0) {
+      return this.president.id;
+    }
+
+    // controlled by is a priority array 0 is the highest priority
+    for (const controller of this.currentRound.crisis.controlledBy) {
+      if (controller === CrisisControlledBy.PRESIDENT) {
+        return this.president.id;
+      }
+
+      if (
+        controller === CrisisControlledBy.RAPPORTEUR &&
+        this.currentRound.rapporteurId
+      ) {
+        return this.currentRound.rapporteurId;
+      }
+
+      if (controller === CrisisControlledBy.SABOTEUR) {
+        const saboteur = Array.from(this._players.values()).find(
+          (player) => player.saboteur && !player.impeached,
+        );
+        if (saboteur) {
+          return saboteur.id;
+        }
+      }
+
+      if (controller === CrisisControlledBy.CONSERVATIVE) {
+        const conservative = Array.from(this._players.values()).find(
+          (player) => player.role === Role.CONSERVADOR && !player.impeached,
+        );
+        if (conservative) {
+          return conservative.id;
+        }
+      }
+    }
+    return null;
+  }
+
   playerToJSON(player: Player & { id: string }) {
     return {
       ...player.toJSON(),
@@ -397,6 +440,7 @@ export class Game {
       ),
       crisesIntervalToImpeach: this._crisesIntervalToImpeach,
       currentRound: this.currentRound,
+      crisisControlledBy: this.crisisControlledBy,
       progressiveLawsToFear: this._progressiveLawsToFear,
       rejectedLawsIntervalToCrisis: this._rejectedLawsIntervalToCrisis,
       conservativesImpeachedToRadicalWin:

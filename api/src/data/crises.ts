@@ -1,3 +1,4 @@
+import { CrisisControlledBy } from 'src/domain/crisis/crisis-controlled-by';
 import { CRISIS_NAMES } from '../domain/crisis/crisis-names';
 import { CrisisVisibleTo } from '../domain/crisis/crisis-visible-to.';
 
@@ -9,6 +10,7 @@ const CRISES: Record<
     description: string;
     visibleTo?: CrisisVisibleTo[];
     notVisibleTo?: CrisisVisibleTo[];
+    controlledBy: CrisisControlledBy[];
   }
 > = {
   PLANO_COHEN: {
@@ -17,13 +19,18 @@ const CRISES: Record<
     description:
       "O Presidente descobre que o Dossiê dessa rodada contém informação falsificada. 'A verdade é um campo de batalha.'",
     visibleTo: [CrisisVisibleTo.PRESIDENT],
+    controlledBy: [CrisisControlledBy.PRESIDENT],
   },
   MENSALAO: {
     name: CRISIS_NAMES.MENSALAO,
-    titles: ['Mensalão', 'Caixa 2', 'Propina'],
+    titles: ['Mensalão', 'Caixa 2', 'Propina', 'Dinheiro na Mão...'],
     description:
-      "O Presidente forçará um jogador a votar a favor da próxima lei. 'Democracia é bom, mas dinheiro é melhor.'",
-    visibleTo: [CrisisVisibleTo.PRESIDENT],
+      "O Golpista forçará três jogadores a votarem como ele. 'Democracia é bom, mas dinheiro é melhor.'",
+    visibleTo: [CrisisVisibleTo.CONSERVATIVES],
+    controlledBy: [
+      CrisisControlledBy.SABOTEUR,
+      CrisisControlledBy.CONSERVATIVE,
+    ],
   },
   CAFE_COM_A_ABIN: {
     name: CRISIS_NAMES.CAFE_COM_A_ABIN,
@@ -35,8 +42,9 @@ const CRISES: Record<
       'MIB',
     ],
     description:
-      'O Relator do Dossiê terá um encontro inesperado, ele não lembrará de nada. Em termos de jogo, ele não receberá o Dossiê.',
-    visibleTo: [CrisisVisibleTo.RAPPORTEUR, CrisisVisibleTo.PRESIDENT],
+      'O Relator do Dossiê não receberá o Dossiê desta rodada. Após um encontrão com um agente secreto, ele misteriosamente não se lembra de nada.',
+    visibleTo: [CrisisVisibleTo.RAPPORTEUR],
+    controlledBy: [CrisisControlledBy.RAPPORTEUR],
   },
   // OPERACAO_MAOS_LIMPAS: {
   //   titles: [
@@ -54,6 +62,7 @@ const CRISES: Record<
     description:
       "O Presidente deve vetar uma lei progressista, se houver. Um famoso editorial disse que 'o mercado não gostou', e agora não há mais o que fazer.",
     visibleTo: [CrisisVisibleTo.PRESIDENT],
+    controlledBy: [CrisisControlledBy.PRESIDENT],
   },
   FORCAS_OCULTAS: {
     name: CRISIS_NAMES.FORCAS_OCULTAS,
@@ -68,6 +77,7 @@ const CRISES: Record<
     description:
       "O Presidente é obrigado a vetar uma lei progressista. '[...] As forças e os interesses contra o povo coordenaram-se novamente e se desencadeiam sobre mim.'",
     visibleTo: [CrisisVisibleTo.PRESIDENT],
+    controlledBy: [CrisisControlledBy.PRESIDENT],
   },
   // REGIME_DE_URGENCIA: {
   //   titles: ["Regime de Urgência", "Votação Relâmpago", "PEC da Madrugada"],
@@ -81,6 +91,7 @@ const CRISES: Record<
     description:
       "A votação desta rodada é feita secretamente. 'Foi tudo resolvido em uma reunião discreta na calada da noite.'",
     visibleTo: [CrisisVisibleTo.ALL],
+    controlledBy: [CrisisControlledBy.PRESIDENT],
   },
   GOLPE_DE_ESTADO: {
     name: CRISIS_NAMES.GOLPE_DE_ESTADO,
@@ -93,11 +104,12 @@ const CRISES: Record<
     description:
       "O presidente foi pego com a boca na butija, a presidencia é passada para o próximo jogador na ordem de jogo. 'Agora sim, o Brasil vai pra frente!'",
     visibleTo: [CrisisVisibleTo.ALL],
+    controlledBy: [CrisisControlledBy.PRESIDENT],
   },
   // VAZAMENTO_NO_WIKILEAKS: {
   //   titles: ["Vazamento no WikiLeaks", "Snowden Contra-Ataca", "Vaza Jato"],
   //   description:
-  //     "Uma cópia parcial do Dossiê foi disponibilizada na internet. Todos verão uma das cartas que não foi vetada. 'Bem-vindo à era da informação.'",
+  //     "Informações sigilosas foram disponibilizadas na internet. Todos verão a lei que foi vetada na rodada anterior. 'Bem-vindo à era da informação.'",
   //   visibleTo: [CrisisVisibleTo.ALL],
   // },
   // CONGRESSO_TRANCADO: {

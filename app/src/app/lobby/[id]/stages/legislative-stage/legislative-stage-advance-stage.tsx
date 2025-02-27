@@ -61,7 +61,7 @@ const LegislativeStageAdvanceStage = () => {
                   law={proposal.law}
                   isOverlayFixed
                   showingOverlayInitialValue={Boolean(
-                    !proposal.isChosenForVoting && stage.voting?.result
+                    proposal.isVetoed || !proposal.isChosenForVoting
                   )}
                   overlayContent={getOverlay(proposal)}
                 />

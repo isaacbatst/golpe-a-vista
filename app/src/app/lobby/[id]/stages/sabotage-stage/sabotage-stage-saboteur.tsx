@@ -106,7 +106,7 @@ const SabotageStageSaboteur = ({ stage }: Props) => {
   }
 
   return (
-    <div className="space-y-4 flex flex-col">
+    <div className="space-y-4 flex flex-col items-center">
       <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
         Você é o Golpista!
       </h2>

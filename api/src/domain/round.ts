@@ -2,6 +2,7 @@ import { CrisisFactory } from 'src/domain/crisis/crisis-factory';
 import { CrisisStageFactory } from 'src/domain/stage/crisis-stage.factory';
 import { DossierStageFactory } from 'src/domain/stage/dossier-stage.factory';
 import { ImpeachmentStageFactory } from 'src/domain/stage/impeachment-stage.factory';
+import { LegislativeProposal } from 'src/domain/stage/legislative-proposal';
 import { LegislativeStageFactory } from 'src/domain/stage/legislative-stage.factory';
 import { RadicalizationStageFactory } from 'src/domain/stage/radicalization-stage.factory';
 import { SabotageStageFactory } from 'src/domain/stage/sabotage-stage.factory';
@@ -17,7 +18,6 @@ import { SabotageStage } from './stage/sabotage-stage';
 import { Stage } from './stage/stage';
 import { StageQueue } from './stage/stage-queue';
 import { StageFactory, StageJSON } from './stage/stage.factory';
-import { LegislativeProposal } from 'src/domain/stage/legislative-proposal';
 
 export type RoundParams = {
   index?: number;
@@ -36,7 +36,7 @@ export type RoundParams = {
   isLegislativeVotingSecret?: boolean;
   requiredVeto?: LawType | null;
   stageQueue?: StageQueue;
-  legislativeForcedVotes?: Map<string, boolean>;
+  mirroedVotes?: Map<string, string>;
 };
 
 export class Round {
@@ -57,7 +57,7 @@ export class Round {
   private readonly _previouslyApprovedProgressiveLaws: number;
   private readonly _stages: Stage[] = [];
   private readonly _stageQueue: StageQueue;
-  readonly legislativeForcedVotes: Map<string, boolean>;
+  readonly mirroedVotes: Map<string, string>;
   constructor(props: RoundParams) {
     this._crisis = props.crisis ?? null;
     this._hasImpeachment = props.hasImpeachment ?? false;
@@ -73,8 +73,7 @@ export class Round {
       props.previouslyApprovedProgressiveLaws ?? 0;
     this.index = props.index ?? 0;
     this.presidentQueue = props.presidentQueue;
-    this.legislativeForcedVotes =
-      props.legislativeForcedVotes ?? new Map<string, boolean>();
+    this.mirroedVotes = props.mirroedVotes ?? new Map<string, string>();
     this._stageQueue = props.stageQueue ?? new StageQueue();
     this._stages = props.stages ?? [this.createFirstStage()];
   }
@@ -279,7 +278,7 @@ export class Round {
       previouslyApprovedProgressiveLaws:
         this._previouslyApprovedProgressiveLaws,
       presidentQueue: this.presidentQueue.toJSON(),
-      legislativeForcedVotes: Array.from(this.legislativeForcedVotes),
+      mirroedVotes: Array.from(this.mirroedVotes),
       stageQueue: this._stageQueue.toJSON(),
     };
   }
@@ -293,7 +292,7 @@ export class Round {
       stageQueue: StageQueue.fromJSON(json.stageQueue),
       crisis: json.crisis ? CrisisFactory.fromJSON(json.crisis) : null,
       presidentQueue,
-      legislativeForcedVotes: new Map(json.legislativeForcedVotes),
+      mirroedVotes: new Map(json.mirroedVotes),
       rapporteurId: json.rapporteur ?? null,
       stages: json.stages.map((stage) => StageFactory.fromJSON(stage)),
     });

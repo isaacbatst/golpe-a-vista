@@ -1,0 +1,6 @@
+export enum CrisisControlledBy {
+  PRESIDENT = 'PRESIDENT',
+  SABOTEUR = 'SABOTEUR',
+  CONSERVATIVE = 'CONSERVATIVE',
+  RAPPORTEUR = 'RAPPORTEUR',
+}

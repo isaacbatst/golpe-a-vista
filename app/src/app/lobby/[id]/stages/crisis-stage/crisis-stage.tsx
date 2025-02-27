@@ -1,10 +1,12 @@
 import CrisisCard from "@/app/lobby/[id]/crisis-card/crisis-card";
+import { useLobbyContext } from "@/app/lobby/[id]/lobby-context";
 import { useLobbySocketContext } from "@/app/lobby/[id]/lobby-socket-context";
 import { usePlayerContext } from "@/app/lobby/[id]/player-context";
+import Mensalao from "@/app/lobby/[id]/stages/crisis-stage/mensalao/mensalao";
 import { Button } from "@/components/ui/button";
 import WaitButton from "@/components/wait-button";
 import useTimer from "@/hooks/useTimer";
-import { CrisisStageDTO } from "@/lib/api.types";
+import { CRISIS_NAMES, CrisisStageDTO, Role } from "@/lib/api.types";
 import { isCrisisVisible } from "@/lib/utils";
 import { ChevronsRight } from "lucide-react";
 import { useState } from "react";
@@ -16,13 +18,30 @@ type Props = {
 
 const CrisisStage = ({ stage }: Props) => {
   const { player } = usePlayerContext();
-  const isVisible = isCrisisVisible(stage.crisis?.visibleTo ?? [], player);
+  const { lobby } = useLobbyContext();
+  const shouldShow =
+    isCrisisVisible(stage.crisis?.visibleTo ?? [], player) ||
+    (lobby.currentGame.currentRound.hasLastRoundBeenSabotaged &&
+      player.role === Role.CONSERVADOR);
   const [disabled, setDisabled] = useState(true);
 
   const { crisisStageStartCrisis } = useLobbySocketContext();
-  const timeLeft = useTimer(15, () => {
+  const timeLeft = useTimer(5, () => {
     setDisabled(false);
   });
+
+  if (
+    stage.crisisEffect?.crisis === CRISIS_NAMES.MENSALAO &&
+    lobby.currentGame.crisisControlledBy
+  ) {
+    return (
+      <Mensalao
+        stage={stage}
+        controlledBy={lobby.currentGame.crisisControlledBy}
+        effect={stage.crisisEffect}
+      />
+    );
+  }
 
   const button =
     player.isPresident && !disabled ? (
@@ -48,7 +67,7 @@ const CrisisStage = ({ stage }: Props) => {
         Crise
       </h2>
       <div className="max-w-lg flex flex-col items-center gap-4">
-        {stage.crisis && isVisible ? (
+        {stage.crisis && shouldShow ? (
           <>
             <p className="text-muted-foreground text-sm">
               Graças à <strong>Sabotagem dos Conservadores</strong> ou ao{" "}

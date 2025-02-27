@@ -4,19 +4,49 @@ import { Either, left, right } from 'src/domain/either';
 import { Round } from 'src/domain/round';
 
 export enum MensalaoAction {
+  SET_MIRROR_ID = 'SET_MIRROR_ID',
   CHOOSE_PLAYER = 'CHOOSE_PLAYER',
   ADVANCE_STAGE = 'ADVANCE_STAGE',
 }
 
+type Params = {
+  currentAction?: MensalaoAction;
+  mirrorId?: string;
+  chosenPlayers?: Set<string>;
+};
+
 export class Mensalao extends CrisisEffect {
   readonly crisis = CRISIS_NAMES.MENSALAO;
-  chosenPlayer: string | null = null;
+  readonly chosenPlayers: Set<string>;
+  private mirrorId: string | null;
 
-  constructor(currentAction?: MensalaoAction) {
+  constructor({
+    currentAction,
+    mirrorId,
+    chosenPlayers = new Set<string>(),
+  }: Params = {}) {
     super(
-      [MensalaoAction.CHOOSE_PLAYER, MensalaoAction.ADVANCE_STAGE],
+      [
+        MensalaoAction.SET_MIRROR_ID,
+        MensalaoAction.CHOOSE_PLAYER,
+        MensalaoAction.ADVANCE_STAGE,
+      ],
       currentAction,
     );
+    this.mirrorId = mirrorId ?? null;
+    this.chosenPlayers = chosenPlayers;
+  }
+
+  setMirrorId(player: string): Either<string, void> {
+    const [error] = this._actionController!.assertCurrentAction(
+      MensalaoAction.SET_MIRROR_ID,
+    );
+    if (error) {
+      return left(error);
+    }
+    this.mirrorId = player;
+    this._actionController?.advanceAction();
+    return right();
   }
 
   choosePlayer(player: string): Either<string, void> {
@@ -26,16 +56,25 @@ export class Mensalao extends CrisisEffect {
     if (error) {
       return left(error);
     }
-    this.chosenPlayer = player;
-    this._actionController?.advanceAction();
+    this.chosenPlayers.add(player);
+
+    if (this.chosenPlayers.size >= 3) {
+      this._actionController?.advanceAction();
+    }
+
     return right();
   }
 
   apply(round: Round): Either<string, void> {
-    if (!this.chosenPlayer) {
+    if (!this.mirrorId) {
+      return left('Nenhum jogador foi escolhido para ser espelhado.');
+    }
+    if (this.chosenPlayers.size === 0) {
       return left('Nenhum jogador foi escolhido.');
     }
-    round.legislativeForcedVotes.set(this.chosenPlayer, true);
+    for (const player of this.chosenPlayers) {
+      round.mirroedVotes.set(player, this.mirrorId);
+    }
     return right();
   }
 
@@ -43,13 +82,16 @@ export class Mensalao extends CrisisEffect {
     return {
       ...super.toJSON(),
       crisis: this.crisis,
-      chosenPlayer: this.chosenPlayer,
+      chosenPlayers: [...this.chosenPlayers],
+      mirrorId: this.mirrorId,
     } as const;
   }
 
   static fromJSON(data: ReturnType<Mensalao['toJSON']>) {
-    const instance = new Mensalao(data.currentAction as MensalaoAction);
-    instance.chosenPlayer = data.chosenPlayer;
-    return instance;
+    return new Mensalao({
+      chosenPlayers: new Set(data.chosenPlayers),
+      currentAction: data.currentAction as MensalaoAction,
+      mirrorId: data.mirrorId ?? undefined,
+    });
   }
 }

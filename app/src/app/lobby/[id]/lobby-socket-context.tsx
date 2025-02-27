@@ -7,6 +7,8 @@ import {
   SabotageAction,
   StageType,
   RadicalizationAction,
+  CRISIS_NAMES,
+  MensalaoAction,
 } from "../../../lib/api.types";
 
 type LobbySocketContextType = {
@@ -27,6 +29,7 @@ type LobbySocketContextType = {
   sabotageStageChooseCrisis: (index: number) => void;
   sabotageStageAdvanceStage: () => void;
   crisisStageStartCrisis: () => void;
+  crisisStageMensalaoChoosePlayers: (playerIds: string[]) => void;
   updateSession: (userId: string) => void;
   radicalizationStageChooseTarget: (targetId: string) => void;
   radicalizationStageAdvanceStage: () => void;
@@ -139,6 +142,15 @@ export const LobbySocketProvider = ({
             `${StageType.CRISIS}:${CrisisStageAction.START_CRISIS}`,
             {
               lobbyId,
+            }
+          );
+        },
+        crisisStageMensalaoChoosePlayers: (players: string[]) => {
+          socket?.emit(
+            `${StageType.CRISIS}:${CRISIS_NAMES.MENSALAO}:${MensalaoAction.CHOOSE_PLAYER}`,
+            {
+              lobbyId,
+              players,
             }
           );
         },

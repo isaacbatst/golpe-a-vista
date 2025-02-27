@@ -3,6 +3,7 @@ import { Random } from '../random';
 import { CRISIS_NAMES } from './crisis-names';
 import { CrisisVisibleTo } from './crisis-visible-to.';
 import { CrisisEffectFactory } from 'src/domain/crisis/crisis-effect-factory';
+import { CrisisControlledBy } from 'src/domain/crisis/crisis-controlled-by';
 
 export type CrisisParams = {
   name: CRISIS_NAMES;
@@ -11,6 +12,7 @@ export type CrisisParams = {
   title?: string;
   visibleTo?: CrisisVisibleTo[];
   notVisibleTo?: CrisisVisibleTo[];
+  controlledBy: CrisisControlledBy[];
 };
 
 export type CrisisJSON = {
@@ -20,10 +22,12 @@ export type CrisisJSON = {
   description: string;
   visibleTo: CrisisVisibleTo[];
   notVisibleTo: CrisisVisibleTo[];
+  controlledBy: CrisisControlledBy[];
 };
 
 export class Crisis {
   readonly cardType = 'CRISIS';
+  readonly controlledBy: CrisisControlledBy[];
   private _name: CRISIS_NAMES;
   private _description: string;
   private _visibleTo: CrisisVisibleTo[];
@@ -36,11 +40,12 @@ export class Crisis {
     this._name = params.name;
     this._titles = params.titles;
     this._visibleTo = params.visibleTo ?? [];
+    this.controlledBy = params.controlledBy ?? [];
     this._notVisibleTo = params.notVisibleTo ?? [];
     this._title = params.title ?? Random.getFromArray(params.titles);
   }
 
-  start(): CrisisEffect {
+  getEffect(): CrisisEffect {
     return CrisisEffectFactory.create(this._name);
   }
 
@@ -72,6 +77,7 @@ export class Crisis {
       description: this.description,
       visibleTo: this.visibleTo,
       notVisibleTo: this.notVisibleTo,
+      controlledBy: this.controlledBy,
     };
   }
 }

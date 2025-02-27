@@ -1,32 +1,33 @@
-import { ActionController } from 'src/domain/action-controller';
+import { makeRound } from 'src/domain/mock';
 import { describe, expect, it } from 'vitest';
 import { Mensalao, MensalaoAction } from './mensalao';
-import { makeRound } from 'src/domain/mock';
 
 describe('Mensalão', () => {
-  it('deve escolher um jogador para ser comprado', () => {
+  it('deve escolher até três jogadores para serem comprados', () => {
     const mensalao = new Mensalao();
-    mensalao.choosePlayer('Jogador 1');
-    expect(mensalao.chosenPlayer).toBe('Jogador 1');
+    mensalao.setMirrorId('p4');
+    const [choosePlayerError] = mensalao.choosePlayer('p1');
+    expect(choosePlayerError).toBeUndefined();
+    expect(mensalao.currentAction).toBe(MensalaoAction.CHOOSE_PLAYER);
+    const [choosePlayerError2] = mensalao.choosePlayer('p2');
+    expect(choosePlayerError2).toBeUndefined();
+    expect(mensalao.currentAction).toBe(MensalaoAction.CHOOSE_PLAYER);
+    const [choosePlayerError3] = mensalao.choosePlayer('p3');
+    expect(choosePlayerError3).toBeUndefined();
+    expect(mensalao.chosenPlayers.size).toBe(3);
+    expect(mensalao.chosenPlayers.has('p1')).toBe(true);
+    expect(mensalao.chosenPlayers.has('p2')).toBe(true);
+    expect(mensalao.chosenPlayers.has('p3')).toBe(true);
     expect(mensalao.currentAction).toBe(MensalaoAction.ADVANCE_STAGE);
   });
 
-  it('deve salvar o voto forçado no round', () => {
+  it('deve salvar o voto espelhado no round', () => {
     const round = makeRound();
     const mensalao = new Mensalao();
-    mensalao.choosePlayer('p1');
+    mensalao.setMirrorId('p4');
+    mensalao.choosePlayer('p2');
     mensalao.apply(round);
-    expect(round.legislativeForcedVotes.size).toBe(1);
-  });
-
-  it('não deve permitir escolher jogador duas vezes', () => {
-    const mensalao = new Mensalao(MensalaoAction.ADVANCE_STAGE);
-    const [error] = mensalao.choosePlayer('Jogador 1');
-    expect(error).toBe(
-      ActionController.unexpectedActionMessage(
-        MensalaoAction.CHOOSE_PLAYER,
-        MensalaoAction.ADVANCE_STAGE,
-      ),
-    );
+    expect(round.mirroedVotes.size).toBe(1);
+    expect(round.mirroedVotes.get('p2')).toBe('p4');
   });
 });

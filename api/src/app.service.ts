@@ -15,6 +15,8 @@ import { DossierStage } from 'src/domain/stage/dossier-stage';
 import { SabotageStage } from 'src/domain/stage/sabotage-stage';
 import { CrisisStage } from 'src/domain/stage/crisis-stage';
 import { RadicalizationStage } from './domain/stage/radicalization-stage';
+import { CRISIS_NAMES } from 'src/domain/crisis/crisis-names';
+import { Mensalao } from 'src/domain/crisis/mensalao';
 
 @Injectable()
 export class AppService {
@@ -601,6 +603,42 @@ export class AppService {
       }
     }
 
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
+  async crisisStageMensalaoChoosePlayers(input: {
+    lobbyId: string;
+    issuerId: string;
+    chosenPlayers: string[];
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException('Lobby não encontrado'));
+    }
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (stage instanceof CrisisStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível escolher jogadores na crise Mensalão fora do estágio de Crise',
+        ),
+      );
+    }
+    if (stage.crisisEffect?.crisis !== CRISIS_NAMES.MENSALAO) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível realizar a ação da crise Mensalão',
+        ),
+      );
+    }
+    const mensalao = stage.crisisEffect as Mensalao;
+    mensalao.setMirrorId(input.issuerId);
+    for (const player of input.chosenPlayers) {
+      const [error] = mensalao.choosePlayer(player);
+      if (error) {
+        return left(new UnprocessableEntityException(error));
+      }
+    }
     await this.lobbyRepository.save(lobby);
     return right(lobby);
   }

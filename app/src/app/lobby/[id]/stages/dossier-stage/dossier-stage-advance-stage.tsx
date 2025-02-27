@@ -1,7 +1,7 @@
 import { useLobbyContext } from "@/app/lobby/[id]/lobby-context";
 import { useLobbySocketContext } from "@/app/lobby/[id]/lobby-socket-context";
 import { usePlayerContext } from "@/app/lobby/[id]/player-context";
-import LawCard from "@/components/law-card/law-card";
+import DossierStageDossierCard from "@/app/lobby/[id]/stages/dossier-stage/dossier-stage-dossier-card";
 import { Button } from "@/components/ui/button";
 import WaitButton from "@/components/wait-button";
 import { DossierStageDTO } from "@/lib/api.types";
@@ -29,8 +29,7 @@ const DossierStageAdvanceStage = ({ stage }: Props) => {
         {player.isRapporteur && (
           <div className="text-sm max-w-lg text-muted-foreground flex flex-col gap-2">
             <p className="text-gray-700">
-              Como Relator do Dossiê você tem acesso a quais leis o presidente
-              sorteou.
+              Como Relator do Dossiê você tem acesso às leis que <strong>não foram vetadas</strong> pelo Presidente.
             </p>
           </div>
         )}
@@ -38,17 +37,7 @@ const DossierStageAdvanceStage = ({ stage }: Props) => {
           <>
             <ul className="flex gap-3">
               {stage.dossier.map((law) => (
-                <li key={law.id}>
-                  <LawCard
-                    law={{
-                      type: law.type,
-                      name: "XXXX",
-                      id: "xxxx",
-                      description: "xxxx xxxx xxxx xxx x x xxxxxx xxx xx x x x xxxx xx xxx xxx"
-                    }}
-                    isOverlayFixed
-                  />
-                </li>
+                <DossierStageDossierCard key={law.id} law={law} />
               ))}
             </ul>
             <Button onClick={() => dossierStageAdvanceStage()}>

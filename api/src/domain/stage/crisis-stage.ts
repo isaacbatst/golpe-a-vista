@@ -16,7 +16,7 @@ export class CrisisStage extends Stage {
 
   constructor(
     readonly crisis: Crisis | null,
-    private _crisisEffect: CrisisEffect | null = null,
+    private _crisisEffect: CrisisEffect | null = crisis?.getEffect() ?? null,
     currentAction?: CrisisStageAction,
   ) {
     super(
@@ -31,14 +31,16 @@ export class CrisisStage extends Stage {
       return left(error);
     }
 
-    this._crisisEffect = this.crisis!.start();
-
-    if (!this._crisisEffect.hasPendingActions) {
-      this._crisisEffect.apply(round);
-      this.advanceAction();
-      return right();
+    if (!this._crisisEffect) {
+      return left('Não há crise.');
     }
 
+    if (!this._crisisEffect.isComplete) {
+      return left('Ainda há ações a serem realizadas na crise.');
+    }
+
+    this._crisisEffect.apply(round);
+    this.advanceAction();
     return right();
   }
 

@@ -17,6 +17,8 @@ import { SabotageAction } from 'src/domain/stage/sabotage-stage';
 import { CrisisStageAction } from 'src/domain/stage/crisis-stage';
 import { ConfigService } from '@nestjs/config';
 import { RadicalizationAction } from './domain/stage/radicalization-stage';
+import { MensalaoAction } from 'src/domain/crisis/mensalao';
+import { CRISIS_NAMES } from 'src/domain/crisis/crisis-names';
 
 @WebSocketGateway({
   cors: {
@@ -385,6 +387,27 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const [error, lobby] = await this.service.crisisStageStartCrisis({
       lobbyId: data.lobbyId,
       issuerId: client.request.session.userId,
+    });
+    if (error) {
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
+  }
+
+  @SubscribeMessage(
+    `${StageType.CRISIS}:${CRISIS_NAMES.MENSALAO}:${MensalaoAction.CHOOSE_PLAYER}`,
+  )
+  async mensalaoChoosePlayer(
+    client: Socket,
+    data: { lobbyId: string; players: string[] },
+  ) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] = await this.service.crisisStageMensalaoChoosePlayers({
+      lobbyId: data.lobbyId,
+      issuerId: client.request.session.userId,
+      chosenPlayers: data.players,
     });
     if (error) {
       return this.handleSocketError(client, error.message);

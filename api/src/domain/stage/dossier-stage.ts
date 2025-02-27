@@ -124,7 +124,7 @@ export class DossierStage extends Stage {
       currentAction: this.currentAction as DossierAction,
       nextRapporteurId: this._nextRapporteurId,
       isDossierVisibleToRapporteur: this._isDossierVisibleToRapporteur,
-      dossier: this._proposals.map((law) => law.toJSON()),
+      dossier: this.dossier,
       proposals: this._proposals.map((law) => law.toJSON()),
     } as const;
   }
@@ -133,7 +133,7 @@ export class DossierStage extends Stage {
     return new DossierStage({
       ...data,
       nextRapporteurId: data.nextRapporteurId ?? undefined,
-      proposals: data.dossier.map((law) => LegislativeProposal.fromJSON(law)),
+      proposals: data.proposals.map((law) => LegislativeProposal.fromJSON(law)),
     });
   }
 
