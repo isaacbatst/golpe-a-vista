@@ -36,13 +36,11 @@ export class Voting {
   }
 
   vote(player: string, vote: boolean): boolean | null {
-    if (this._hasEnded) return null;
     this._votes.set(player, vote);
     const somePlayerHasNotVoted = Array.from(this._votes.values()).some(
       (vote) => vote === null,
     );
     if (somePlayerHasNotVoted) return false;
-    this.end();
     return true;
   }
 

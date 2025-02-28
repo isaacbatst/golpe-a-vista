@@ -49,31 +49,30 @@ export class Mensalao extends CrisisEffect {
     return right();
   }
 
-  choosePlayer(player: string): Either<string, void> {
+  choosePlayers(player: string[]): Either<string, void> {
     const [error] = this._actionController!.assertCurrentAction(
       MensalaoAction.CHOOSE_PLAYER,
     );
     if (error) {
       return left(error);
     }
-    this.chosenPlayers.add(player);
-
-    if (this.chosenPlayers.size >= 3) {
-      this._actionController?.advanceAction();
+    if (player.length > 3) {
+      return left('Você só pode escolher até 3 jogadores.');
     }
-
+    for (const p of player) {
+      this.chosenPlayers.add(p);
+    }
+    this._actionController?.advanceAction();
     return right();
   }
 
   apply(round: Round): Either<string, void> {
-    if (!this.mirrorId) {
+    if (!this.mirrorId && this.chosenPlayers.size > 0) {
       return left('Nenhum jogador foi escolhido para ser espelhado.');
     }
-    if (this.chosenPlayers.size === 0) {
-      return left('Nenhum jogador foi escolhido.');
-    }
+
     for (const player of this.chosenPlayers) {
-      round.mirroedVotes.set(player, this.mirrorId);
+      round.mirroedVotes.set(player, this.mirrorId!);
     }
     return right();
   }
@@ -84,6 +83,7 @@ export class Mensalao extends CrisisEffect {
       crisis: this.crisis,
       chosenPlayers: [...this.chosenPlayers],
       mirrorId: this.mirrorId,
+      maxSelectedPlayers: 3,
     } as const;
   }
 

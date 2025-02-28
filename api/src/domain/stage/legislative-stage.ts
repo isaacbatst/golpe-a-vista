@@ -143,17 +143,18 @@ export class LegislativeStage extends Stage {
 
     const hasEnded = this._voting.vote(playerName, vote);
 
-    if (hasEnded) {
-      return this.endVoting();
-    }
-
+    if (hasEnded) return right(true);
     return right(false);
   }
 
-  endVoting(): Either<string, true> {
+  endVoting(
+    mirroedVotes: Map<string, string> = new Map(),
+  ): Either<string, boolean> {
     const [error] = this.assertCurrentAction(LegislativeAction.VOTING);
     if (error) return left(error);
-
+    mirroedVotes.forEach((mirror, player) => {
+      this._voting?.vote(player, this._voting?.votes.get(mirror) ?? false);
+    });
     this._voting?.end();
     this.advanceAction();
     return right(true);

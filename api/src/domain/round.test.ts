@@ -145,6 +145,7 @@ describe('Estágios', () => {
       const [error] = legislativeStage.vote(player, true);
       expect(error).toBeUndefined();
     }
+    legislativeStage.endVoting();
     expect(legislativeStage.votingResult).toBe(true);
     const round = new Round({
       presidentQueue: new PresidentQueue([president, nextPresident]),

@@ -25,7 +25,8 @@ const RadicalizationStageChooseTarget = () => {
           </p>
           <ul className="list-disc list-inside text-gray-700">
             <li>
-              Se o alvo for um Moderado, ele se tornará parte do time Radical.
+              Se o alvo for um Moderado, ele será radicalizado e não terá mais{" "}
+              <strong>receio</strong>.
             </li>
             <li>Se o alvo for um Conservador, a radicalização falhará.</li>
           </ul>
@@ -51,7 +52,8 @@ const RadicalizationStageChooseTarget = () => {
         </p>
         <ul className="list-disc list-inside text-gray-700">
           <li>
-            Se o alvo for um Moderado radicalizado será parte do time Radical.
+            Se o alvo for um Moderado, ele será radicalizado e não terá mais{" "}
+            <strong>receio</strong>.
           </li>
           <li>Se o alvo for um Conservador, a radicalização falhará.</li>
         </ul>

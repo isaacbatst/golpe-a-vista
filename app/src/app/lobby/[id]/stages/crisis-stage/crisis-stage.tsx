@@ -9,7 +9,6 @@ import useTimer from "@/hooks/useTimer";
 import { CRISIS_NAMES, CrisisStageDTO, Role } from "@/lib/api.types";
 import { isCrisisVisible } from "@/lib/utils";
 import { ChevronsRight } from "lucide-react";
-import { useState } from "react";
 
 type Props = {
   stage: CrisisStageDTO;
@@ -23,20 +22,18 @@ const CrisisStage = ({ stage }: Props) => {
     isCrisisVisible(stage.crisis?.visibleTo ?? [], player) ||
     (lobby.currentGame.currentRound.hasLastRoundBeenSabotaged &&
       player.role === Role.CONSERVADOR);
-  const [disabled, setDisabled] = useState(true);
 
   const { crisisStageStartCrisis } = useLobbySocketContext();
-  const timeLeft = useTimer(5, () => {
-    setDisabled(false);
-  });
+  const timeLeft = useTimer(5);
 
   if (
     stage.crisisEffect?.crisis === CRISIS_NAMES.MENSALAO &&
-    lobby.currentGame.crisisControlledBy
+    lobby.currentGame.crisisControlledBy &&
+    stage.crisis
   ) {
     return (
       <Mensalao
-        stage={stage}
+        crisis={stage.crisis}
         controlledBy={lobby.currentGame.crisisControlledBy}
         effect={stage.crisisEffect}
       />
@@ -44,7 +41,7 @@ const CrisisStage = ({ stage }: Props) => {
   }
 
   const button =
-    player.isPresident && !disabled ? (
+    player.isPresident && !timeLeft ? (
       <Button
         onClick={() => {
           crisisStageStartCrisis();
@@ -64,7 +61,10 @@ const CrisisStage = ({ stage }: Props) => {
   return (
     <div className="flex flex-col items-center gap-4">
       <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
-        Crise
+        Rodada {lobby.currentGame.currentRound.index + 1} -{" "}
+        {player.isPresident
+          ? "Você é o presidente"
+          : `${lobby.currentGame.president.name} é o presidente`}
       </h2>
       <div className="max-w-lg flex flex-col items-center gap-4">
         {stage.crisis && shouldShow ? (

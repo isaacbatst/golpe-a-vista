@@ -1,3 +1,4 @@
+import { Either, right } from 'src/domain/either';
 import { LawType } from '../role';
 import { Round } from '../round';
 import { CrisisEffect } from './crisis-effect';
@@ -13,8 +14,9 @@ export class FmiMandou extends CrisisEffect {
     super([FmiMandouAction.ADVANCE_STAGE], currentAction);
   }
 
-  apply(round: Round): void {
+  apply(round: Round): Either<string, void> {
     round.requiredVeto = LawType.PROGRESSISTAS;
+    return right();
   }
   toJSON() {
     return {

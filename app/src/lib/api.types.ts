@@ -113,7 +113,7 @@ export type LegislativeStageDTO = {
   notVetoableProposals: {
     id: string;
     reason: string;
-  }[]
+  }[];
   isComplete: boolean;
   isVotingSecret: boolean;
   mustVeto: boolean;
@@ -150,15 +150,15 @@ export enum CrisisStageAction {
 }
 
 export enum CRISIS_NAMES {
-  PLANO_COHEN = 'PLANO_COHEN',
-  MENSALAO = 'MENSALAO',
-  CAFE_COM_A_ABIN = 'CAFE_COM_A_ABIN',
+  PLANO_COHEN = "PLANO_COHEN",
+  MENSALAO = "MENSALAO",
+  CAFE_COM_A_ABIN = "CAFE_COM_A_ABIN",
   // OPERACAO_MAOS_LIMPAS = "OPERACAO_MAOS_LIMPAS",
-  O_FMI_MANDOU = 'O_FMI_MANDOU',
-  FORCAS_OCULTAS = 'FORCAS_OCULTAS',
+  O_FMI_MANDOU = "O_FMI_MANDOU",
+  FORCAS_OCULTAS = "FORCAS_OCULTAS",
   // REGIME_DE_URGENCIA = "REGIME_DE_URGENCIA",
-  SESSAO_SECRETA = 'SESSAO_SECRETA',
-  GOLPE_DE_ESTADO = 'GOLPE_DE_ESTADO',
+  SESSAO_SECRETA = "SESSAO_SECRETA",
+  GOLPE_DE_ESTADO = "GOLPE_DE_ESTADO",
   // VAZAMENTO_NO_WIKILEAKS = "VAZAMENTO_NO_WIKILEAKS",
   // CONGRESSO_TRANCADO = "CONGRESSO_TRANCADO",
   // PEGADINHA_DO_PARAGRAFO_47_INCISO_V = "PEGADINHA_DO_PARAGRAFO_47_INCISO_V",
@@ -174,9 +174,9 @@ export enum CRISIS_NAMES {
 }
 
 export enum MensalaoAction {
-  SET_MIRROR_ID = 'SET_MIRROR_ID',
-  CHOOSE_PLAYER = 'CHOOSE_PLAYER',
-  ADVANCE_STAGE = 'ADVANCE_STAGE',
+  SET_MIRROR_ID = "SET_MIRROR_ID",
+  CHOOSE_PLAYER = "CHOOSE_PLAYER",
+  ADVANCE_STAGE = "ADVANCE_STAGE",
 }
 
 export type MensalaoDTO = {
@@ -186,14 +186,17 @@ export type MensalaoDTO = {
   crisis: CRISIS_NAMES.MENSALAO;
   chosenPlayers: string[];
   mirrorId: string | null;
-}
+  maxSelectedPlayers: number;
+  timeToAdvance: number;
+};
 
 export type AutomaticEffectDTO = {
   isComplete: boolean;
   currentAction: string;
   actions: string[];
   crisis: Exclude<CRISIS_NAMES, CRISIS_NAMES.MENSALAO>;
-}
+  timeToAdvance: number;
+};
 
 export type CrisisEffectDTO = MensalaoDTO | AutomaticEffectDTO;
 
@@ -205,8 +208,8 @@ export type CrisisStageDTO = {
 };
 
 export enum RadicalizationAction {
-  RADICALIZE = 'RADICALIZE',
-  ADVANCE_STAGE = 'ADVANCE_STAGE',
+  RADICALIZE = "RADICALIZE",
+  ADVANCE_STAGE = "ADVANCE_STAGE",
 }
 
 export type RadicalizationStageDTO = {
@@ -236,6 +239,7 @@ export type RoundDTO = {
   currentStage: StageDTO;
   rapporteur: string | null;
   hasLastRoundBeenSabotaged: boolean;
+  mirroedVotes: [string, string][];
 };
 
 export type GameDTO = {
@@ -248,7 +252,6 @@ export type GameDTO = {
   lawsToConservativeWin: number;
   crisesIntervalToImpeach: number;
   rounds: RoundDTO[];
-  currentRoundIndex: number;
   currentRound: RoundDTO;
   progressiveLawsToFear: number;
   rejectedLawsIntervalToCrisis: number;

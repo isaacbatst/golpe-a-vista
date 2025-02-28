@@ -1,3 +1,4 @@
+import { Either, right } from 'src/domain/either';
 import { Round } from '../round';
 import { CrisisEffect } from './crisis-effect';
 import { CRISIS_NAMES } from './crisis-names';
@@ -12,8 +13,9 @@ export class PlanoCohen extends CrisisEffect {
     super([PlanoCohenAction.ADVANCE_STAGE], currentAction);
   }
 
-  apply(round: Round): void {
+  apply(round: Round): Either<string, void> {
     round.isDossierFake = true;
+    return right();
   }
   toJSON() {
     return {

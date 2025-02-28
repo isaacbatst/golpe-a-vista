@@ -9,7 +9,7 @@ const DossierStagePassDossier = () => {
   const { dossierStagePassDossier } = useLobbySocketContext();
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col items-center gap-4">
       <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
         Delação do Dossiê
       </h2>
@@ -20,16 +20,14 @@ const DossierStagePassDossier = () => {
             : "O Relator do Dossiê está fazendo a leitura do documento."}
         </p>
       </div>
-      <div>
-        {player.isRapporteur ? (
-          <Button onClick={() => dossierStagePassDossier()}>
-            <FileText />
-            Receber Dossiê
-          </Button>
-        ) : (
-          <WaitButton>Aguarde a conclusão da leitura do Dossiê.</WaitButton>
-        )}
-      </div>
+      {player.isRapporteur ? (
+        <Button onClick={() => dossierStagePassDossier()}>
+          <FileText />
+          Receber Dossiê
+        </Button>
+      ) : (
+        <WaitButton>Aguarde a conclusão da leitura do Dossiê.</WaitButton>
+      )}
     </div>
   );
 };

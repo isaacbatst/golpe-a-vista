@@ -7,7 +7,8 @@ const WaitButton = ({
   ...props
 }: PropsWithChildren & ButtonProps) => {
   return (
-    <Button {...props} variant="default" disabled>
+    // make inner text breaklines
+    <Button {...props} variant="default" disabled className="whitespace-normal">
       <Loader2 className="animate-spin" />
       {children}
     </Button>

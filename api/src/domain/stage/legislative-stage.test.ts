@@ -161,7 +161,7 @@ describe('Estágio Legislativo', () => {
     expect(stage.votingResult).toBeTruthy();
   });
 
-  it('deve finalizar votação automaticamente com todos os votos', () => {
+  it('deve finalizar votação após todos os votos', () => {
     const stage = new LegislativeStage();
     stage.drawLaws(makeLawsDeck(), 'president', 'president');
     stage.vetoLaw(1, 'president', 'president');
@@ -180,7 +180,7 @@ describe('Estágio Legislativo', () => {
     expect(error5).toBeUndefined();
     const [error6] = stage.vote('p6', true);
     expect(error6).toBeUndefined();
-
+    stage.endVoting();
     expect(stage.votingHasEnded).toBe(true);
   });
 
@@ -221,5 +221,31 @@ describe('Estágio Legislativo', () => {
     expect(stage.vetoableProposals).toHaveLength(3);
     const [error] = stage.vetoLaw(0, 'president', 'president');
     expect(error).toBeUndefined();
+  });
+
+  it('deve aplicar votos espelhados ao finalizar votação', () => {
+    const stage = new LegislativeStage();
+    stage.drawLaws(makeLawsDeck(), 'president', 'president');
+    stage.vetoLaw(1, 'president', 'president');
+    stage.chooseLawForVoting(0, 'president', 'president');
+    stage.startVoting(['p1', 'p2', 'p3', 'p4', 'p5', 'p6']);
+    stage.vote('p1', false);
+    stage.vote('p2', true);
+    stage.vote('p3', true);
+    stage.vote('p4', true);
+    stage.vote('p5', true);
+    stage.vote('p6', true);
+    const [error] = stage.endVoting(
+      new Map([
+        ['p2', 'p1'],
+        ['p3', 'p1'],
+        ['p4', 'p1'],
+      ]),
+    );
+    expect(error).toBeUndefined();
+    expect(stage.votes?.get('p2')).toBe(false);
+    expect(stage.votes?.get('p3')).toBe(false);
+    expect(stage.votes?.get('p4')).toBe(false);
+    expect(stage.votingResult).toBe(false);
   });
 });

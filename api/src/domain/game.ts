@@ -356,7 +356,6 @@ export class Game {
       return this.president.id;
     }
 
-    // controlled by is a priority array 0 is the highest priority
     for (const controller of this.currentRound.crisis.controlledBy) {
       if (controller === CrisisControlledBy.PRESIDENT) {
         return this.president.id;

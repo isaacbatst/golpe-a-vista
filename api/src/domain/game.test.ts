@@ -210,6 +210,7 @@ describe('Crises', () => {
         for (const player of players) {
           legislativeStage.vote(player[0], true);
         }
+        legislativeStage.endVoting();
         return new Round({
           presidentQueue,
           stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION),
@@ -332,6 +333,7 @@ describe('Crises', () => {
         for (const player of players) {
           legislativeStage.vote(player[0], false);
         }
+        legislativeStage.endVoting();
 
         return new Round({
           presidentQueue: new PresidentQueue(Array.from(players.values())),
@@ -573,11 +575,20 @@ describe('Presidência', () => {
     expect(game?.currentRound.currentStage.type).toBe(StageType.IMPEACHMENT);
     const stage = game!.currentRound.currentStage as ImpeachmentStage;
     const target = game!.players.find((p) => p !== game?.president);
-    stage.chooseTarget(target!.id, target!.role);
-    stage.startVoting(playersNames.map(([id]) => id));
-    for (const player of players) {
-      stage.vote(player[0], true, target!);
+    const [chooseTargetError] = stage.chooseTarget(target!.id, target!.role);
+    expect(chooseTargetError).toBeUndefined();
+    const [startVotingError, voting] = stage.startVoting(
+      playersNames.map(([id]) => id),
+    );
+    expect(startVotingError).toBeUndefined();
+    expect(voting).toBeDefined();
+    for (const [player] of playersNames) {
+      const [error] = stage.vote(player, true, target!);
+      expect(error).toBeUndefined();
     }
+    console.log('votes', stage.voting);
+    expect(stage.voting?.votes.get('p1')).toBe(true);
+    expect(stage.isComplete).toBe(true);
     expect(target?.impeached).toBe(true);
   });
 });
@@ -613,6 +624,7 @@ describe('Condições de Vitória', () => {
           for (const player of players) {
             legislativeStage.vote(player[0], true);
           }
+          legislativeStage.endVoting();
           return new Round({
             index: i,
             presidentQueue,
@@ -665,6 +677,7 @@ describe('Condições de Vitória', () => {
           for (const player of players) {
             legislativeStage.vote(player[0], true);
           }
+          legislativeStage.endVoting();
           return new Round({
             presidentQueue,
             index: i,

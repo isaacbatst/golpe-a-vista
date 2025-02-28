@@ -12,6 +12,13 @@ import { useLobbyContext } from "../../lobby-context";
 import { useLobbySocketContext } from "../../lobby-socket-context";
 import { usePlayerContext } from "../../player-context";
 import LegislativeStageVotingStatus from "./legislative-stage-voting-status";
+import { TriangleAlert } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const LegislativeStageAdvanceStage = () => {
   const { player: me } = usePlayerContext();
@@ -51,6 +58,23 @@ const LegislativeStageAdvanceStage = () => {
         players={lobby.currentGame.players}
         stage={stage}
       />
+      {Boolean(
+        lobby.currentGame.currentRound.mirroedVotes.find(([p]) => p === me.id)
+      ) && (
+        <TooltipProvider>
+          <Tooltip delayDuration={300}>
+            <TooltipTrigger>
+              <div className="text-center text-xl flex items-center gap-2 py-2 px-3 text-white bg-red-500 rounded-lg shadow-md">
+                <TriangleAlert />
+                <span>Seu voto foi comprado!</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Esse é um efeito de crise! Mas será que você pode provar?</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
       <ul className="flex flex-wrap gap-3 justify-center">
         {stage.proposals.map((proposal) => {
           return (

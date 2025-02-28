@@ -1,6 +1,7 @@
 import { CrisisEffect } from 'src/domain/crisis/crisis-effect';
 import { Round } from '../round';
 import { CRISIS_NAMES } from 'src/domain/crisis/crisis-names';
+import { Either, right } from 'src/domain/either';
 
 export enum CafeComAbinAction {
   ADVANCE_STAGE = 'ADVANCE_STAGE',
@@ -13,8 +14,9 @@ export class CafeComAbin extends CrisisEffect {
     super([CafeComAbinAction.ADVANCE_STAGE], currentAction);
   }
 
-  apply(round: Round): void {
+  apply(round: Round): Either<string, void> {
     round.isDossierOmitted = true;
+    return right();
   }
 
   toJSON() {

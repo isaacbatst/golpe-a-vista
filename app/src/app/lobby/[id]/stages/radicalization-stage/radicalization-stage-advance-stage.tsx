@@ -34,11 +34,8 @@ const RadicalizationStageAdvanceStage = ({ stage }: Props) => {
       {player.role === Role.RADICAL && (
         <>
           <div className="text-sm max-w-lg text-muted-foreground flex flex-col gap-2">
-            <p className="text-gray-700">
-              Você tentou radicalizar {targetPlayer.name}.
-            </p>
             <p
-              className={cn({
+              className={cn('text-2xl font-medium',{
                 "text-red-600": !targetPlayer.radicalized,
                 "text-green-600": targetPlayer.radicalized,
               })}
@@ -46,6 +43,11 @@ const RadicalizationStageAdvanceStage = ({ stage }: Props) => {
               {targetPlayer.radicalized
                 ? "A radicalização foi bem-sucedida."
                 : "A radicalização falhou."}
+            </p>
+            <p className="text-gray-700">
+              {targetPlayer.radicalized
+                ? `Você radicalizou ${targetPlayer.name}`
+                : `Um conservador como ${targetPlayer.name} não se torna radical da noite para o dia.`}
             </p>
           </div>
           <Button onClick={() => radicalizationStageAdvanceStage()}>
@@ -56,28 +58,20 @@ const RadicalizationStageAdvanceStage = ({ stage }: Props) => {
       {player.id === targetPlayer.id && (
         <>
           <div className="text-sm max-w-lg text-muted-foreground flex flex-col gap-2">
-          {
-            targetPlayer.radicalized ? (
+            {targetPlayer.radicalized ? (
               <div>
-                <p className="text-green-600 mb-2">
-                  A radicalização foi bem-sucedida.
-                </p>
+                <p className="text-red-600 mb-2 text-2xl font-medium">Você foi radicalizado</p>
                 <p>
-                  Você agora faz parte do time Radical. Você ganha ao radicalizar 2 moderados ou cassar 2 conservadores.
-                  Paz entre nós, guerra aos senhores. 
+                  Você não tem mais <strong>receio</strong> ao aprovar leis
+                  progressistas.
                 </p>
               </div>
-            ): (
+            ) : (
               <div>
-                <p className="text-red-600">
-                  A radicalização falhou.
-                </p>
-                <p>
-                  Um conservador não se torna radical da noite para o dia.
-                </p>
+                <p className="text-red-600 mb-2 text-2xl font-medium">O radical tentou te radicalizar</p>
+                <p>Um conservador como você não se torna radical da noite para o dia.</p>
               </div>
-            )
-          }
+            )}
           </div>
 
           <WaitButton>

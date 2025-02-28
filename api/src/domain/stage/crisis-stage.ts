@@ -35,11 +35,10 @@ export class CrisisStage extends Stage {
       return left('Não há crise.');
     }
 
-    if (!this._crisisEffect.isComplete) {
-      return left('Ainda há ações a serem realizadas na crise.');
+    const [applyError] = this._crisisEffect.apply(round);
+    if (applyError) {
+      return left(applyError);
     }
-
-    this._crisisEffect.apply(round);
     this.advanceAction();
     return right();
   }

@@ -35,7 +35,7 @@ export default function Game({ userId, lobby }: Props) {
   const myUser = lobby.users.find((user) => user.id === userId);
   return (
     <PlayerContextProvider player={me}>
-      <div className="lg:h-screen bg-gray-100 flex flex-col lg:flex-row lg:items-center justify-center p-5 gap-5">
+      <div className="lg:h-screen bg-gray-100 flex flex-col lg:flex-row lg:items-start justify-center p-2 sm:p-5 gap-5">
         <Card className="bg-white shadow-2xl flex-grow">
           <CardHeader className="flex flex-col gap-4 sm:flex-row sm:justify-between items-center">
             <CardTitle>
@@ -95,8 +95,8 @@ export default function Game({ userId, lobby }: Props) {
                 )}
               </div>
 
-              <div className="flex flex-col items-center gap-3">
-                <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <div className="flex flex-col sm:items-center gap-3">
+                <div className="flex flex-col sm:flex-row flex-wrap gap-2 justify-center">
                   {Object.values(StageType).map((stageType) => (
                     <Button
                       key={stageType}

@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 
-const useTimer = (duration: number, onEnd: () => void) => {
+const useTimer = (duration: number) => {
   const [timeLeft, setTimeLeft] = useState(duration);
 
   useEffect(() => {
     if (timeLeft <= 0) {
-      onEnd();
       return;
     }
 
@@ -14,7 +13,7 @@ const useTimer = (duration: number, onEnd: () => void) => {
     }, 1000);
 
     return () => clearInterval(timerId);
-  }, [timeLeft, onEnd]);
+  }, [timeLeft]);
 
   return timeLeft;
 };

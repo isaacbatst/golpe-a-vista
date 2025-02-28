@@ -50,7 +50,7 @@ export class ImpeachmentStage extends Stage {
     return right();
   }
 
-  startVoting(players: string[]): Either<string, void> {
+  startVoting(players: string[]): Either<string, Voting> {
     const [actionError] = this.assertCurrentAction('START_VOTING');
     if (actionError) return left(actionError);
 
@@ -68,7 +68,7 @@ export class ImpeachmentStage extends Stage {
 
     this._voting = voting;
     this.advanceAction();
-    return right();
+    return right(voting);
   }
 
   vote(
@@ -86,6 +86,7 @@ export class ImpeachmentStage extends Stage {
     const hasEnded = this._voting.vote(playerId, approve);
 
     if (hasEnded) {
+      this._voting.end();
       this.advanceAction();
       return this.impeach(target);
     }
@@ -123,6 +124,10 @@ export class ImpeachmentStage extends Stage {
 
   get target() {
     return this._targetId;
+  }
+
+  get voting() {
+    return this._voting;
   }
 
   toJSON() {

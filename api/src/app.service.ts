@@ -334,7 +334,19 @@ export class AppService {
         ),
       );
     }
-    stage.vote(input.issuerId, input.vote);
+    const [error, allPlayersVoted] = stage.vote(input.issuerId, input.vote);
+    if (error) {
+      return left(new UnprocessableEntityException(error));
+    }
+    if (allPlayersVoted) {
+      const [error] = stage.endVoting(
+        lobby.currentGame.currentRound.mirroedVotes,
+      );
+      if (error) {
+        return left(new UnprocessableEntityException(error));
+      }
+    }
+
     await this.lobbyRepository.save(lobby);
     return right(lobby);
   }
@@ -633,12 +645,7 @@ export class AppService {
     }
     const mensalao = stage.crisisEffect as Mensalao;
     mensalao.setMirrorId(input.issuerId);
-    for (const player of input.chosenPlayers) {
-      const [error] = mensalao.choosePlayer(player);
-      if (error) {
-        return left(new UnprocessableEntityException(error));
-      }
-    }
+    mensalao.choosePlayers(input.chosenPlayers);
     await this.lobbyRepository.save(lobby);
     return right(lobby);
   }
