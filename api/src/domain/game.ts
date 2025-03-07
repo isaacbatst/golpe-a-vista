@@ -1,3 +1,4 @@
+import { CrisisControlledBy } from 'src/domain/crisis/crisis-controlled-by';
 import { CrisisFactory } from 'src/domain/crisis/crisis-factory';
 import { DossierStage } from 'src/domain/stage/dossier-stage';
 import { Law } from '../data/laws';
@@ -9,7 +10,6 @@ import { PresidentQueue } from './president-queue';
 import { Random } from './random';
 import { LawType, Role } from './role';
 import { Round } from './round';
-import { CrisisControlledBy } from 'src/domain/crisis/crisis-controlled-by';
 
 type GameParams = {
   players: Map<string, Player>;
@@ -255,44 +255,89 @@ export class Game {
     );
   }
 
-  get hasModerateWon() {
-    return (
-      this.approvedLaws.filter((law) => law.type === LawType.PROGRESSISTAS)
-        .length >= this._lawsToProgressiveWin
-    );
+  get moderatesWinConditions() {
+    const conditions = [
+      {
+        isFulfilled:
+          this.approvedLaws.filter((law) => law.type === LawType.PROGRESSISTAS)
+            .length >= this._lawsToProgressiveWin,
+        message: `Aprovar ${this._lawsToProgressiveWin} leis progressistas`,
+      },
+    ];
+    return conditions;
   }
 
-  get hasConservativeWon() {
-    const areEveryRadicalImpeached = Array.from(this._players.values())
-      .filter((player) => player.role === Role.RADICAL)
-      .every((player) => player.impeached);
-
-    return (
-      this.approvedLaws.filter((law) => law.type === LawType.CONSERVADORES)
-        .length >= this._lawsToConservativeWin || areEveryRadicalImpeached
-    );
+  get conservativesWinConditions() {
+    const conditions = [
+      {
+        isFulfilled:
+          this.approvedLaws.filter((law) => law.type === LawType.CONSERVADORES)
+            .length >= this._lawsToConservativeWin,
+        message: `Aprovar ${this._lawsToConservativeWin} leis conservadoras`,
+      },
+      {
+        isFulfilled: Array.from(this._players.values())
+          .filter((player) => player.role === Role.RADICAL)
+          .every((player) => player.impeached),
+        message: 'Cassar todos os jogadores radicais',
+      },
+    ];
+    return conditions;
   }
 
-  get hasRadicalWon() {
-    const impeachedConservatives = Array.from(this._players.values()).filter(
-      (player) => player.role === Role.CONSERVADOR && player.impeached,
-    );
-    return (
-      impeachedConservatives.length >= this._conservativesImpeachedToRadicalWin
-    );
+  get radicalsWinConditions() {
+    const conditions = [
+      {
+        isFulfilled:
+          Array.from(this._players.values()).filter(
+            (player) => player.role === Role.CONSERVADOR && player.impeached,
+          ).length >= this._conservativesImpeachedToRadicalWin,
+        message: `Cassar ${this._conservativesImpeachedToRadicalWin} conservadores`,
+      },
+      {
+        isFulfilled:
+          Array.from(this._players.values()).filter(
+            (player) => player.role === Role.MODERADO && player.radicalized,
+          ).length >=
+          Array.from(this._players.values()).filter(
+            (player) => player.role === Role.MODERADO,
+          ).length /
+            2,
+        message: 'Radicalizar metade dos moderados',
+      },
+    ];
+    return conditions;
   }
 
   get winner() {
-    if (this.hasModerateWon) {
+    if (
+      this.moderatesWinConditions.some((condition) => condition.isFulfilled)
+    ) {
       return Role.MODERADO;
     }
-
-    if (this.hasConservativeWon) {
+    if (this.radicalsWinConditions.some((condition) => condition.isFulfilled)) {
+      return Role.RADICAL;
+    }
+    if (
+      this.conservativesWinConditions.some((condition) => condition.isFulfilled)
+    ) {
       return Role.CONSERVADOR;
     }
 
-    if (this.hasRadicalWon) {
-      return Role.RADICAL;
+    return null;
+  }
+
+  get winnerWinConditions() {
+    if (this.winner === Role.MODERADO) {
+      return this.moderatesWinConditions;
+    }
+
+    if (this.winner === Role.RADICAL) {
+      return this.radicalsWinConditions;
+    }
+
+    if (this.winner === Role.CONSERVADOR) {
+      return this.conservativesWinConditions;
     }
 
     return null;
@@ -440,6 +485,7 @@ export class Game {
       crisesIntervalToImpeach: this._crisesIntervalToImpeach,
       currentRound: this.currentRound,
       crisisControlledBy: this.crisisControlledBy,
+      winnerWinConditions: this.winnerWinConditions,
       progressiveLawsToFear: this._progressiveLawsToFear,
       rejectedLawsIntervalToCrisis: this._rejectedLawsIntervalToCrisis,
       conservativesImpeachedToRadicalWin:

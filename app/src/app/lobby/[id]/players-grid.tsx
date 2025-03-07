@@ -8,9 +8,10 @@ type Props = {
   players: PlayerDTO[];
   users: UserDTO[];
   me: PlayerDTO;
+  showRoles?: boolean;
 };
 
-const PlayersGrid = ({ me, players, users }: Props) => {
+const PlayersGrid = ({ me, players, users, showRoles = false }: Props) => {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-1 xl:grid-cols-2 text-center">
       {players
@@ -21,7 +22,9 @@ const PlayersGrid = ({ me, players, users }: Props) => {
 
           const user = users.find((u) => u.id === player.id);
           const canSeePlayerRole =
-            isMe || (me.canSeeTeamMembers && player.role === me.role);
+            isMe ||
+            (me.canSeeTeamMembers && player.role === me.role) ||
+            showRoles;
 
           return (
             <div

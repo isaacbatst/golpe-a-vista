@@ -219,11 +219,11 @@ export type RadicalizationStageDTO = {
 };
 
 export enum ImpeachmentAction {
-  SELECT_TARGET = 'SELECT_TARGET',
-  START_VOTING = 'START_VOTING',
-  VOTING = 'VOTING',
-  EXECUTION = 'EXECUTION',
-  ADVANCE_STAGE = 'ADVANCE_STAGE',
+  SELECT_TARGET = "SELECT_TARGET",
+  START_VOTING = "START_VOTING",
+  VOTING = "VOTING",
+  EXECUTION = "EXECUTION",
+  ADVANCE_STAGE = "ADVANCE_STAGE",
 }
 
 export type ImpeachmentStageDTO = {
@@ -264,7 +264,13 @@ export type GameDTO = {
   lawsDeck: LawDTO[];
   crisesDeck: CrisisDTO[];
   president: UserDTO;
-  winner: UserDTO | null;
+  winner: Role | null;
+  winnerWinConditions:
+    | {
+        isFulfilled: boolean;
+        message: string;
+      }[]
+    | null;
   lawsToProgressiveWin: number;
   lawsToConservativeWin: number;
   crisesIntervalToImpeach: number;
