@@ -28,35 +28,6 @@ const ImpeachmentStageVoting = ({ stage }: { stage: ImpeachmentStageDTO }) => {
         <h3 className="scroll-m-20 text-4xl font-semibold tracking-wide text-red-500 text-center mb-3 font-bebas">
           {target.name} pode ser cassado!
         </h3>
-        {hasVoted ? (
-          <>
-            <p className="text-muted-foreground mb-5">
-              Você votou <strong>{myVote ? "sim" : "não"}</strong>.
-            </p>
-          </>
-        ) : (
-          <>
-            <p className="mb-5">Você concorda?</p>
-            <div className="mb-5 flex flex-col md:flex-row justify-center gap-2">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => impeachmentStageVoting(true)}
-              >
-                <CheckIcon />
-                Sim
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => impeachmentStageVoting(false)}
-              >
-                <XIcon />
-                Não
-              </Button>
-            </div>
-          </>
-        )}
         {stage.voting && (
           <VotingStatus
             me={player}
@@ -65,6 +36,37 @@ const ImpeachmentStageVoting = ({ stage }: { stage: ImpeachmentStageDTO }) => {
             isSecret
           />
         )}
+        <div className="my-5">
+          {hasVoted ? (
+            <>
+              <p className="text-muted-foreground mb-5">
+                Você votou <strong>{myVote ? "sim" : "não"}</strong>.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="mb-5">Você concorda?</p>
+              <div className="mb-5 flex flex-col md:flex-row justify-center gap-2">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => impeachmentStageVoting(true)}
+                >
+                  <CheckIcon />
+                  Sim
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => impeachmentStageVoting(false)}
+                >
+                  <XIcon />
+                  Não
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </>
   );

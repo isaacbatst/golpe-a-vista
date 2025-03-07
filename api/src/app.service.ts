@@ -307,7 +307,7 @@ export class AppService {
     }
 
     const [startVotingError] = stage.startVoting(
-      lobby.users.map((user) => user.id),
+      lobby.currentGame.votingPlayers.map((player) => player.id),
     );
 
     if (startVotingError) {
@@ -734,11 +734,18 @@ export class AppService {
     if (chooseTargetError) {
       return left(new UnprocessableEntityException(chooseTargetError));
     }
-    const [startVotingError] = stage.startVoting(
-      lobby.users.map((user) => user.id),
-    );
-    if (startVotingError) {
-      return left(new UnprocessableEntityException(startVotingError));
+    if (stage.shouldSkipVoting) {
+      const [error] = stage.impeach(target);
+      if (error) {
+        return left(new InternalServerErrorException(error));
+      }
+    } else {
+      const [startVotingError] = stage.startVoting(
+        lobby.currentGame.votingPlayers.map((player) => player.id),
+      );
+      if (startVotingError) {
+        return left(new UnprocessableEntityException(startVotingError));
+      }
     }
     await this.lobbyRepository.save(lobby);
     return right(lobby);

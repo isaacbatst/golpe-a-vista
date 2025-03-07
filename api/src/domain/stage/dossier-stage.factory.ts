@@ -7,12 +7,13 @@ export class DossierStageFactory extends StageFactory {
   constructor(
     private proposals: LegislativeProposal[] = [],
     private isDossierFake: boolean = false,
+    private isRapporteurImpeached: boolean = false,
   ) {
     super();
   }
 
   shouldSkip(): boolean {
-    return this.proposals.length === 0;
+    return this.proposals.length === 0 || this.isRapporteurImpeached;
   }
 
   create(): Stage {

@@ -1,6 +1,7 @@
+import { Law } from 'src/data/laws';
 import { Either, left, right } from '../either';
 import { Player } from '../player';
-import { Role } from '../role';
+import { LawType, Role } from '../role';
 import { Voting } from '../voting';
 import { Stage, StageType } from './stage';
 
@@ -16,6 +17,7 @@ export class ImpeachmentStage extends Stage {
   private _targetId: string | null;
   private _targetRole: Role | null;
   private _voting: Voting | null;
+  private _approvedLaw: Law | null;
 
   constructor(
     readonly accuserId: string,
@@ -25,6 +27,7 @@ export class ImpeachmentStage extends Stage {
     targetId?: string,
     targetRole?: Role,
     voting?: Voting,
+    approvedLaw?: Law,
   ) {
     super(
       ['SELECT_TARGET', 'START_VOTING', 'VOTING', 'EXECUTION', 'ADVANCE_STAGE'],
@@ -33,6 +36,7 @@ export class ImpeachmentStage extends Stage {
     this._targetId = targetId ?? null;
     this._targetRole = targetRole ?? null;
     this._voting = voting ?? null;
+    this._approvedLaw = approvedLaw ?? null;
   }
 
   chooseTarget(targetId: string, targetRole: Role): Either<string, void> {
@@ -100,16 +104,24 @@ export class ImpeachmentStage extends Stage {
     if (!this._voting && !this.shouldSkipVoting)
       return left('Votação não iniciada.');
 
-    if (
-      this._targetId &&
-      this._voting?.result &&
-      target.id === this._targetId
-    ) {
+    if (this._targetId && this.shouldImpeach && target.id === this._targetId) {
       target.impeached = true;
+    }
+
+    if (!this.shouldImpeach) {
+      this._approvedLaw = new Law(
+        'Lei Conservadora',
+        LawType.CONSERVADORES,
+        'Lei conservadora devido à rejeição da cassação.',
+      );
     }
 
     this.advanceAction();
     return right(true);
+  }
+
+  get shouldImpeach() {
+    return this.shouldSkipVoting || this._voting?.result;
   }
 
   get shouldSkipVoting() {
@@ -130,6 +142,10 @@ export class ImpeachmentStage extends Stage {
     return this._voting;
   }
 
+  get approvedLaw() {
+    return this._approvedLaw;
+  }
+
   toJSON() {
     return {
       ...super.toJSON(),
@@ -142,6 +158,7 @@ export class ImpeachmentStage extends Stage {
       accuserId: this.accuserId,
       isSomeConservativeImpeached: this._isSomeConservativeImpeached,
       isRadicalImpeached: this._isRadicalImpeached,
+      approvedLaw: this._approvedLaw?.toJSON(),
     } as const;
   }
 
@@ -156,6 +173,7 @@ export class ImpeachmentStage extends Stage {
       data.targetId ?? undefined,
       data.targetRole ?? undefined,
       data.voting ? Voting.fromJSON(data.voting) : undefined,
+      data.approvedLaw ? Law.fromJSON(data.approvedLaw) : undefined,
     );
   }
 }

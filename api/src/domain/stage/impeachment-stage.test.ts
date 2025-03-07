@@ -55,4 +55,14 @@ describe('Estágio de Cassação', () => {
       ),
     );
   });
+
+  it('deve aprovar lei conservadora se a cassação for negada', () => {
+    const stage = new ImpeachmentStage('p1');
+    stage.chooseTarget('p2', Role.CONSERVADOR);
+    stage.startVoting(['p1', 'p2']);
+    stage.vote('p1', false, new Player('p2', 'p2', Role.CONSERVADOR));
+    stage.vote('p2', false, new Player('p2', 'p2', Role.CONSERVADOR));
+    expect(stage.currentAction).toBe(ImpeachmentAction.ADVANCE_STAGE);
+    expect(stage.approvedLaw).toBeDefined();
+  });
 });

@@ -18,6 +18,7 @@ import { SabotageStage } from './stage/sabotage-stage';
 import { Stage } from './stage/stage';
 import { StageQueue } from './stage/stage-queue';
 import { StageFactory, StageJSON } from './stage/stage.factory';
+import { ImpeachmentStage } from 'src/domain/stage/impeachment-stage';
 
 export type RoundParams = {
   index?: number;
@@ -37,6 +38,8 @@ export type RoundParams = {
   requiredVeto?: LawType | null;
   stageQueue?: StageQueue;
   mirroedVotes?: Map<string, string>;
+  previouslyImpeachedSomeConservative?: boolean;
+  previouslyImpeachedRadical?: boolean;
 };
 
 export class Round {
@@ -55,6 +58,8 @@ export class Round {
   private readonly _minRadicalizationProgressiveLaws: number;
   private readonly _previouslyApprovedConservativeLaws: number;
   private readonly _previouslyApprovedProgressiveLaws: number;
+  private readonly _previouslyImpeachedSomeConservative: boolean;
+  private readonly _previouslyImpeachedRadical: boolean;
   private readonly _stages: Stage[] = [];
   private readonly _stageQueue: StageQueue;
   readonly mirroedVotes: Map<string, string>;
@@ -75,6 +80,10 @@ export class Round {
     this.presidentQueue = props.presidentQueue;
     this.mirroedVotes = props.mirroedVotes ?? new Map<string, string>();
     this._stageQueue = props.stageQueue ?? new StageQueue();
+    this._previouslyImpeachedSomeConservative =
+      props.previouslyImpeachedSomeConservative ?? false;
+    this._previouslyImpeachedRadical =
+      props.previouslyImpeachedRadical ?? false;
     this._stages = props.stages ?? [this.createFirstStage()];
   }
 
@@ -137,13 +146,22 @@ export class Round {
 
   get stageFactories(): StageFactory[] {
     return [
-      new ImpeachmentStageFactory(this.president.id, this._hasImpeachment),
+      new ImpeachmentStageFactory(
+        this.president.id,
+        this._hasImpeachment,
+        this._previouslyImpeachedSomeConservative,
+        this._previouslyImpeachedRadical,
+      ),
       new CrisisStageFactory(this._crisis, this.index),
       new LegislativeStageFactory(
         this.requiredVeto,
         this.isLegislativeVotingSecret,
       ),
-      new DossierStageFactory(this.legislativeProposals, this.isDossierFake),
+      new DossierStageFactory(
+        this.legislativeProposals,
+        this.isDossierFake,
+        this.isRapporteurImpeached,
+      ),
       new SabotageStageFactory(
         this.hasApprovedLaw(LawType.PROGRESSISTAS),
         this._hasLastRoundBeenSabotaged,
@@ -157,6 +175,19 @@ export class Round {
     ];
   }
 
+  get isRapporteurImpeached(): boolean {
+    const impeachments = this._stages.filter(
+      (stage): stage is ImpeachmentStage => stage instanceof ImpeachmentStage,
+    );
+
+    return impeachments.some(
+      (stage) =>
+        stage.target &&
+        stage.target === this._rapporteurId &&
+        (stage.shouldSkipVoting || stage.voting?.result),
+    );
+  }
+
   get finished(): boolean {
     return (
       this.currentStage.isComplete &&
@@ -168,12 +199,18 @@ export class Round {
     const legislativeStages = this._stages.filter(
       (stage): stage is LegislativeStage => stage instanceof LegislativeStage,
     );
+    const impeachments = this._stages.filter(
+      (stage): stage is ImpeachmentStage => stage instanceof ImpeachmentStage,
+    );
 
-    return legislativeStages
-      .filter(
-        (stage) => stage.isComplete && stage.votingResult && stage.lawToVote,
-      )
-      .map((stage) => stage.lawToVote!);
+    return [
+      ...impeachments.filter((s) => s.approvedLaw).map((s) => s.approvedLaw!),
+      ...legislativeStages
+        .filter(
+          (stage) => stage.isComplete && stage.votingResult && stage.lawToVote,
+        )
+        .map((stage) => stage.lawToVote!),
+    ];
   }
 
   get rejectedLaws(): Law[] {
@@ -280,6 +317,9 @@ export class Round {
       presidentQueue: this.presidentQueue.toJSON(),
       mirroedVotes: Array.from(this.mirroedVotes),
       stageQueue: this._stageQueue.toJSON(),
+      previouslyImpeachedSomeConservative:
+        this._previouslyImpeachedSomeConservative,
+      previouslyImpeachedRadical: this._previouslyImpeachedRadical,
     };
   }
 

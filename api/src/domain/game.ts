@@ -183,6 +183,12 @@ export class Game {
       hasImpeachment: this.nextRoundShouldImpeach,
       rapporteurId: this.currentRound.nextRapporteur,
       hasLastRoundBeenSabotaged: Boolean(this.currentRound.sabotageCrisis),
+      previouslyImpeachedRadical: this.players.some(
+        (player) => player.role === Role.RADICAL && player.impeached,
+      ),
+      previouslyImpeachedSomeConservative: this.players.some(
+        (player) => player.role === Role.CONSERVADOR && player.impeached,
+      ),
       previouslyApprovedConservativeLaws: this.approvedLaws.filter(
         (law) => law.type === LawType.CONSERVADORES,
       ).length,
@@ -383,6 +389,10 @@ export class Game {
 
   get players() {
     return Array.from(this._players.values());
+  }
+
+  get votingPlayers() {
+    return this.players.filter((player) => !player.impeached);
   }
 
   get crisesIntervalToImpeach() {

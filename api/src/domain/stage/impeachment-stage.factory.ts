@@ -6,6 +6,8 @@ export class ImpeachmentStageFactory extends StageFactory {
   constructor(
     private presidentId: string,
     private hasImpeachment: boolean = false,
+    private _isSomeConservativeImpeached: boolean = false,
+    private _isRadicalImpeached: boolean = false,
   ) {
     super();
   }
@@ -15,6 +17,10 @@ export class ImpeachmentStageFactory extends StageFactory {
   }
 
   create(): Stage {
-    return new ImpeachmentStage(this.presidentId);
+    return new ImpeachmentStage(
+      this.presidentId,
+      this._isSomeConservativeImpeached,
+      this._isRadicalImpeached,
+    );
   }
 }
