@@ -23,6 +23,8 @@ type GameParams = {
   rejectedLawsIntervalToCrisis?: number;
   presidentQueue?: PresidentQueue;
   conservativesImpeachedToRadicalWin?: number;
+  minRadicalizationConservativesLaws?: number;
+  minRadicalizationProgressiveLaws?: number;
 };
 
 export class Game {
@@ -95,6 +97,8 @@ export class Game {
   private _progressiveLawsToFear: number;
   private _rejectedLawsIntervalToCrisis: number;
   private _conservativesImpeachedToRadicalWin: number;
+  private _minRadicalizationConservativesLaws: number;
+  private _minRadicalizationProgressiveLaws: number;
 
   static create(props: GameParams): Either<string, Game> {
     const {
@@ -107,6 +111,8 @@ export class Game {
       minProgressiveLawsToFearCrisis = 2,
       rejectedLawsIntervalToCrisis = 2,
       conservativesImpeachedToRadicalWin = 2,
+      minRadicalizationConservativesLaws = 4,
+      minRadicalizationProgressiveLaws = 4,
     } = props;
 
     return right(
@@ -120,6 +126,8 @@ export class Game {
         minProgressiveLawsToFearCrisis,
         rejectedLawsIntervalToCrisis,
         conservativesImpeachedToRadicalWin,
+        minRadicalizationConservativesLaws,
+        minRadicalizationProgressiveLaws,
         props.presidentQueue,
         props.rounds,
       ),
@@ -136,6 +144,8 @@ export class Game {
     progressiveLawsIntervalToCrisis: number,
     rejectedLawsIntervalToCrisis: number,
     conservativesImpeachedToRadicalWin: number,
+    minRadicalizationConservativesLaws: number,
+    minRadicalizationProgressiveLaws: number,
     presidentQueue?: PresidentQueue,
     rounds?: Round[],
   ) {
@@ -150,12 +160,19 @@ export class Game {
     this._crisesDeck = crisesDeck;
     this._progressiveLawsToFear = progressiveLawsIntervalToCrisis;
     this._rejectedLawsIntervalToCrisis = rejectedLawsIntervalToCrisis;
+    this._minRadicalizationConservativesLaws =
+      minRadicalizationConservativesLaws;
+    this._minRadicalizationProgressiveLaws = minRadicalizationProgressiveLaws;
     this._conservativesImpeachedToRadicalWin =
       conservativesImpeachedToRadicalWin;
     this._rounds = rounds ?? [
       new Round({
         index: 0,
         presidentQueue: this._presidentQueue,
+        minRadicalizationConservativeLaws:
+          this._minRadicalizationConservativesLaws,
+        minRadicalizationProgressiveLaws:
+          this._minRadicalizationProgressiveLaws,
       }),
     ];
   }
@@ -182,6 +199,9 @@ export class Game {
       crisis: this.nextRoundCrisis,
       hasImpeachment: this.nextRoundShouldImpeach,
       rapporteurId: this.currentRound.nextRapporteur,
+      minRadicalizationConservativeLaws:
+        this._minRadicalizationConservativesLaws,
+      minRadicalizationProgressiveLaws: this._minRadicalizationProgressiveLaws,
       hasLastRoundBeenSabotaged: Boolean(this.currentRound.sabotageCrisis),
       previouslyImpeachedRadical: this.players.some(
         (player) => player.role === Role.RADICAL && player.impeached,
@@ -484,6 +504,9 @@ export class Game {
       crisesDeck: this._crisesDeck.toJSON(),
       president: this.president.toJSON(),
       winner: this.winner,
+      minRadicalizationConservativesLaws:
+        this._minRadicalizationConservativesLaws,
+      minRadicalizationProgressiveLaws: this._minRadicalizationProgressiveLaws,
       lawsToProgressiveWin: this._lawsToProgressiveWin,
       lawsToConservativeWin: this._lawsToConservativeWin,
       approvedConservativeLaws: approvedLaws.filter(

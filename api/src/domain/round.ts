@@ -84,6 +84,8 @@ export class Round {
       props.previouslyImpeachedSomeConservative ?? false;
     this._previouslyImpeachedRadical =
       props.previouslyImpeachedRadical ?? false;
+    this.isDossierFake = props.isDossierFake ?? false;
+    this.isDossierOmitted = props.isDossierOmitted ?? false;
     this._stages = props.stages ?? [this.createFirstStage()];
   }
 

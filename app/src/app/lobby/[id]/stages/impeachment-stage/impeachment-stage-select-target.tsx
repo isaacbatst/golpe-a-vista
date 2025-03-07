@@ -23,7 +23,7 @@ const ImpeachmentStageSelectTarget = () => {
             <strong>Alguém deve pagar o preço.</strong>
           </p>
           <p className="text-gray-700">
-            Escolha um jogador para ser votada sua Impeachment.
+            Escolha um jogador para ser votado seu Impeachment.
           </p>
         </div>
         <div className="grid grid-cols-3 gap-2">
@@ -55,7 +55,7 @@ const ImpeachmentStageSelectTarget = () => {
           a confiança do povo. O impeachment é inevitável.
         </p>
         <p className="text-gray-700">
-          O presidente deve escolher um jogador para ser votada sua Impeachment.
+          O presidente deve escolher um jogador para ser votado seu Impeachment.
         </p>
       </div>
     </>

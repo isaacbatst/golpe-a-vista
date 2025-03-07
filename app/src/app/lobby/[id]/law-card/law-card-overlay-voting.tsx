@@ -15,7 +15,7 @@ const LawCardOverlayVoting = ({ vote }: Props) => {
       variant="outline"
       icon="check"
       disabled={disabled}
-      className="disabled:opacity-80 disabled:cursor-not-allowed"
+      className="disabled:opacity-90 disabled:cursor-not-allowed"
       onClick={() => !disabled && legislativeStageVoting(true)}
     >
       Sim

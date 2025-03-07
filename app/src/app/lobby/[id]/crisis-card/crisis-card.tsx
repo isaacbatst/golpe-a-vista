@@ -55,7 +55,7 @@ const CrisisCard = ({
               </div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Jogadores que saberão da crise</p>
+              <p>Pode ver esta crise</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

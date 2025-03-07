@@ -31,7 +31,7 @@ const ImpeachmentStageAdvanceStage = ({
       <h3 className={cn("text-5xl font-medium font-bebas text-red-500")}>
         {stage.voting?.result
           ? `${target.name} foi cassado`
-          : `A Impeachment de ${target.name} foi barrada`}
+          : `A Impeachment de ${target.name} foi barrado`}
       </h3>
       {stage.voting && (
         <div className="flex flex-col items-center gap-5 self-stretch">
