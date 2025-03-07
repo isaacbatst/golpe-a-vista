@@ -218,12 +218,29 @@ export type RadicalizationStageDTO = {
   targetId: string | null;
 };
 
+export enum ImpeachmentAction {
+  SELECT_TARGET = 'SELECT_TARGET',
+  START_VOTING = 'START_VOTING',
+  VOTING = 'VOTING',
+  EXECUTION = 'EXECUTION',
+  ADVANCE_STAGE = 'ADVANCE_STAGE',
+}
+
+export type ImpeachmentStageDTO = {
+  currentAction: ImpeachmentAction;
+  type: StageType.IMPEACHMENT;
+  targetId: string | null;
+  targetRole: Role | null;
+  voting: VotingDTO | null;
+};
+
 export type StageDTO =
   | LegislativeStageDTO
   | DossierStageDTO
   | SabotageStageDTO
   | CrisisStageDTO
-  | RadicalizationStageDTO;
+  | RadicalizationStageDTO
+  | ImpeachmentStageDTO;
 
 export type RoundDTO = {
   index: number;

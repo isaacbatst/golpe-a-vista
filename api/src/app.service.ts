@@ -17,6 +17,7 @@ import { CrisisStage } from 'src/domain/stage/crisis-stage';
 import { RadicalizationStage } from './domain/stage/radicalization-stage';
 import { CRISIS_NAMES } from 'src/domain/crisis/crisis-names';
 import { Mensalao } from 'src/domain/crisis/mensalao';
+import { ImpeachmentStage } from 'src/domain/stage/impeachment-stage';
 
 @Injectable()
 export class AppService {
@@ -692,6 +693,110 @@ export class AppService {
       return left(
         new UnprocessableEntityException(
           'Não é possível avançar a ação fora do estágio de Radicalização',
+        ),
+      );
+    }
+    const [error] = this.advanceStageOrRound(lobby);
+    if (error) {
+      return left(new InternalServerErrorException(error));
+    }
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
+  async impeachmentStageSelectTarget(input: {
+    lobbyId: string;
+    issuerId: string;
+    targetId: string;
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException('Lobby não encontrado'));
+    }
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (!stage) {
+      return left(
+        new UnprocessableEntityException('Não é possível cassar jogadores'),
+      );
+    }
+    if (stage instanceof ImpeachmentStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível cassar jogadores fora do estágio de Impeachment',
+        ),
+      );
+    }
+    const target = lobby.currentGame.getPlayerById(input.targetId);
+    if (!target) {
+      return left(new NotFoundException('Jogador alvo não encontrado'));
+    }
+    const [chooseTargetError] = stage.chooseTarget(input.targetId, target.role);
+    if (chooseTargetError) {
+      return left(new UnprocessableEntityException(chooseTargetError));
+    }
+    const [startVotingError] = stage.startVoting(
+      lobby.users.map((user) => user.id),
+    );
+    if (startVotingError) {
+      return left(new UnprocessableEntityException(startVotingError));
+    }
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
+  async impeachmentStageVoting(input: {
+    lobbyId: string;
+    issuerId: string;
+    vote: boolean;
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException('Lobby não encontrado'));
+    }
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (!stage) {
+      return left(new UnprocessableEntityException('Não é possível votar'));
+    }
+    if (stage instanceof ImpeachmentStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível votar fora do impeachment',
+        ),
+      );
+    }
+    if (!stage.target) {
+      return left(
+        new UnprocessableEntityException('Não é possível votar sem um alvo'),
+      );
+    }
+    const target = lobby.currentGame.getPlayerById(stage.target);
+    if (!target) {
+      return left(new NotFoundException('Alvo não encontrado'));
+    }
+    const [error] = stage.vote(input.issuerId, input.vote, target);
+    if (error) {
+      return left(new InternalServerErrorException(error));
+    }
+    await this.lobbyRepository.save(lobby);
+    return right(lobby);
+  }
+
+  async impeachmentStageAdvanceStage(input: {
+    lobbyId: string;
+    issuerId: string;
+  }): Promise<Either<Error, Lobby>> {
+    const lobby = await this.lobbyRepository.get(input.lobbyId);
+    if (!lobby) {
+      return left(new NotFoundException('Lobby não encontrado'));
+    }
+    const stage = lobby.currentGame.currentRound.currentStage;
+    if (!stage) {
+      return left(new UnprocessableEntityException('Não é possível avançar'));
+    }
+    if (stage instanceof ImpeachmentStage === false) {
+      return left(
+        new UnprocessableEntityException(
+          'Não é possível avançar fora do impeachment',
         ),
       );
     }

@@ -9,6 +9,7 @@ import {
   RadicalizationAction,
   CRISIS_NAMES,
   MensalaoAction,
+  ImpeachmentAction,
 } from "../../../lib/api.types";
 
 type LobbySocketContextType = {
@@ -33,6 +34,9 @@ type LobbySocketContextType = {
   updateSession: (userId: string) => void;
   radicalizationStageChooseTarget: (targetId: string) => void;
   radicalizationStageAdvanceStage: () => void;
+  impeachmentStageSelectTarget: (targetId: string) => void;
+  impeachmentStageAdvanceStage: () => void;
+  impeachmentStageVoting: (vote: boolean) => void;
 };
 
 export const LobbySocketContext = createContext<LobbySocketContextType>(
@@ -163,6 +167,24 @@ export const LobbySocketProvider = ({
         radicalizationStageAdvanceStage: () => {
           socket?.emit(
             `${StageType.RADICALIZATION}:${RadicalizationAction.ADVANCE_STAGE}`,
+            { lobbyId }
+          );
+        },
+        impeachmentStageSelectTarget: (targetId: string) => {
+          socket?.emit(
+            `${StageType.IMPEACHMENT}:${ImpeachmentAction.SELECT_TARGET}`,
+            { lobbyId, targetId }
+          );
+        },
+        impeachmentStageVoting: (vote: boolean) => {
+          socket?.emit(`${StageType.IMPEACHMENT}:${ImpeachmentAction.VOTING}`, {
+            lobbyId,
+            vote,
+          });
+        },
+        impeachmentStageAdvanceStage: () => {
+          socket?.emit(
+            `${StageType.IMPEACHMENT}:${ImpeachmentAction.ADVANCE_STAGE}`,
             { lobbyId }
           );
         },

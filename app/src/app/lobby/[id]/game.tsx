@@ -15,6 +15,7 @@ import { PlayerContextProvider } from "./player-context";
 import PlayersGrid from "./players-grid";
 import LegislativeStage from "./stages/legislative-stage/legislative-stage";
 import RadicalizationStage from "@/app/lobby/[id]/stages/radicalization-stage/radicalization-stage";
+import ImpeachmentStage from "@/app/lobby/[id]/stages/impeachment-stage/impeachment-stage";
 
 type Props = {
   userId: string;
@@ -52,48 +53,58 @@ export default function Game({ userId, lobby }: Props) {
           </CardHeader>
           <CardContent className="">
             <div className="flex flex-col gap-6">
-              <div className="flex flex-col items-center gap-4 text-center">
-                {lobby.currentGame.currentRound.currentStage.type ===
-                  StageType.LEGISLATIVE && (
-                  <LegislativeStage
-                    stage={lobby.currentGame.currentRound.currentStage}
-                    roundIndex={lobby.currentGame.currentRound.index}
-                  />
-                )}
-                {lobby.currentGame.currentRound.currentStage.type ===
-                  StageType.REPORT_DOSSIER && (
-                  <DossierStage
-                    stage={lobby.currentGame.currentRound.currentStage}
-                  />
-                )}
-                {lobby.currentGame.currentRound.currentStage.type ===
-                  StageType.SABOTAGE && (
-                  <SabotageStage
-                    stage={lobby.currentGame.currentRound.currentStage}
-                  />
-                )}
-                {lobby.currentGame.currentRound.currentStage.type ===
-                  StageType.CRISIS && (
-                  <CrisisStage
-                    stage={lobby.currentGame.currentRound.currentStage}
-                    roundIndex={lobby.currentGame.currentRound.index}
-                  />
-                )}
-                {
-                  // lobby.currentGame.currentRound.currentStage.type ===
-                  // StageType.IMPEACHMENT && (
-                  //   <ImpeachmentStage
-                  //     stage={lobby.currentGame.currentRound.currentStage}
-                  //   />
-                  // )
-                }
-                {lobby.currentGame.currentRound.currentStage.type ===
-                  StageType.RADICALIZATION && (
-                  <RadicalizationStage
-                    stage={lobby.currentGame.currentRound.currentStage}
-                  />
-                )}
-              </div>
+              {me.impeached ? (
+                <div className="text-center my-10">
+                  <h2 className="font-bebas text-red-500  text-6xl mb-3">
+                    Você foi cassado
+                  </h2>
+                  <p className="max-w-md mx-auto text-lg">
+                    Você perdeu seus direitos políticos e não poderá mais
+                    participar da partida.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-4 text-center">
+                  {lobby.currentGame.currentRound.currentStage.type ===
+                    StageType.LEGISLATIVE && (
+                    <LegislativeStage
+                      stage={lobby.currentGame.currentRound.currentStage}
+                      roundIndex={lobby.currentGame.currentRound.index}
+                    />
+                  )}
+                  {lobby.currentGame.currentRound.currentStage.type ===
+                    StageType.REPORT_DOSSIER && (
+                    <DossierStage
+                      stage={lobby.currentGame.currentRound.currentStage}
+                    />
+                  )}
+                  {lobby.currentGame.currentRound.currentStage.type ===
+                    StageType.SABOTAGE && (
+                    <SabotageStage
+                      stage={lobby.currentGame.currentRound.currentStage}
+                    />
+                  )}
+                  {lobby.currentGame.currentRound.currentStage.type ===
+                    StageType.CRISIS && (
+                    <CrisisStage
+                      stage={lobby.currentGame.currentRound.currentStage}
+                      roundIndex={lobby.currentGame.currentRound.index}
+                    />
+                  )}
+                  {lobby.currentGame.currentRound.currentStage.type ===
+                    StageType.IMPEACHMENT && (
+                    <ImpeachmentStage
+                      stage={lobby.currentGame.currentRound.currentStage}
+                    />
+                  )}
+                  {lobby.currentGame.currentRound.currentStage.type ===
+                    StageType.RADICALIZATION && (
+                    <RadicalizationStage
+                      stage={lobby.currentGame.currentRound.currentStage}
+                    />
+                  )}
+                </div>
+              )}
 
               <div className="flex flex-col sm:items-center gap-3">
                 <div className="flex flex-col sm:flex-row flex-wrap gap-2 justify-center">
@@ -128,9 +139,7 @@ export default function Game({ userId, lobby }: Props) {
         </Card>
         <Card className="lg:max-h-full lg:overflow-y-auto">
           <CardContent className="pt-6 space-y-6">
-            <h2 className="text-2xl font-semibold text-center">
-              Jogadores
-            </h2>
+            <h2 className="text-2xl font-semibold text-center">Jogadores</h2>
             <PlayersGrid
               me={me}
               players={lobby.currentGame.players}

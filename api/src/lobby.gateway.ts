@@ -19,6 +19,7 @@ import { ConfigService } from '@nestjs/config';
 import { RadicalizationAction } from './domain/stage/radicalization-stage';
 import { MensalaoAction } from 'src/domain/crisis/mensalao';
 import { CRISIS_NAMES } from 'src/domain/crisis/crisis-names';
+import { ImpeachmentAction } from 'src/domain/stage/impeachment-stage';
 
 @WebSocketGateway({
   cors: {
@@ -444,6 +445,63 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return this.handleSocketError(client, 'Usuário não reconhecido');
     }
     const [error, lobby] = await this.service.radicalizationStageAdvanceStage({
+      issuerId: client.request.session.userId,
+      lobbyId: data.lobbyId,
+    });
+    if (error) {
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
+  }
+
+  @SubscribeMessage(
+    `${StageType.IMPEACHMENT}:${ImpeachmentAction.SELECT_TARGET}`,
+  )
+  async selectImpeachmentTarget(
+    client: Socket,
+    data: { lobbyId: string; targetId: string },
+  ) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] = await this.service.impeachmentStageSelectTarget({
+      issuerId: client.request.session.userId,
+      targetId: data.targetId,
+      lobbyId: data.lobbyId,
+    });
+    if (error) {
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
+  }
+
+  @SubscribeMessage(`${StageType.IMPEACHMENT}:${ImpeachmentAction.VOTING}`)
+  async impeachmentVoting(
+    client: Socket,
+    data: { lobbyId: string; vote: boolean },
+  ) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] = await this.service.impeachmentStageVoting({
+      issuerId: client.request.session.userId,
+      lobbyId: data.lobbyId,
+      vote: data.vote,
+    });
+    if (error) {
+      return this.handleSocketError(client, error.message);
+    }
+    this.server.to(data.lobbyId).emit('lobby:updated', lobby);
+  }
+
+  @SubscribeMessage(
+    `${StageType.IMPEACHMENT}:${ImpeachmentAction.ADVANCE_STAGE}`,
+  )
+  async advanceImpeachmentStage(client: Socket, data: { lobbyId: string }) {
+    if (!client.request.session.userId) {
+      return this.handleSocketError(client, 'Usuário não reconhecido');
+    }
+    const [error, lobby] = await this.service.impeachmentStageAdvanceStage({
       issuerId: client.request.session.userId,
       lobbyId: data.lobbyId,
     });

@@ -32,6 +32,11 @@ const PlayersGrid = ({ me, players, users }: Props) => {
                   : "bg-gradient-to-br from-white to-gray-100"
               }`}
             >
+              {player.impeached && (
+                <span className="absolute z-10 top-2 right-2 text-xs font-semibold text-red-500 bg-red-100 px-2 py-1 rounded-full">
+                  Cassado
+                </span>
+              )}
               {isMe && (
                 <span className="absolute z-10 top-2 left-2 text-xs font-semibold text-white bg-primary px-2 py-1 rounded-full">
                   Você

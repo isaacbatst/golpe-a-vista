@@ -64,13 +64,13 @@ const LegislativeStageAdvanceStage = () => {
         <TooltipProvider>
           <Tooltip delayDuration={300}>
             <TooltipTrigger>
-              <div className="text-center text-xl flex items-center gap-2 py-2 px-3 text-white bg-red-500 rounded-lg shadow-md">
+              <div className="text-center text-lg font-medium flex items-center gap-2 py-2 px-3 text-white bg-red-500 rounded-lg shadow-md">
                 <TriangleAlert />
                 <span>Seu voto foi comprado!</span>
               </div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Esse é um efeito de crise! Mas será que você pode provar?</p>
+              <p>Esse é um efeito de crise, mas quem vai acreditar?</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

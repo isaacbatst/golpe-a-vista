@@ -91,6 +91,7 @@ export class Lobby {
       players: Game.createPlayers(players),
       crisesDeck,
       lawsDeck,
+      crisesIntervalToImpeach: 1,
     });
 
     if (!game) {
