@@ -69,10 +69,10 @@ Crises são eventos adversos gerados pela situação instável que o país se en
 
 ---
 
-## **5️⃣ Cassação**
-- 📌 A cada 3 crises, o próximo presidente deverá propor uma cassação.
-- 📌 A cassação é realizada mediante votação. Caso aprovada, o jogador cassado **sai do jogo sem revelar sua identidade**. 
-- 📌 Se a cassação for rejeitada, uma lei conservadora é aprovada, pois o establishment não está do nosso lado.
+## **5️⃣ Impeachment**
+- 📌 A cada 3 crises, o próximo presidente deverá propor uma Impeachment.
+- 📌 A Impeachment é realizada mediante votação. Caso aprovada, o jogador cassado **sai do jogo sem revelar sua identidade**. 
+- 📌 Se a Impeachment for rejeitada, uma lei conservadora é aprovada, pois o establishment não está do nosso lado.
 
 ---
 
@@ -94,9 +94,9 @@ Crises são eventos adversos gerados pela situação instável que o país se en
       - São necessárias **4 leis progressistas aprovadas** ou **4 leis conservadoras aprovadas**.
 
 📌 **Revolução Armada**
-   - **Efeito:** A cassação é aprovada automaticamente, sem votação.
+   - **Efeito:** A Impeachment é aprovada automaticamente, sem votação.
    - **Restrição:**
-      - O alvo da cassação deve ser o último conservador para a vitória do radical.
+      - O alvo da Impeachment deve ser o último conservador para a vitória do radical.
    
 ---
 
@@ -111,8 +111,8 @@ Crises são eventos adversos gerados pela situação instável que o país se en
 1. **Presidente assume**
 2. **Crises**
    - Crise é ativada e jogadores envolvidos ficam cientes, se aplicável
-3. **Cassação**
-   - Presidente propõe cassação, se aplicável
+3. **Impeachment**
+   - Presidente propõe Impeachment, se aplicável
    - Jogadores votam, se aprovada, jogador é cassado
 4. **Legislação**
    - Presidente recebe 3 leis, veta uma e escolhe outra para votação

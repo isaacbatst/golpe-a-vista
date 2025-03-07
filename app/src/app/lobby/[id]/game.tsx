@@ -19,7 +19,7 @@ import { PlayerContextProvider } from "./player-context";
 import PlayersGrid from "./players-grid";
 import LegislativeStage from "./stages/legislative-stage/legislative-stage";
 import { useEffect, useState } from "react";
-import { RolesDialog } from "@/components/roles-dialog";
+import { RulesDialog } from "@/components/rules-dialog";
 
 type Props = {
   userId: string;
@@ -51,7 +51,7 @@ export default function Game({ userId, lobby }: Props) {
 
   return (
     <PlayerContextProvider player={me}>
-      <RolesDialog
+      <RulesDialog
         open={rolesDialogOpen}
         onOpenChange={setRolesDialogOpen}
         role={me.role}

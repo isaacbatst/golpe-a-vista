@@ -26,7 +26,7 @@ describe('Estágios', () => {
     expect(round.currentStage?.type).toBe(StageType.LEGISLATIVE);
   });
 
-  it('Deve iniciar com Cassação caso esteja ativa nesta rodada', () => {
+  it('Deve iniciar com Impeachment caso esteja ativa nesta rodada', () => {
     const presidentQueue = new PresidentQueue([
       new Player('p1', 'p1', Role.MODERADO),
       new Player('p2', 'p2', Role.MODERADO),
@@ -38,7 +38,7 @@ describe('Estágios', () => {
     expect(round.currentStage?.type).toBe(StageType.IMPEACHMENT);
   });
 
-  it('Deve avançar de cassação para legislativo', () => {
+  it('Deve avançar de Impeachment para legislativo', () => {
     const presidentQueue = new PresidentQueue([
       new Player('p1', 'p1', Role.MODERADO),
       new Player('p2', 'p2', Role.MODERADO),

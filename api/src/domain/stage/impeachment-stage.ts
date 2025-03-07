@@ -112,7 +112,7 @@ export class ImpeachmentStage extends Stage {
       this._approvedLaw = new Law(
         'Lei Conservadora',
         LawType.CONSERVADORES,
-        'Lei conservadora devido à rejeição da cassação.',
+        'Lei conservadora devido à rejeição da Impeachment.',
       );
     }
 

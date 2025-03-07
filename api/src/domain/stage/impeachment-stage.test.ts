@@ -4,7 +4,7 @@ import { Player } from '../player';
 import { Role } from '../role';
 import { ImpeachmentAction, ImpeachmentStage } from './impeachment-stage';
 
-describe('Estágio de Cassação', () => {
+describe('Estágio de Impeachment', () => {
   it('deve escolher o alvo', () => {
     const stage = new ImpeachmentStage('p1');
 
@@ -12,7 +12,7 @@ describe('Estágio de Cassação', () => {
     expect(stage.target).toBeDefined();
   });
 
-  it('deve realizar cassação por votação', () => {
+  it('deve realizar Impeachment por votação', () => {
     const stage = new ImpeachmentStage('p1');
 
     expect(stage.currentAction).toBe(ImpeachmentAction.SELECT_TARGET);
@@ -56,7 +56,7 @@ describe('Estágio de Cassação', () => {
     );
   });
 
-  it('deve aprovar lei conservadora se a cassação for negada', () => {
+  it('deve aprovar lei conservadora se a Impeachment for negada', () => {
     const stage = new ImpeachmentStage('p1');
     stage.chooseTarget('p2', Role.CONSERVADOR);
     stage.startVoting(['p1', 'p2']);

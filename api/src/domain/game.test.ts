@@ -410,7 +410,7 @@ describe('Crises', () => {
 
 describe('Cassações', () => {
   it.each([2, 3, 4])(
-    'Deve iniciar o round com Cassação a cada %d crises',
+    'Deve iniciar o round com Impeachment a cada %d crises',
     (n) => {
       const crisesDeck = makeCrisesDeck();
       const lawsDeck = makeLawsDeck('progressive');
