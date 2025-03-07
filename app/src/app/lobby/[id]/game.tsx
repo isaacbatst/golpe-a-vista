@@ -5,7 +5,7 @@ import ImpeachmentStage from "@/app/lobby/[id]/stages/impeachment-stage/impeachm
 import RadicalizationStage from "@/app/lobby/[id]/stages/radicalization-stage/radicalization-stage";
 import SabotageStage from "@/app/lobby/[id]/stages/sabotage-stage/sabotage-stage";
 import { cn } from "@/lib/utils";
-import { Check, Dot } from "lucide-react";
+import { Check, Dot, Info } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import {
   Card,
@@ -18,6 +18,8 @@ import ApprovedLaws from "./approved-laws";
 import { PlayerContextProvider } from "./player-context";
 import PlayersGrid from "./players-grid";
 import LegislativeStage from "./stages/legislative-stage/legislative-stage";
+import { useEffect, useState } from "react";
+import { RolesDialog } from "@/components/roles-dialog";
 
 type Props = {
   userId: string;
@@ -34,6 +36,7 @@ const readableStageType: Record<StageType, string> = {
 };
 
 export default function Game({ userId, lobby }: Props) {
+  const [rolesDialogOpen, setRolesDialogOpen] = useState(false);
   const me = lobby.currentGame.players.find((player) => player.id === userId)!;
   const myUser = lobby.users.find((user) => user.id === userId);
   const teams = {
@@ -41,8 +44,18 @@ export default function Game({ userId, lobby }: Props) {
     [Role.MODERADO]: "Moderados",
     [Role.RADICAL]: "Radicais",
   };
+
+  useEffect(() => {
+    setRolesDialogOpen(true);
+  }, []);
+
   return (
     <PlayerContextProvider player={me}>
+      <RolesDialog
+        open={rolesDialogOpen}
+        onOpenChange={setRolesDialogOpen}
+        role={me.role}
+      />
       <div className="lg:h-screen bg-gray-100 flex flex-col lg:flex-row lg:items-start justify-center p-2 sm:p-5 gap-5">
         <Card className="bg-white shadow-2xl flex-grow">
           <CardHeader className="flex flex-col gap-4 sm:flex-row sm:justify-between items-center">
@@ -169,8 +182,12 @@ export default function Game({ userId, lobby }: Props) {
           </CardContent>
         </Card>
         <Card className="lg:max-h-full lg:overflow-y-auto">
-          <CardContent className="pt-6 space-y-6">
+          <CardContent className="pt-6 space-y-6 flex flex-col items-center">
             <h2 className="text-2xl font-semibold text-center">Jogadores</h2>
+            <Button variant="secondary" onClick={() => setRolesDialogOpen(true)}>
+              <Info />
+              Regras
+            </Button>
             <PlayersGrid
               me={me}
               players={lobby.currentGame.players}

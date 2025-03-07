@@ -1,0 +1,12 @@
+/* style .roles-dialog-scroll with pretty scroll */
+.roles-dialog-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.roles-dialog-scroll::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
+}
+.roles-dialog-scroll::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+  border-radius: 10px;
+}
