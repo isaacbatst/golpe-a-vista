@@ -393,7 +393,21 @@ export class Game {
   }
 
   get approvedLaws() {
-    return this._rounds.flatMap((round) => round.approvedLaws);
+    const approvedLaws: Law[] = [];
+    for (let i = 0; i < this._rounds.length; i++) {
+      const round = this._rounds[i];
+      const nextRound = this._rounds[i + 1];
+      const validLaws = round.approvedLaws.filter((law) => {
+        if (!nextRound || !nextRound.disablePreviousLaw) {
+          return true;
+        }
+
+        return law.type !== nextRound.disablePreviousLaw;
+      });
+      approvedLaws.push(...validLaws);
+    }
+
+    return approvedLaws;
   }
 
   get rejectedLaws() {

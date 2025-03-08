@@ -5,17 +5,20 @@ import { describe, expect, it } from 'vitest';
 import { Game } from './game';
 import { makeCrisesDeck, makeLawsDeck } from './mock';
 import { PresidentQueue } from './president-queue';
-import { Role } from './role';
+import { LawType, Role } from './role';
 import { Round } from './round';
 import { DossierStage } from './stage/dossier-stage';
 import { ImpeachmentStage } from './stage/impeachment-stage';
-import { LegislativeStage } from './stage/legislative-stage';
+import { LegislativeAction, LegislativeStage } from './stage/legislative-stage';
 import {
   RadicalizationAction,
   RadicalizationStage,
 } from './stage/radicalization-stage';
 import { SabotageStage } from './stage/sabotage-stage';
 import { RoundStageIndex, StageQueue } from './stage/stage-queue';
+import { LegislativeProposal } from 'src/domain/stage/legislative-proposal';
+import { Law } from 'src/data/laws';
+import { Voting } from 'src/domain/voting';
 
 describe('Rodadas', () => {
   it('não deve finalizar rodada se ainda houver estágios a serem jogados', () => {
@@ -820,5 +823,61 @@ describe('Condições de Vitória', () => {
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
     expect(game!.winner).toBe(Role.RADICAL);
+  });
+
+  it('deve desconsiderar leis aprovadas, que na rodada seguinte foram desabilitadas', () => {
+    const playersNames: [string, string][] = [
+      ['p1', 'p1'],
+      ['p2', 'p2'],
+      ['p3', 'p3'],
+      ['p4', 'p4'],
+      ['p5', 'p5'],
+      ['p6', 'p6'],
+      ['p7', 'p7'],
+    ];
+    const players = Game.createPlayers(playersNames);
+    const lawsDeck = makeLawsDeck('progressive');
+    const crisesDeck = makeCrisesDeck();
+    const presidentQueue = new PresidentQueue(
+      Array.from(players.values()).map((p) => p.id),
+    );
+    const round1 = new Round({
+      presidentQueue,
+      stages: [
+        new LegislativeStage({
+          currentAction: LegislativeAction.ADVANCE_STAGE,
+          proposals: [
+            new LegislativeProposal(
+              new Law('1', LawType.PROGRESSISTAS, '1'),
+              false,
+              true,
+            ),
+          ],
+          voting: Voting.fromJSON({
+            hasEnded: true,
+            votes: Array.from(players.values()).map((p) => ({
+              player: p.id,
+              vote: true,
+            })),
+          }),
+        }),
+      ],
+    });
+    const round2 = new Round({
+      presidentQueue,
+      disablePreviousLaw: LawType.PROGRESSISTAS,
+    });
+
+    const [error, game] = Game.create({
+      crisesDeck,
+      lawsDeck,
+      players,
+      presidentQueue,
+      lawsToProgressiveWin: 2,
+      rounds: [round1, round2],
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+    expect(game?.approvedLaws).toHaveLength(0);
   });
 });

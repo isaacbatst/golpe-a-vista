@@ -39,6 +39,7 @@ export type RoundParams = {
   mirroedVotes?: Map<string, string>;
   previouslyImpeachedSomeConservative?: boolean;
   previouslyImpeachedRadical?: boolean;
+  disablePreviousLaw?: LawType | null;
 };
 
 export class Round {
@@ -48,6 +49,7 @@ export class Round {
   public isDossierOmitted: boolean = false;
   public isLegislativeVotingSecret: boolean = false;
   public requiredVeto: LawType | null = null;
+  public disablePreviousLaw: LawType | null = null;
 
   private readonly _crisis: Crisis | null;
   private readonly _rapporteurId: string | null;
@@ -85,6 +87,7 @@ export class Round {
       props.previouslyImpeachedRadical ?? false;
     this.isDossierFake = props.isDossierFake ?? false;
     this.isDossierOmitted = props.isDossierOmitted ?? false;
+    this.disablePreviousLaw = props.disablePreviousLaw ?? null;
     this._stages = props.stages ?? [this.createFirstStage()];
   }
 
@@ -321,6 +324,7 @@ export class Round {
       previouslyImpeachedSomeConservative:
         this._previouslyImpeachedSomeConservative,
       previouslyImpeachedRadical: this._previouslyImpeachedRadical,
+      disablePreviousLaw: this.disablePreviousLaw,
     };
   }
 

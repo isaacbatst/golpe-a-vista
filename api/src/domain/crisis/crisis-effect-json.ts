@@ -1,4 +1,5 @@
 import { CafeComAbin } from 'src/domain/crisis/cafe-com-abin';
+import { CongressoTrancado } from 'src/domain/crisis/congresso-trancado';
 import { FmiMandou } from 'src/domain/crisis/fmi-mandou';
 import { ForcasOcultas } from 'src/domain/crisis/forcas-ocultas';
 import { GolpeDeEstado } from 'src/domain/crisis/golpe-de-estado';
@@ -14,4 +15,5 @@ export type CrisisEffectJSON =
   | ToJson<ForcasOcultas>
   | ToJson<FmiMandou>
   | ToJson<Mensalao>
-  | ToJson<GolpeDeEstado>;
+  | ToJson<GolpeDeEstado>
+  | ToJson<CongressoTrancado>;

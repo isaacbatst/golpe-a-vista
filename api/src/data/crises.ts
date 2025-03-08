@@ -53,7 +53,7 @@ const CRISES: Record<
   //     "Relatório da Receita Federal",
   //   ],
   //   description:
-  //     "O Presidente recebe um relatório indicando qual foi a lei vetada na rodada anterior. 'A questão é: será que ele realmente tem provas?'",
+  //     "O Presidente recebe um relatório indicando qual foi a lei vetada na rodada anterior. 'A questão é: será que ele consegue provar?'",
   //   visibleTo: [CrisisVisibleTo.PRESIDENT],
   // },
   O_FMI_MANDOU: {
@@ -112,32 +112,38 @@ const CRISES: Record<
   //     "Informações sigilosas foram disponibilizadas na internet. Todos verão a lei que foi vetada na rodada anterior. 'Bem-vindo à era da informação.'",
   //   visibleTo: [CrisisVisibleTo.ALL],
   // },
-  // CONGRESSO_TRANCADO: {
-  //   titles: [
-  //     "Congresso Trancado",
-  //     "Oposição Fechou a Pauta",
-  //     "Congresso Travado",
-  //   ],
-  //   description:
-  //     "O Presidente não pode vetar uma lei conservadora nesta rodada, pois a oposição trancou a pauta e quer empurrar a lei goela abaixo.'",
-  //   visibleTo: [CrisisVisibleTo.ALL],
-  // },
-  // PEGADINHA_DO_PARAGRAFO_47_INCISO_V: {
-  //   titles: [
-  //     "Pegadinha do Parágrafo 47 Inciso V",
-  //     "Jabuti na Lei",
-  //     "Burocracia a Jato",
-  //   ],
-  //   description:
-  //     "A oposição conseguiu adicionar uma cláusula que torna a lei aprovada na rodada anterior inviável, ela é anulada. O burocrata responsável será punido com um cargo no ministério.",
-  //   visibleTo: [CrisisVisibleTo.ALL],
-  // },
-  // VETO_DO_STF: {
-  //   titles: ["Veto do STF", "Xandão Mandou", "São 3 Poderes, Não 2"],
-  //   description:
-  //     "O Supremo Tribunal Federal anulou a lei aprovada na rodada anterior. 'A justiça tarda, mas não falha.'",
-  //   visibleTo: [CrisisVisibleTo.ALL],
-  // },
+  CONGRESSO_TRANCADO: {
+    name: CRISIS_NAMES.CONGRESSO_TRANCADO,
+    titles: [
+      'Congresso Trancado',
+      'Obstrução Parlamentar',
+      'Congresso Travado',
+    ],
+    description:
+      "O Presidente não pode vetar uma lei conservadora nesta rodada, pois a oposição trancou a pauta e quer empurrar a lei goela abaixo.'",
+    visibleTo: [CrisisVisibleTo.ALL],
+    controlledBy: [CrisisControlledBy.PRESIDENT],
+  },
+  PEGADINHA_DO_PARAGRAFO_47_INCISO_V: {
+    name: CRISIS_NAMES.PEGADINHA_DO_PARAGRAFO_47_INCISO_V,
+    titles: [
+      'Pegadinha do Parágrafo 47 Inciso V',
+      'Jabuti na Lei',
+      'Burocracia a Jato',
+    ],
+    description:
+      'A oposição conseguiu adicionar uma cláusula que torna a ultima lei progressista aprovada inviável. O burocrata responsável será punido com um cargo no ministério.',
+    visibleTo: [CrisisVisibleTo.ALL],
+    controlledBy: [CrisisControlledBy.PRESIDENT],
+  },
+  VETO_DO_STF: {
+    name: CRISIS_NAMES.VETO_DO_STF,
+    titles: ['Veto do STF', 'Xandão Mandou', 'São 3 Poderes, Não 2'],
+    description:
+      "O Supremo Tribunal Federal anulou a lei aprovada na rodada anterior. 'A justiça tarda, mas não falha.'",
+    visibleTo: [CrisisVisibleTo.ALL],
+    controlledBy: [CrisisControlledBy.PRESIDENT],
+  },
   // DELACAO_PREMIADA: {
   //   titles: ["Delação Premiada", "Cagueta", "X9"],
   //   description:

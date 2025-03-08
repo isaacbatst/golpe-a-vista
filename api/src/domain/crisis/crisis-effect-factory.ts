@@ -1,4 +1,5 @@
 import { CafeComAbin } from 'src/domain/crisis/cafe-com-abin';
+import { CongressoTrancado } from 'src/domain/crisis/congresso-trancado';
 import { CrisisEffect } from 'src/domain/crisis/crisis-effect';
 import { CrisisEffectJSON } from 'src/domain/crisis/crisis-effect-json';
 import { CRISIS_NAMES } from 'src/domain/crisis/crisis-names';
@@ -26,6 +27,8 @@ export class CrisisEffectFactory {
         return new Mensalao();
       case CRISIS_NAMES.GOLPE_DE_ESTADO:
         return new GolpeDeEstado();
+      case CRISIS_NAMES.CONGRESSO_TRANCADO:
+        return new CongressoTrancado();
       default:
         throw new Error(`Invalid crisis name: ${crisis as any}`);
     }
@@ -47,6 +50,8 @@ export class CrisisEffectFactory {
         return GolpeDeEstado.fromJSON(data);
       case CRISIS_NAMES.MENSALAO:
         return Mensalao.fromJSON(data);
+      case CRISIS_NAMES.CONGRESSO_TRANCADO:
+        return CongressoTrancado.fromJSON(data);
       default:
         throw new Error(
           `Invalid crisis name: ${(data as { crisis: string }).crisis}`,
