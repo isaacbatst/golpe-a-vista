@@ -1,6 +1,7 @@
 import { CrisisFactory } from 'src/domain/crisis/crisis-factory';
 import { CrisisStageFactory } from 'src/domain/stage/crisis-stage.factory';
 import { DossierStageFactory } from 'src/domain/stage/dossier-stage.factory';
+import { ImpeachmentStage } from 'src/domain/stage/impeachment-stage';
 import { ImpeachmentStageFactory } from 'src/domain/stage/impeachment-stage.factory';
 import { LegislativeProposal } from 'src/domain/stage/legislative-proposal';
 import { LegislativeStageFactory } from 'src/domain/stage/legislative-stage.factory';
@@ -9,7 +10,6 @@ import { SabotageStageFactory } from 'src/domain/stage/sabotage-stage.factory';
 import { Law } from '../data/laws';
 import { Crisis } from './crisis/crisis';
 import { Either, left, right } from './either';
-import { Player } from './player';
 import { PresidentQueue } from './president-queue';
 import { LawType } from './role';
 import { DossierStage } from './stage/dossier-stage';
@@ -18,7 +18,6 @@ import { SabotageStage } from './stage/sabotage-stage';
 import { Stage } from './stage/stage';
 import { StageQueue } from './stage/stage-queue';
 import { StageFactory, StageJSON } from './stage/stage.factory';
-import { ImpeachmentStage } from 'src/domain/stage/impeachment-stage';
 
 export type RoundParams = {
   index?: number;
@@ -149,7 +148,7 @@ export class Round {
   get stageFactories(): StageFactory[] {
     return [
       new ImpeachmentStageFactory(
-        this.president.id,
+        this.presidentId,
         this._hasImpeachment,
         this._previouslyImpeachedSomeConservative,
         this._previouslyImpeachedRadical,
@@ -285,11 +284,11 @@ export class Round {
     return this._rapporteurId;
   }
 
-  get president(): Player {
+  get presidentId(): string {
     return this.presidentQueue.getByRoundNumber(this.index);
   }
 
-  get nextPresident(): Player {
+  get nextPresidentId(): string {
     return this.presidentQueue.getByRoundNumber(this.index + 1);
   }
 
@@ -304,8 +303,8 @@ export class Round {
       hasImpeachment: this._hasImpeachment,
       crisis: this._crisis?.toJSON(),
       rapporteur: this._rapporteurId,
-      president: this.president.toJSON(),
-      nextPresident: this.nextPresident.toJSON(),
+      president: this.presidentId,
+      nextPresident: this.nextPresidentId,
       finished: this.finished,
       currentStage: this.currentStage.toJSON(),
       hasLastRoundBeenSabotaged: this._hasLastRoundBeenSabotaged,

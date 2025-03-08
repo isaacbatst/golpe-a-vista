@@ -44,16 +44,16 @@ export class DossierStage extends Stage {
   chooseNextRapporteur(params: {
     issuerId?: string;
     chosen: Player;
-    currentPresident: Player;
+    currentPresident: string;
     currentRapporteur: Player | null;
     nextPresident: Player;
   }): Either<string, void> {
     const [error] = this.assertCurrentAction('SELECT_RAPPORTEUR');
     if (error) return left(error);
 
-    params.issuerId = params.issuerId ?? params.currentPresident.id;
+    params.issuerId = params.issuerId ?? params.currentPresident;
 
-    if (params.issuerId !== params.currentPresident.id) {
+    if (params.issuerId !== params.currentPresident) {
       return left('Apenas o presidente pode escolher o relator');
     }
 
@@ -139,17 +139,17 @@ export class DossierStage extends Stage {
 
   static canBeNextRapporteur(params: {
     chosen: Player;
-    currentPresident: Player;
-    nextPresident: Player;
+    currentPresident: string;
+    nextPresident?: Player;
     currentRapporteur: Player | null;
   }): Either<string, true> {
-    if (params.chosen.id === params.currentPresident.id) {
+    if (params.chosen.id === params.currentPresident) {
       return left('O presidente não pode ser o próximo relator');
     }
     if (params.currentRapporteur?.id === params.chosen.id) {
       return left('O relator atual não pode ser o próximo relator');
     }
-    if (params.nextPresident.id === params.chosen.id) {
+    if (params.nextPresident?.id === params.chosen.id) {
       return left('O próximo presidente não pode ser o relator');
     }
     if (params.chosen.impeached) {

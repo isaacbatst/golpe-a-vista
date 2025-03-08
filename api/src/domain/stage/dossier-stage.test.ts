@@ -16,7 +16,7 @@ describe('Estágio do Dossiê', () => {
 
     const [error] = stage.chooseNextRapporteur({
       chosen: nextRapporteur,
-      currentPresident: new Player('p1', 'p1', Role.MODERADO),
+      currentPresident: new Player('p1', 'p1', Role.MODERADO).id,
       nextPresident: new Player('p2', 'p2', Role.MODERADO),
       currentRapporteur: new Player('p3', 'p3', Role.MODERADO),
     });
@@ -33,7 +33,7 @@ describe('Estágio do Dossiê', () => {
 
     const [error] = stage.chooseNextRapporteur({
       chosen: president,
-      currentPresident: president,
+      currentPresident: president.id,
       nextPresident: new Player('p2', 'p2', Role.MODERADO),
       currentRapporteur: new Player('p3', 'p3', Role.MODERADO),
     });
@@ -48,7 +48,7 @@ describe('Estágio do Dossiê', () => {
     });
 
     const [error] = stage.chooseNextRapporteur({
-      currentPresident: new Player('p1', 'p1', Role.MODERADO),
+      currentPresident: new Player('p1', 'p1', Role.MODERADO).id,
       nextPresident: new Player('p2', 'p2', Role.MODERADO),
       currentRapporteur,
       chosen: currentRapporteur,
@@ -64,7 +64,7 @@ describe('Estágio do Dossiê', () => {
     });
 
     const [error] = stage.chooseNextRapporteur({
-      currentPresident: new Player('p1', 'p1', Role.MODERADO),
+      currentPresident: new Player('p1', 'p1', Role.MODERADO).id,
       nextPresident,
       currentRapporteur: new Player('p3', 'p3', Role.MODERADO),
       chosen: nextPresident,
@@ -81,7 +81,7 @@ describe('Estágio do Dossiê', () => {
 
     const [error] = stage.chooseNextRapporteur({
       chosen: impeachedRapporteur,
-      currentPresident: new Player('p1', 'p1', Role.MODERADO),
+      currentPresident: new Player('p1', 'p1', Role.MODERADO).id,
       nextPresident: new Player('p2', 'p2', Role.MODERADO),
       currentRapporteur: new Player('p4', 'p4', Role.MODERADO),
     });
@@ -95,7 +95,7 @@ describe('Estágio do Dossiê', () => {
     const currentRapporteur = new Player('p3', 'p3', Role.MODERADO);
 
     stage.chooseNextRapporteur({
-      currentPresident: new Player('p1', 'p1', Role.MODERADO),
+      currentPresident: new Player('p1', 'p1', Role.MODERADO).id,
       nextPresident: new Player('p2', 'p2', Role.MODERADO),
       currentRapporteur,
       chosen: new Player('p4', 'p4', Role.MODERADO),

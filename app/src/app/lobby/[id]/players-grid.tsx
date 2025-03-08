@@ -15,8 +15,6 @@ const PlayersGrid = ({ me, players, users, showRoles = false }: Props) => {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-1 xl:grid-cols-2 text-center">
       {players
-        .slice()
-        .sort((a, b) => (a.id === me.id ? -1 : b.id === me.id ? 1 : 0))
         .map((player) => {
           const isMe = player.id === me.id;
 

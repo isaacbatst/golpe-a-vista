@@ -154,9 +154,12 @@ export class Game {
     this._lawsToProgressiveWin = lawsToProgressiveWin;
     this._lawsToConservativeWin = lawsToConservativeWin;
     this._crisesIntervalToImpeach = crisesIntervalToImpeach;
+    console.log('presidentQueue', presidentQueue);
     this._presidentQueue =
       presidentQueue ??
-      new PresidentQueue(Random.sort(Array.from(players.values())));
+      new PresidentQueue(
+        Random.sort(Array.from(players.values()).map((p) => p.id)),
+      );
     this._crisesDeck = crisesDeck;
     this._progressiveLawsToFear = progressiveLawsIntervalToCrisis;
     this._rejectedLawsIntervalToCrisis = rejectedLawsIntervalToCrisis;
@@ -182,15 +185,22 @@ export class Game {
       return left('A rodada atual não foi finalizada');
     }
 
-    let nextPresident = this._presidentQueue.getByRoundNumber(
+    const nextPresidentId = this._presidentQueue.getByRoundNumber(
       this._rounds.length,
     );
+    let nextPresident = this._players.get(nextPresidentId);
+    if (!nextPresident) {
+      return left('Próximo presidente não encontrado');
+    }
 
     while (nextPresident.impeached) {
       this._presidentQueue.shift();
-      nextPresident = this._presidentQueue.getByRoundNumber(
-        this._rounds.length,
+      nextPresident = this._players.get(
+        this._presidentQueue.getByRoundNumber(this._rounds.length),
       );
+      if (!nextPresident) {
+        return left('Próximo presidente não encontrado');
+      }
     }
 
     const round = new Round({
@@ -271,10 +281,11 @@ export class Game {
     const lastRoundsApprovedProgressiveLaws = lastRounds.every((round) =>
       round.hasApprovedLaw(LawType.PROGRESSISTAS),
     );
+    const president = this._players.get(this.presidentId);
 
     return (
-      this.president.role === Role.MODERADO &&
-      !this.president.radicalized &&
+      president?.role === Role.MODERADO &&
+      !president?.radicalized &&
       this.currentRound.hasApprovedLaw(LawType.PROGRESSISTAS) &&
       lastRounds.length >= this._progressiveLawsToFear &&
       lastRoundsApprovedProgressiveLaws
@@ -393,12 +404,18 @@ export class Game {
     return Number(this.currentRound.hasRejectedLaw) + previouslyRejected;
   }
 
+  get presidentId() {
+    return this.currentRound.presidentId;
+  }
+
   get president() {
-    return this.currentRound.president;
+    return this._players.get(this.presidentId);
   }
 
   get nextPresident() {
-    return this.getPresidentFromQueue(this.currentRoundIndex + 1);
+    return this._players.get(
+      this.getPresidentFromQueue(this.currentRoundIndex + 1),
+    );
   }
 
   get rapporteur() {
@@ -428,12 +445,12 @@ export class Game {
       return null;
     }
     if (this.currentRound.crisis.controlledBy.length === 0) {
-      return this.president.id;
+      return this.presidentId;
     }
 
     for (const controller of this.currentRound.crisis.controlledBy) {
       if (controller === CrisisControlledBy.PRESIDENT) {
-        return this.president.id;
+        return this.presidentId;
       }
 
       if (
@@ -467,10 +484,10 @@ export class Game {
   playerToJSON(player: Player & { id: string }) {
     return {
       ...player.toJSON(),
-      isPresident: player === this.president,
+      isPresident: player.id === this.presidentId,
       isRapporteur: player.id === this.currentRound.rapporteurId,
       isNextPresident:
-        player === this.getPresidentFromQueue(this.currentRoundIndex + 1),
+        player.id === this.getPresidentFromQueue(this.currentRoundIndex + 1),
     };
   }
 
@@ -481,17 +498,18 @@ export class Game {
         const [canBeRapporteurError, canBeRapporteur] =
           DossierStage.canBeNextRapporteur({
             chosen: player,
-            currentPresident: this.president,
+            currentPresident: this.presidentId,
             currentRapporteur: this.rapporteur,
             nextPresident: this.nextPresident,
           });
         return {
           ...player.toJSON(),
           id,
-          isPresident: player === this.president,
+          isPresident: player.id === this.presidentId,
           isRapporteur: player.id === this.currentRound.rapporteurId,
           isNextPresident:
-            player === this.getPresidentFromQueue(this.currentRoundIndex + 1),
+            player.id ===
+            this.getPresidentFromQueue(this.currentRoundIndex + 1),
           canBeRapporteur: {
             status: canBeRapporteur ?? false,
             reason: canBeRapporteurError,
@@ -502,7 +520,9 @@ export class Game {
       presidentQueue: this._presidentQueue.toJSON(),
       lawsDeck: this._lawsDeck.toJSON(),
       crisesDeck: this._crisesDeck.toJSON(),
-      president: this.president.toJSON(),
+      president: this.president,
+      nextPresident: this.nextPresident,
+      rapporteur: this.rapporteur,
       winner: this.winner,
       minRadicalizationConservativesLaws:
         this._minRadicalizationConservativesLaws,
@@ -535,7 +555,7 @@ export class Game {
     const lawsDeck = Deck.fromJSON(json.lawsDeck, Law);
     const presidentQueue = PresidentQueue.fromJSON({
       offset: json.presidentQueue.offset,
-      players: Array.from(players.values()),
+      players: json.presidentQueue.players,
     });
 
     const [, game] = Game.create({

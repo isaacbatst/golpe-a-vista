@@ -217,7 +217,7 @@ export class AppService {
     const [error] = stage.drawLaws(
       lobby.currentGame.lawsDeck,
       input.issuerId,
-      lobby.currentGame.president.id,
+      lobby.currentGame.presidentId,
     );
 
     if (error) {
@@ -258,7 +258,7 @@ export class AppService {
     const [error] = stage.vetoLaw(
       drawnLawIndex,
       input.issuerId,
-      lobby.currentGame.president.id,
+      lobby.currentGame.presidentId,
     );
 
     if (error) {
@@ -299,7 +299,7 @@ export class AppService {
     const [error] = stage.chooseLawForVoting(
       drawnLawIndex,
       input.issuerId,
-      lobby.currentGame.president.id,
+      lobby.currentGame.presidentId,
     );
 
     if (error) {
@@ -397,10 +397,13 @@ export class AppService {
     if (!chosen) {
       return left(new NotFoundException('Relator não encontrado'));
     }
+    if (!lobby.currentGame.nextPresident) {
+      return left(new NotFoundException('Próximo presidente não encontrado'));
+    }
 
     const [error] = stage.chooseNextRapporteur({
       chosen,
-      currentPresident: lobby.currentGame.president,
+      currentPresident: lobby.currentGame.presidentId,
       currentRapporteur: lobby.currentGame.rapporteur,
       nextPresident: lobby.currentGame.nextPresident,
       issuerId: input.issuerId,

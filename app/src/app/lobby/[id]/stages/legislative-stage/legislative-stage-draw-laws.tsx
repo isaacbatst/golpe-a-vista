@@ -19,12 +19,12 @@ const LegislativeStageDrawLaws = () => {
       <>
         <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
           {roundPrefix}
-          {round.president.name} é o Presidente!
+          {lobby.currentGame.president.name} é o Presidente!
         </h2>
         <div className="text-sm max-w-lg text-muted-foreground flex flex-col gap-2">
           <p className="text-gray-700">
             Nesta rodada,{" "}
-            <span className="font-semibold">{round.president.name}</span>{" "}
+            <span className="font-semibold">{lobby.currentGame.president.name}</span>{" "}
             assumiu o cargo de Presidente e agora está analisando as leis
             disponíveis.
           </p>

@@ -250,8 +250,8 @@ export type RoundDTO = {
   isLegislativeVotingSecret: boolean;
   requiredVeto: LawType | null;
   hasImpeachment: boolean;
-  president: PlayerDTO;
-  nextPresident: PlayerDTO;
+  presidentId: string;
+  nextPresidentId: string;
   finished: boolean;
   currentStage: StageDTO;
   rapporteur: string | null;
@@ -264,6 +264,7 @@ export type GameDTO = {
   lawsDeck: LawDTO[];
   crisesDeck: CrisisDTO[];
   president: UserDTO;
+  nextPresident: UserDTO;
   winner: Role | null;
   winnerWinConditions:
     | {
@@ -282,6 +283,10 @@ export type GameDTO = {
   approvedConservativeLaws: LawDTO[];
   approvedProgressiveLaws: LawDTO[];
   crisisControlledBy: string | null;
+  presidentQueue: {
+    players: string[];
+    offset: number;
+  };
 };
 
 export type LobbyDTO = {

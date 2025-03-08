@@ -1,15 +1,13 @@
-import { Player } from './player';
-
 export class PresidentQueue {
-  private _players: Player[];
+  private _players: string[];
   private _offset: number = 0;
 
-  constructor(_players: Player[], _offset: number = 0) {
+  constructor(_players: string[], _offset: number = 0) {
     this._players = _players;
     this._offset = _offset;
   }
 
-  get players(): Player[] {
+  get players(): string[] {
     return this._players;
   }
 
@@ -21,18 +19,18 @@ export class PresidentQueue {
     this._offset++;
   }
 
-  getByRoundNumber(roundNumber: number): Player {
+  getByRoundNumber(roundNumber: number): string {
     return this._players[(roundNumber + this._offset) % this._players.length];
   }
 
   toJSON() {
     return {
-      players: this._players.map((player) => player.toJSON()),
+      players: this._players,
       offset: this._offset,
     };
   }
 
-  static fromJSON(data: { players: Player[]; offset: number }) {
+  static fromJSON(data: { players: string[]; offset: number }) {
     return new PresidentQueue(data.players, data.offset);
   }
 }

@@ -184,13 +184,19 @@ export default function Game({ userId, lobby }: Props) {
         <Card className="lg:max-h-full lg:overflow-y-auto">
           <CardContent className="pt-6 space-y-6 flex flex-col items-center">
             <h2 className="text-2xl font-semibold text-center">Jogadores</h2>
-            <Button variant="secondary" onClick={() => setRolesDialogOpen(true)}>
+            <Button
+              variant="secondary"
+              onClick={() => setRolesDialogOpen(true)}
+            >
               <Info />
               Regras
             </Button>
             <PlayersGrid
               me={me}
-              players={lobby.currentGame.players}
+              players={lobby.currentGame.presidentQueue.players.map(
+                (p) =>
+                  lobby.currentGame.players.find((player) => player.id === p)!
+              )}
               users={lobby.users}
               showRoles={Boolean(lobby.currentGame.winner)}
             />

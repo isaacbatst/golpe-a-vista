@@ -13,7 +13,7 @@ const LegislativeStageChooseLawForVoting = () => {
   const { legislativeStageChooseLawForVoting } = useLobbySocketContext();
   const stage = lobby.currentGame.currentRound
     .currentStage as LegislativeStageDTO;
-  const president = lobby.currentGame.currentRound.president;
+  const president = lobby.currentGame.president;
   const roundPrefix = `Rodada ${lobby.currentGame.currentRound.index + 1} - `;
 
   if (!player.isPresident) {
