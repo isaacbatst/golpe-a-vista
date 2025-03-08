@@ -154,7 +154,6 @@ export class Game {
     this._lawsToProgressiveWin = lawsToProgressiveWin;
     this._lawsToConservativeWin = lawsToConservativeWin;
     this._crisesIntervalToImpeach = crisesIntervalToImpeach;
-    console.log('presidentQueue', presidentQueue);
     this._presidentQueue =
       presidentQueue ??
       new PresidentQueue(

@@ -8,6 +8,7 @@ export class DossierStageFactory extends StageFactory {
     private proposals: LegislativeProposal[] = [],
     private isDossierFake: boolean = false,
     private isRapporteurImpeached: boolean = false,
+    private isDossierOmitted: boolean = false,
   ) {
     super();
   }
@@ -20,6 +21,7 @@ export class DossierStageFactory extends StageFactory {
     return new DossierStage({
       proposals: this.proposals,
       fakeDossier: this.isDossierFake,
+      isDossierOmitted: this.isDossierOmitted,
     });
   }
 }

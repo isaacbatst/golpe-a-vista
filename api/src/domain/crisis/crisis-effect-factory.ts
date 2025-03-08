@@ -7,8 +7,10 @@ import { FmiMandou } from 'src/domain/crisis/fmi-mandou';
 import { ForcasOcultas } from 'src/domain/crisis/forcas-ocultas';
 import { GolpeDeEstado } from 'src/domain/crisis/golpe-de-estado';
 import { Mensalao } from 'src/domain/crisis/mensalao';
+import { PegadinhaDoParagrafo } from 'src/domain/crisis/pegadinha-do-paragrafo';
 import { PlanoCohen } from 'src/domain/crisis/plano-cohen';
 import { SessaoSecreta } from 'src/domain/crisis/sessao-secreta';
+import { VetoStf } from 'src/domain/crisis/veto-stf';
 
 export class CrisisEffectFactory {
   static create(crisis: CRISIS_NAMES): CrisisEffect {
@@ -29,6 +31,10 @@ export class CrisisEffectFactory {
         return new GolpeDeEstado();
       case CRISIS_NAMES.CONGRESSO_TRANCADO:
         return new CongressoTrancado();
+      case CRISIS_NAMES.PEGADINHA_DO_PARAGRAFO_47_INCISO_V:
+        return new PegadinhaDoParagrafo();
+      case CRISIS_NAMES.VETO_DO_STF:
+        return new VetoStf();
       default:
         throw new Error(`Invalid crisis name: ${crisis as any}`);
     }
@@ -52,6 +58,10 @@ export class CrisisEffectFactory {
         return Mensalao.fromJSON(data);
       case CRISIS_NAMES.CONGRESSO_TRANCADO:
         return CongressoTrancado.fromJSON(data);
+      case CRISIS_NAMES.PEGADINHA_DO_PARAGRAFO_47_INCISO_V:
+        return PegadinhaDoParagrafo.fromJSON(data);
+      case CRISIS_NAMES.VETO_DO_STF:
+        return VetoStf.fromJSON(data);
       default:
         throw new Error(
           `Invalid crisis name: ${(data as { crisis: string }).crisis}`,

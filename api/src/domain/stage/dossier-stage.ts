@@ -18,12 +18,14 @@ type DossierStageParams = {
   currentAction?: DossierAction;
   isDossierVisibleToRapporteur?: boolean;
   nextRapporteurId?: string;
+  isDossierOmitted?: boolean;
 };
 
 export class DossierStage extends Stage {
   readonly type = StageType.REPORT_DOSSIER;
   private _nextRapporteurId: string | null;
   private _isDossierVisibleToRapporteur: boolean;
+  private _isDossierOmitted: boolean;
   private _proposals: LegislativeProposal[];
   private _fakeDossier: boolean;
   private _fakeDossierProposals: LegislativeProposal[] | null;
@@ -35,6 +37,7 @@ export class DossierStage extends Stage {
     );
     this._proposals = params.proposals;
     this._fakeDossier = params.fakeDossier ?? false;
+    this._isDossierOmitted = params.isDossierOmitted ?? false;
     this._isDossierVisibleToRapporteur =
       params.isDossierVisibleToRapporteur ?? false;
     this._nextRapporteurId = params.nextRapporteurId ?? null;
@@ -70,7 +73,7 @@ export class DossierStage extends Stage {
 
     this._nextRapporteurId = params.chosen.id;
 
-    if (!params.currentRapporteur) {
+    if (!params.currentRapporteur || this._isDossierOmitted) {
       this.advanceAction(DossierAction.ADVANCE_STAGE);
       return right();
     }
@@ -85,6 +88,10 @@ export class DossierStage extends Stage {
   ): Either<string, void> {
     const [error] = this.assertCurrentAction('PASS_DOSSIER');
     if (error) return left(error);
+    if (this._isDossierOmitted) {
+      this.advanceAction();
+      return right();
+    }
 
     if (!currentRapporteur) {
       return left('Nenhum relator foi escolhido.');
@@ -123,6 +130,7 @@ export class DossierStage extends Stage {
       type: this.type,
       currentAction: this.currentAction as DossierAction,
       nextRapporteurId: this._nextRapporteurId,
+      isDossierOmitted: this._isDossierOmitted,
       isDossierVisibleToRapporteur: this._isDossierVisibleToRapporteur,
       dossier: this.dossier,
       proposals: this._proposals.map((law) => law.toJSON()),

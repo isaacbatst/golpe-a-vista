@@ -165,6 +165,7 @@ export class Round {
         this.legislativeProposals,
         this.isDossierFake,
         this.isRapporteurImpeached,
+        this.isDossierOmitted,
       ),
       new SabotageStageFactory(
         this.hasApprovedLaw(LawType.PROGRESSISTAS),

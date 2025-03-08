@@ -4,8 +4,10 @@ import { FmiMandou } from 'src/domain/crisis/fmi-mandou';
 import { ForcasOcultas } from 'src/domain/crisis/forcas-ocultas';
 import { GolpeDeEstado } from 'src/domain/crisis/golpe-de-estado';
 import { Mensalao } from 'src/domain/crisis/mensalao';
+import { PegadinhaDoParagrafo } from 'src/domain/crisis/pegadinha-do-paragrafo';
 import { PlanoCohen } from 'src/domain/crisis/plano-cohen';
 import { SessaoSecreta } from 'src/domain/crisis/sessao-secreta';
+import { VetoStf } from 'src/domain/crisis/veto-stf';
 
 type ToJson<T extends { toJSON: any }> = ReturnType<T['toJSON']>;
 export type CrisisEffectJSON =
@@ -16,4 +18,6 @@ export type CrisisEffectJSON =
   | ToJson<FmiMandou>
   | ToJson<Mensalao>
   | ToJson<GolpeDeEstado>
-  | ToJson<CongressoTrancado>;
+  | ToJson<CongressoTrancado>
+  | ToJson<PegadinhaDoParagrafo>
+  | ToJson<VetoStf>;

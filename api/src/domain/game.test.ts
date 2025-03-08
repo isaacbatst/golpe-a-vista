@@ -611,7 +611,6 @@ describe('Presidência', () => {
       const [error] = stage.vote(player, true, target!);
       expect(error).toBeUndefined();
     }
-    console.log('votes', stage.voting);
     expect(stage.voting?.votes.get('p1')).toBe(true);
     expect(stage.isComplete).toBe(true);
     expect(target?.impeached).toBe(true);

@@ -25,7 +25,7 @@ const ImpeachmentStageVoting = ({ stage }: { stage: ImpeachmentStageDTO }) => {
         {roundPrefix} - Votação em andamento
       </h2>
       <div className="max-w-md">
-        <h3 className="scroll-m-20 text-4xl font-semibold tracking-wide text-red-500 text-center mb-3 font-bebas">
+        <h3 className="scroll-m-20 text-5xl font-semibold tracking-wide text-red-500 text-center mb-8 mt-4 font-bebas">
           {target.name} pode ser cassado!
         </h3>
         {stage.voting && (
