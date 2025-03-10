@@ -7,7 +7,9 @@ import { RedisService } from './redis.service';
     {
       provide: 'REDIS_CLIENT',
       useFactory: async (): Promise<RedisClientType> => {
-        const client = createClient();
+        const client = createClient({
+          url: 'redis://redis:6379',
+        });
         await client.connect();
         return client as RedisClientType;
       },

@@ -12,14 +12,13 @@ import {
 import { Request } from 'express';
 import { SessionData } from 'express-session';
 import { AppService } from './app.service';
-import { ConfigService } from '@nestjs/config';
 
 @Controller()
 export class AppController {
-  constructor(
-    private readonly service: AppService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly service: AppService) {}
+
+  @Get('health')
+  health() {}
 
   @Post('lobbies')
   async createLobby(@Req() req: Request, @Body() body: { name: string }) {
