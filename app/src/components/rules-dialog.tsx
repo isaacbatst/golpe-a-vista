@@ -333,7 +333,7 @@ export function RulesDialog({ onOpenChange, open, role }: Props) {
                 }`}
               >
                 {roles[key as keyof typeof roles].icon}
-                {roles[key as keyof typeof roles].title}
+                {roles[key as keyof typeof roles].title[0]}
               </TabsTrigger>
             ))}
             <TabsTrigger value="general" className={`flex items-center gap-1`}>
