@@ -6,19 +6,24 @@ const CardFolded = ({
   overlay,
   isOverlayFixed = false,
   isShowingOverlay = false,
+  forceShowOverlay = false,
 }: {
   isShowingOverlay?: boolean;
   overlay?: React.ReactNode;
   isOverlayFixed?: boolean;
+  forceShowOverlay?: boolean;
 }) => {
-  const {containerProps, showingOverlay} = useOverlay(isShowingOverlay, isOverlayFixed);
+  const { containerProps, showingOverlay } = useOverlay(
+    isShowingOverlay,
+    isOverlayFixed
+  );
 
   return (
-    <PaperCard
-      {...containerProps}
-    >
+    <PaperCard {...containerProps}>
       {overlay && (
-        <CardOverlay isShowing={showingOverlay}>{overlay}</CardOverlay>
+        <CardOverlay isShowing={showingOverlay || forceShowOverlay}>
+          {overlay}
+        </CardOverlay>
       )}
       <div className="flex flex-col items-center justify-center">
         <p className="mt-2 text-gray-800 uppercase font-bold tracking-wide text-sm">

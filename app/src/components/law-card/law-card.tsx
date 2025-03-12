@@ -10,6 +10,7 @@ type Props = {
   overlayContent?: React.ReactNode;
   showingOverlayInitialValue?: boolean;
   isOverlayFixed?: boolean;
+  forceShowOverlay?: boolean;
 };
 
 const LawCard = ({
@@ -17,6 +18,7 @@ const LawCard = ({
   overlayContent: overlay,
   showingOverlayInitialValue = false,
   isOverlayFixed = false,
+  forceShowOverlay = false,
 }: Props) => {
   const { showingOverlay, containerProps } = useOverlay(
     showingOverlayInitialValue,
@@ -24,7 +26,7 @@ const LawCard = ({
   );
   return (
     <PaperCard className="justify-between" {...containerProps}>
-      <CardOverlay isShowing={showingOverlay}>{overlay}</CardOverlay>
+      <CardOverlay isShowing={showingOverlay || forceShowOverlay}>{overlay}</CardOverlay>
 
       <div
         className="self-start rounded-md font-bold uppercase tracking-wider text-xs

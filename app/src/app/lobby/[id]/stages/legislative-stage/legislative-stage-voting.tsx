@@ -49,6 +49,7 @@ const LegislativeStageVoting = () => {
               {me.isPresident ? (
                 <LawCard
                   law={proposal.law}
+                  forceShowOverlay={hasAlreadyVoted}
                   isOverlayFixed={!proposal.isChosenForVoting || hasAlreadyVoted}
                   showingOverlayInitialValue={
                     !proposal.isChosenForVoting || hasAlreadyVoted
@@ -60,6 +61,7 @@ const LegislativeStageVoting = () => {
                   isOverlayFixed={!proposal.isChosenForVoting || hasAlreadyVoted}
                   isShowingOverlay={!proposal.isChosenForVoting || hasAlreadyVoted}
                   overlay={getOverlay(proposal)}
+                  forceShowOverlay={hasAlreadyVoted}
                 />
               )}
             </li>
