@@ -30,7 +30,7 @@ import { SecretService } from 'src/modules/core/secret.service';
             httpOnly: true,
             sameSite:
               configService.get<string>('NODE_ENV') === 'production'
-                ? 'strict'
+                ? 'none'
                 : 'lax',
             maxAge: configService.get<number>('SESSION_MAX_AGE', 86400000), // 24 horas
           },
