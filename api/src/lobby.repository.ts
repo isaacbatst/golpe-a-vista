@@ -8,7 +8,7 @@ export class LobbyRepository {
 
   save(lobby: Lobby) {
     return this.redisService.set(`lobby:${lobby.id}`, lobby, {
-      ttl: 60 * 60 * 24, // 24h
+      ttl: 60 * 60 * 24, // 24 hours
     });
   }
 
