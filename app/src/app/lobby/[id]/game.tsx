@@ -64,7 +64,7 @@ export default function Game({ userId, lobby }: Props) {
                 Golpe à Vista
               </h1>
             </CardTitle>
-            {process.env.NEXT_PUBLIC_DEV_MODE === "true" && myUser && (
+            {myUser && (
               <DevOptions users={lobby.users} me={myUser} />
             )}
             <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight text-center">

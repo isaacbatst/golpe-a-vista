@@ -24,7 +24,7 @@ const CrisisStage = ({ stage }: Props) => {
       player.role === Role.CONSERVADOR);
 
   const { crisisStageStartCrisis } = useLobbySocketContext();
-  const timeLeft = useTimer(5);
+  const timeLeft = useTimer(stage.crisisEffect?.timeToAdvance ?? 15);
 
   if (
     stage.crisisEffect?.crisis === CRISIS_NAMES.MENSALAO &&
