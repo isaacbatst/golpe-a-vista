@@ -68,7 +68,7 @@ jobs:
       uses: cssnr/stack-deploy-action@v1
       with:
         name: golpe
-        file: stack.yaml
+        file: stack.yml
         host: congressosimulator.com.br
         user: golpe
         ssh_key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
