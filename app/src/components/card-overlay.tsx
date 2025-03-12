@@ -12,7 +12,7 @@ const CardOverlay = ({ isShowing, children }: PropsWithChildren<Props>) => {
       className={cn(
         "absolute transition ease-in-out duration-300 flex items-center justify-center inset-0",
         "bg-gradient-to-b from-transparent to-black rounded-md",
-        { "opacity-0": !isShowing }
+        { "opacity-0": !isShowing, "pointer-events-none": !isShowing }
       )}
     >
       {children}
