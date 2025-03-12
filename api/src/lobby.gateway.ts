@@ -23,7 +23,7 @@ import { ImpeachmentAction } from 'src/domain/stage/impeachment-stage';
 
 @WebSocketGateway({
   cors: {
-    origin: 'http://localhost:3000',
+    origin: process.env.CORS_ORIGIN ?? 'http://localhost:3000',
     credentials: true,
   },
   path: '/ws/socket',
