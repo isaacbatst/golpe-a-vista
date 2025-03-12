@@ -60,9 +60,11 @@ services:
         order: start-first
       restart_policy:
         condition: on-failure
+        delay: 5s
+        max_attempts: 5
+        window: 30s
     depends_on:
-      redis:
-        condition: service_healthy
+      - redis
   app:
     image: isaacbatst/golpe-app:${GIT_COMMIT_HASH:-latest}
     deploy:
@@ -70,6 +72,9 @@ services:
         order: start-first      
       restart_policy:
         condition: on-failure
+        delay: 5s
+        max_attempts: 5
+        window: 30s
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.app.rule=Host(`congressosimulator.com.br`)"
@@ -80,8 +85,7 @@ services:
       - NEXT_PUBLIC_API_URL=https://api.congressosimulator.com.br
       - NEXT_PUBLIC_DEV_MODE=true
     depends_on:
-      api:
-        condition: service_healthy
+      - api
 secrets:
   session-secret:
     external: true
