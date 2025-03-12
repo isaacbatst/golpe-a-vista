@@ -19,7 +19,8 @@ export const useOverlay = (initialValue = false, isOverlayFixed = false) => {
 
   const handleTouchStart = (isOverlayFixed: boolean) => {
     if (isOverlayFixed) return;
-    setShowingOverlay((prev) => !prev);
+    // delay to prevent mistakenly pressing the overlay
+    setTimeout(() => setShowingOverlay(prev => !prev), 300);
   };
 
   return {
