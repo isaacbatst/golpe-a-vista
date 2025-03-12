@@ -14,14 +14,13 @@ const DossierStageSelectRapporteur = () => {
   const { player } = usePlayerContext();
   const { lobby } = useLobbyContext();
   const { dossierStageSelectRapporteur } = useLobbySocketContext();
-  const roundPrefix = `Rodada ${lobby.currentGame.currentRound.index + 1} - `;
+  const roundPrefix = `Rodada ${lobby.currentGame.currentRound.index + 1}`;
 
   if (!player.isPresident) {
     return (
       <>
         <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
-          {roundPrefix}
-          Escolha do Relator do Dossiê
+          {roundPrefix} -  Escolha do Relator do Dossiê
         </h2>
         <div className="text-sm max-w-lg text-muted-foreground flex flex-col gap-2">
           <p className="text-gray-700">
@@ -40,8 +39,7 @@ const DossierStageSelectRapporteur = () => {
   return (
     <>
       <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
-        {roundPrefix}
-        Escolha do Relator do Dossiê
+        {roundPrefix} - Escolha do Relator do Dossiê
       </h2>
       <div className="text-sm max-w-lg text-muted-foreground flex flex-col gap-2">
         <p className="text-gray-700">

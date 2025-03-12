@@ -31,6 +31,9 @@ jobs:
           tags: |
             ghcr.io/isaacbatst/golpe-app:latest
             ghcr.io/isaacbatst/golpe-app:${{ github.sha }}
+          build-args: |
+            NEXT_PUBLIC_API_URL=https://api.congressosimulator.com.br
+            NEXT_PUBLIC_DEV_MODE=true
 
   deploy:
     runs-on: ubuntu-latest

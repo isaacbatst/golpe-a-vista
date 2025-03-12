@@ -65,10 +65,6 @@ services:
       - redis
   app:
     image: ghcr.io/isaacbatst/golpe-app:${GIT_COMMIT_HASH:-latest}
-    build:
-      args:
-        NEXT_PUBLIC_API_URL: https://api.congressosimulator.com.br
-        NEXT_PUBLIC_DEV_MODE: true
     deploy:
       update_config:
         order: start-first      
