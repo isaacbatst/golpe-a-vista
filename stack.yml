@@ -36,15 +36,13 @@ services:
       restart_policy:
         condition: on-failure
   api:
-    image: isaacbatst/golpe-api:${GIT_COMMIT_HASH:-latest}
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+    image: ghcr.io/isaacbatst/golpe-api:${GIT_COMMIT_HASH:-latest}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`api.congressosimulator.com.br`)"
       - "traefik.http.services.api.loadbalancer.server.port=3001"
-      - "traefik.http.routers.web.entrypoints=websecure"
-      - "traefik.http.routers.web.tls.certresolver=myresolver"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls.certresolver=myresolver"
     secrets:
       - session-secret
     environment:
@@ -66,7 +64,11 @@ services:
     depends_on:
       - redis
   app:
-    image: isaacbatst/golpe-app:${GIT_COMMIT_HASH:-latest}
+    image: ghcr.io/isaacbatst/golpe-app:${GIT_COMMIT_HASH:-latest}
+    build:
+      args:
+        NEXT_PUBLIC_API_URL: https://api.congressosimulator.com.br
+        NEXT_PUBLIC_DEV_MODE: true
     deploy:
       update_config:
         order: start-first      
@@ -75,15 +77,12 @@ services:
         delay: 5s
         max_attempts: 5
         window: 30s
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.app.rule=Host(`congressosimulator.com.br`)"
-        - "traefik.http.services.app.loadbalancer.server.port=3000"
-        - "traefik.http.routers.web.entrypoints=websecure"
-        - "traefik.http.routers.web.tls.certresolver=myresolver"
-    environment:
-      - NEXT_PUBLIC_API_URL=https://api.congressosimulator.com.br
-      - NEXT_PUBLIC_DEV_MODE=true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=Host(`congressosimulator.com.br`)"
+      - "traefik.http.services.app.loadbalancer.server.port=3000"
+      - "traefik.http.routers.app.entrypoints=websecure"
+      - "traefik.http.routers.app.tls.certresolver=myresolver"
     depends_on:
       - api
 secrets:
