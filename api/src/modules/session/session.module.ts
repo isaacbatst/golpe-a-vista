@@ -4,20 +4,23 @@ import { RedisStore } from 'connect-redis';
 import session from 'express-session';
 import { RedisClientType } from 'redis';
 import { PersistenceModule } from '../persistence/persistence.module';
+import { SecretService } from 'src/modules/core/secret.service';
 
 @Module({
   imports: [ConfigModule, PersistenceModule],
   providers: [
+    SecretService,
     {
       provide: 'SESSION_MIDDLEWARE',
-      inject: ['REDIS_CLIENT', ConfigService],
+      inject: ['REDIS_CLIENT', ConfigService, SecretService],
       useFactory: (
         redisClient: RedisClientType,
         configService: ConfigService,
+        secretService: SecretService,
       ) => {
         return session({
           store: new RedisStore({ client: redisClient }),
-          secret: configService.get<string>('SESSION_SECRET', 'default_secret'),
+          secret: secretService.get('SESSION_SECRET', 'default_secret'),
           resave: false,
           saveUninitialized: false,
           name: 'golpe-a-vista.sid',

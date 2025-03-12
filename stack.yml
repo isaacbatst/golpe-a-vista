@@ -1,0 +1,87 @@
+version: "3.8"
+
+services:
+  traefik:
+    image: traefik:v3.1
+    command:
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=isaacbatst@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+    ports:
+      - mode: host
+        protocol: tcp
+        published: 80
+        target: 80
+      - mode: host
+        protocol: tcp
+        published: 443
+        target: 443
+    volumes:
+      - letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  redis:
+    image: redis:7.4.2
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+  api:
+    image: isaacbatst/golpe-api:${GIT_COMMIT_HASH:-latest}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`api.congressosimulator.com.br`)"
+      - "traefik.http.services.api.loadbalancer.server.port=3001"
+      - "traefik.http.routers.web.entrypoints=websecure"
+      - "traefik.http.routers.web.tls.certresolver=myresolver"
+    secrets:
+      - session-secret
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - REDIS_URL=redis://redis:6379
+      - SESSION_SECRET_FILE=/run/secrets/session-secret
+      - SESSION_SECURE=true
+      - SESSION_DOMAIN=.congressosimulator.com.br
+      - CORS_ORIGIN=https://congressosimulator.com.br
+    deploy:
+      update_config:
+        order: start-first
+      restart_policy:
+        condition: on-failure
+    depends_on:
+      redis:
+        condition: service_healthy
+  app:
+    image: isaacbatst/golpe-app:${GIT_COMMIT_HASH:-latest}
+    deploy:
+      update_config:
+        order: start-first      
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.app.rule=Host(`congressosimulator.com.br`)"
+        - "traefik.http.services.app.loadbalancer.server.port=3000"
+        - "traefik.http.routers.web.entrypoints=websecure"
+        - "traefik.http.routers.web.tls.certresolver=myresolver"
+    environment:
+      - NEXT_PUBLIC_API_URL=https://api.congressosimulator.com.br
+      - NEXT_PUBLIC_DEV_MODE=true
+    depends_on:
+      api:
+        condition: service_healthy
+secrets:
+  session-secret:
+    external: true
