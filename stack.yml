@@ -89,3 +89,5 @@ services:
 secrets:
   session-secret:
     external: true
+volumes:
+  letsencrypt:
