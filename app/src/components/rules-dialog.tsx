@@ -393,7 +393,7 @@ export function RulesDialog({ onOpenChange, open, role }: Props) {
                     title="Objetivo do Jogo"
                     description={
                       <p>
-                        Golpe à Vista é um jogo de blefe e dedução social onde
+                        Congresso Simulator é um jogo de blefe e dedução social onde
                         jogadores são divididos em três papéis: Moderados,
                         Radical e Conservadores. Cada grupo tem objetivos
                         diferentes e tenta identificar os outros enquanto

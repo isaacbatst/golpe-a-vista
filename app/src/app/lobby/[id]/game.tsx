@@ -61,7 +61,7 @@ export default function Game({ userId, lobby }: Props) {
           <CardHeader className="flex flex-col gap-4 sm:flex-row sm:justify-between items-center">
             <CardTitle>
               <h1 className="text-center text-4xl font-bold flex items-center justify-between">
-                Golpe à Vista
+                Congresso Simulator
               </h1>
             </CardTitle>
             {myUser && (

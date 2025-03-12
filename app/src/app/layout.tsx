@@ -28,8 +28,8 @@ const bebas = Bebas_Neue({
 })
 
 export const metadata: Metadata = {
-  title: "Golpe à Vista",
-  description: "Jogo de cartas político",
+  title: "Congresso Simulator",
+  description: "Jogo de blefe e dedução social onde jogadores são divididos em três papéis: Moderados, Radical e Conservadores.",
 };
 
 

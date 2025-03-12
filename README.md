@@ -1,4 +1,4 @@
-# 🏛️ Golpe à Vista
+# 🏛️ Congresso Simulator
 
 O país está em crise. As facções políticas disputam o controle do governo enquanto escândalos, conchavos e traições acontecem longe dos olhos do povo. 
 
