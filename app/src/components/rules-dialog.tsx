@@ -306,7 +306,7 @@ type Props = {
 export function RulesDialog({ onOpenChange, open, role }: Props) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="roles-dialog-scroll sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl flex items-center gap-2">
             {role && roles[role].icon}
