@@ -35,7 +35,7 @@ const DossierStageAdvanceStage = ({ stage }: Props) => {
         )}
         {player.isRapporteur ? (
           <>
-            <ul className="flex gap-3">
+            <ul className="flex flex-wrap justify-center gap-3">
               {stage.dossier.map((law) => (
                 <DossierStageDossierCard key={law.id} law={law} />
               ))}
