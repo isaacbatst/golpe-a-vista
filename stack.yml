@@ -10,6 +10,9 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    networks:
+      - traefik-public
+
   api:
     image: ghcr.io/isaacbatst/golpe-api:${GIT_COMMIT_HASH:-latest}
     labels:
@@ -38,6 +41,9 @@ services:
         window: 30s
     depends_on:
       - redis
+    networks:
+      - traefik-public
+
   app:
     image: ghcr.io/isaacbatst/golpe-app:${GIT_COMMIT_HASH:-latest}
     deploy:
@@ -56,8 +62,16 @@ services:
       - "traefik.http.routers.app.tls.certresolver=myresolver"
     depends_on:
       - api
+    networks:
+      - traefik-public
+
 secrets:
   session-secret:
     external: true
+
 volumes:
   letsencrypt:
+
+networks:
+  traefik-public:
+    external: true
