@@ -17,17 +17,17 @@ export type LawDTO = {
   description: string;
 };
 
-export enum CrisisVisibleTo {
+export enum SabotageCardVisibleTo {
   ALL = "Todos",
   PRESIDENT = "Presidente",
   RAPPORTEUR = "Relator",
 }
 
-export type CrisisDTO = {
+export type SabotageCardDTO = {
   name: string;
   title: string;
   description: string;
-  visibleTo: CrisisVisibleTo[];
+  visibleTo: SabotageCardVisibleTo[];
   notVisibleTo: string[];
   currentAction: string;
   isComplete: boolean;
@@ -64,10 +64,10 @@ export type PlayerDTO = {
 
 export enum StageType {
   IMPEACHMENT = "IMPEACHMENT",
-  CRISIS = "CRISIS",
+  SABOTAGE_CARD = "SABOTAGE_CARD",
   LEGISLATIVE = "LEGISLATIVE",
-  REPORT_DOSSIER = "REPORT_DOSSIER",
-  SABOTAGE = "SABOTAGE",
+  CPI = "CPI",
+  INTERCEPTION = "INTERCEPTION",
   RADICALIZATION = "RADICALIZATION",
 }
 
@@ -80,9 +80,9 @@ export enum LegislativeAction {
   ADVANCE_STAGE = "ADVANCE_STAGE",
 }
 
-export enum DossierAction {
+export enum CPIAction {
   SELECT_RAPPORTEUR = "SELECT_RAPPORTEUR",
-  PASS_DOSSIER = "PASS_DOSSIER",
+  DELIVER_CPI = "DELIVER_CPI",
   ADVANCE_STAGE = "ADVANCE_STAGE",
 }
 
@@ -124,32 +124,32 @@ export type LegislativeStageDTO = {
   isLawToVoteVisible: boolean;
 };
 
-export type DossierStageDTO = {
-  currentAction: DossierAction;
-  type: StageType.REPORT_DOSSIER;
-  dossier: LawDTO[];
+export type CPIStageDTO = {
+  currentAction: CPIAction;
+  type: StageType.CPI;
+  cpiReport: LawDTO[];
 };
 
-export enum SabotageAction {
-  SABOTAGE_OR_SKIP = "SABOTAGE_OR_SKIP",
-  DRAW_CRISIS = "DRAW_CRISIS",
-  CHOOSE_CRISIS = "CHOOSE_CRISIS",
+export enum InterceptionAction {
+  INTERCEPT_OR_SKIP = "INTERCEPT_OR_SKIP",
+  DRAW_SABOTAGE_CARDS = "DRAW_SABOTAGE_CARDS",
+  CHOOSE_SABOTAGE_CARD = "CHOOSE_SABOTAGE_CARD",
   ADVANCE_STAGE = "ADVANCE_STAGE",
 }
 
-export type SabotageStageDTO = {
-  currentAction: SabotageAction;
-  type: StageType.SABOTAGE;
-  drawnCrises: CrisisDTO[];
-  selectedCrisis: CrisisDTO | null;
+export type InterceptionStageDTO = {
+  currentAction: InterceptionAction;
+  type: StageType.INTERCEPTION;
+  drawnSabotageCards: SabotageCardDTO[];
+  selectedSabotageCard: SabotageCardDTO | null;
 };
 
-export enum CrisisStageAction {
-  START_CRISIS = "START_CRISIS",
+export enum SabotageCardStageAction {
+  APPLY_SABOTAGE_CARD = "APPLY_SABOTAGE_CARD",
   ADVANCE_STAGE = "ADVANCE_STAGE",
 }
 
-export enum CRISIS_NAMES {
+export enum SABOTAGE_CARD_NAMES {
   PLANO_COHEN = "PLANO_COHEN",
   MENSALAO = "MENSALAO",
   CAFE_COM_A_ABIN = "CAFE_COM_A_ABIN",
@@ -183,7 +183,7 @@ export type MensalaoDTO = {
   isComplete: boolean;
   currentAction: MensalaoAction;
   actions: MensalaoAction[];
-  crisis: CRISIS_NAMES.MENSALAO;
+  sabotageCard: SABOTAGE_CARD_NAMES.MENSALAO;
   chosenPlayers: string[];
   mirrorId: string | null;
   maxSelectedPlayers: number;
@@ -194,17 +194,17 @@ export type AutomaticEffectDTO = {
   isComplete: boolean;
   currentAction: string;
   actions: string[];
-  crisis: Exclude<CRISIS_NAMES, CRISIS_NAMES.MENSALAO>;
+  sabotageCard: Exclude<SABOTAGE_CARD_NAMES, SABOTAGE_CARD_NAMES.MENSALAO>;
   timeToAdvance: number;
 };
 
-export type CrisisEffectDTO = MensalaoDTO | AutomaticEffectDTO;
+export type SabotageCardEffectDTO = MensalaoDTO | AutomaticEffectDTO;
 
-export type CrisisStageDTO = {
-  currentAction: CrisisStageAction;
-  type: StageType.CRISIS;
-  crisis: CrisisDTO | null;
-  crisisEffect: CrisisEffectDTO | null;
+export type SabotageCardStageDTO = {
+  currentAction: SabotageCardStageAction;
+  type: StageType.SABOTAGE_CARD;
+  sabotageCard: SabotageCardDTO | null;
+  sabotageCardEffect: SabotageCardEffectDTO | null;
 };
 
 export enum RadicalizationAction {
@@ -236,17 +236,17 @@ export type ImpeachmentStageDTO = {
 
 export type StageDTO =
   | LegislativeStageDTO
-  | DossierStageDTO
-  | SabotageStageDTO
-  | CrisisStageDTO
+  | CPIStageDTO
+  | InterceptionStageDTO
+  | SabotageCardStageDTO
   | RadicalizationStageDTO
   | ImpeachmentStageDTO;
 
 export type RoundDTO = {
   index: number;
   stages: StageDTO[];
-  isDossierFake: boolean;
-  isDossierOmitted: boolean;
+  isObstructed: boolean;
+  isCPIOmitted: boolean;
   isLegislativeVotingSecret: boolean;
   requiredVeto: LawType | null;
   hasImpeachment: boolean;
@@ -262,7 +262,7 @@ export type RoundDTO = {
 export type GameDTO = {
   players: PlayerDTO[];
   lawsDeck: LawDTO[];
-  crisesDeck: CrisisDTO[];
+  sabotageCardsDeck: SabotageCardDTO[];
   president: UserDTO;
   nextPresident: UserDTO;
   winner: Role | null;
@@ -274,15 +274,15 @@ export type GameDTO = {
     | null;
   lawsToProgressiveWin: number;
   lawsToConservativeWin: number;
-  crisesIntervalToImpeach: number;
+  sabotagesIntervalToImpeach: number;
   rounds: RoundDTO[];
   currentRound: RoundDTO;
   progressiveLawsToFear: number;
-  rejectedLawsIntervalToCrisis: number;
+  rejectedLawsIntervalToSabotage: number;
   conservativesImpeachedToRadicalWin: number;
   approvedConservativeLaws: LawDTO[];
   approvedProgressiveLaws: LawDTO[];
-  crisisControlledBy: string | null;
+  sabotageCardControlledBy: string | null;
   presidentQueue: {
     players: string[];
     offset: number;

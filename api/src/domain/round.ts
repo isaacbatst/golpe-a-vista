@@ -1,27 +1,27 @@
-import { CrisisFactory } from 'src/domain/crisis/crisis-factory';
-import { CrisisStageFactory } from 'src/domain/stage/crisis-stage.factory';
-import { DossierStageFactory } from 'src/domain/stage/dossier-stage.factory';
+import { SabotageCardFactory } from 'src/domain/sabotage-card/sabotage-card-factory';
+import { SabotageCardStageFactory } from 'src/domain/stage/sabotage-card-stage.factory';
+import { CPIStageFactory } from 'src/domain/stage/cpi-stage.factory';
 import { ImpeachmentStage } from 'src/domain/stage/impeachment-stage';
 import { ImpeachmentStageFactory } from 'src/domain/stage/impeachment-stage.factory';
 import { LegislativeProposal } from 'src/domain/stage/legislative-proposal';
 import { LegislativeStageFactory } from 'src/domain/stage/legislative-stage.factory';
 import { RadicalizationStageFactory } from 'src/domain/stage/radicalization-stage.factory';
-import { SabotageStageFactory } from 'src/domain/stage/sabotage-stage.factory';
+import { InterceptionStageFactory } from 'src/domain/stage/interception-stage.factory';
 import { Law } from '../data/laws';
-import { Crisis } from './crisis/crisis';
+import { SabotageCard } from './sabotage-card/sabotage-card';
 import { Either, left, right } from './either';
 import { PresidentQueue } from './president-queue';
 import { LawType } from './role';
-import { DossierStage } from './stage/dossier-stage';
+import { CPIStage } from './stage/cpi-stage';
 import { LegislativeStage } from './stage/legislative-stage';
-import { SabotageStage } from './stage/sabotage-stage';
+import { InterceptionStage } from './stage/interception-stage';
 import { Stage } from './stage/stage';
 import { StageQueue } from './stage/stage-queue';
 import { StageFactory, StageJSON } from './stage/stage.factory';
 
 export type RoundParams = {
   index?: number;
-  crisis?: Crisis | null;
+  sabotageCard?: SabotageCard | null;
   rapporteurId?: string | null;
   hasImpeachment?: boolean;
   stages?: Stage[];
@@ -31,8 +31,8 @@ export type RoundParams = {
   previouslyApprovedConservativeLaws?: number;
   previouslyApprovedProgressiveLaws?: number;
   presidentQueue: PresidentQueue;
-  isDossierFake?: boolean;
-  isDossierOmitted?: boolean;
+  isObstructed?: boolean;
+  isCPIOmitted?: boolean;
   isLegislativeVotingSecret?: boolean;
   requiredVeto?: LawType | null;
   stageQueue?: StageQueue;
@@ -45,13 +45,13 @@ export type RoundParams = {
 export class Round {
   public readonly presidentQueue: PresidentQueue;
   public readonly index: number;
-  public isDossierFake: boolean = false;
-  public isDossierOmitted: boolean = false;
+  public isObstructed: boolean = false;
+  public isCPIOmitted: boolean = false;
   public isLegislativeVotingSecret: boolean = false;
   public requiredVeto: LawType | null = null;
   public disablePreviousLaw: LawType | null = null;
 
-  private readonly _crisis: Crisis | null;
+  private readonly _sabotageCard: SabotageCard | null;
   private readonly _rapporteurId: string | null;
   private readonly _hasImpeachment: boolean;
   private readonly _hasLastRoundBeenSabotaged: boolean;
@@ -65,7 +65,7 @@ export class Round {
   private readonly _stageQueue: StageQueue;
   readonly mirroedVotes: Map<string, string>;
   constructor(props: RoundParams) {
-    this._crisis = props.crisis ?? null;
+    this._sabotageCard = props.sabotageCard ?? null;
     this._hasImpeachment = props.hasImpeachment ?? false;
     this._rapporteurId = props.rapporteurId ?? null;
     this._hasLastRoundBeenSabotaged = props.hasLastRoundBeenSabotaged ?? false;
@@ -85,8 +85,8 @@ export class Round {
       props.previouslyImpeachedSomeConservative ?? false;
     this._previouslyImpeachedRadical =
       props.previouslyImpeachedRadical ?? false;
-    this.isDossierFake = props.isDossierFake ?? false;
-    this.isDossierOmitted = props.isDossierOmitted ?? false;
+    this.isObstructed = props.isObstructed ?? false;
+    this.isCPIOmitted = props.isCPIOmitted ?? false;
     this.disablePreviousLaw = props.disablePreviousLaw ?? null;
     this._stages = props.stages ?? [this.createFirstStage()];
   }
@@ -156,18 +156,18 @@ export class Round {
         this._previouslyImpeachedSomeConservative,
         this._previouslyImpeachedRadical,
       ),
-      new CrisisStageFactory(this._crisis, this.index),
+      new SabotageCardStageFactory(this._sabotageCard, this.index),
       new LegislativeStageFactory(
         this.requiredVeto,
         this.isLegislativeVotingSecret,
       ),
-      new DossierStageFactory(
+      new CPIStageFactory(
         this.legislativeProposals,
-        this.isDossierFake,
+        this.isObstructed,
         this.isRapporteurImpeached,
-        this.isDossierOmitted,
+        this.isCPIOmitted,
       ),
-      new SabotageStageFactory(
+      new InterceptionStageFactory(
         this.hasApprovedLaw(LawType.PROGRESSISTAS),
         this._hasLastRoundBeenSabotaged,
       ),
@@ -240,20 +240,20 @@ export class Round {
     );
   }
 
-  get sabotageCrisis(): Crisis | null {
+  get interceptionSabotageCard(): SabotageCard | null {
     const sabotageStage = this._stages.find(
-      (stage): stage is SabotageStage => stage instanceof SabotageStage,
+      (stage): stage is InterceptionStage => stage instanceof InterceptionStage,
     );
 
     if (!sabotageStage) {
       return null;
     }
 
-    return sabotageStage.selectedCrisis;
+    return sabotageStage.selectedSabotageCard;
   }
 
-  get crisis(): Crisis | null {
-    return this._crisis;
+  get sabotageCard(): SabotageCard | null {
+    return this._sabotageCard;
   }
 
   get hasImpeachment(): boolean {
@@ -277,11 +277,11 @@ export class Round {
   }
 
   get nextRapporteur(): string | null {
-    const dossierStage = this._stages.find(
-      (stage): stage is DossierStage => stage instanceof DossierStage,
+    const cpiStage = this._stages.find(
+      (stage): stage is CPIStage => stage instanceof CPIStage,
     );
 
-    return dossierStage?.nextRapporteur ?? null;
+    return cpiStage?.nextRapporteur ?? null;
   }
 
   get rapporteurId(): string | null {
@@ -300,12 +300,12 @@ export class Round {
     return {
       index: this.index,
       stages: this._stages.map((stage) => stage.toJSON() as StageJSON),
-      isDossierFake: this.isDossierFake,
-      isDossierOmitted: this.isDossierOmitted,
+      isObstructed: this.isObstructed,
+      isCPIOmitted: this.isCPIOmitted,
       isLegislativeVotingSecret: this.isLegislativeVotingSecret,
       requiredVeto: this.requiredVeto,
       hasImpeachment: this._hasImpeachment,
-      crisis: this._crisis?.toJSON(),
+      sabotageCard: this._sabotageCard?.toJSON(),
       rapporteur: this._rapporteurId,
       president: this.presidentId,
       nextPresident: this.nextPresidentId,
@@ -336,7 +336,7 @@ export class Round {
     const round = new Round({
       ...json,
       stageQueue: StageQueue.fromJSON(json.stageQueue),
-      crisis: json.crisis ? CrisisFactory.fromJSON(json.crisis) : null,
+      sabotageCard: json.sabotageCard ? SabotageCardFactory.fromJSON(json.sabotageCard) : null,
       presidentQueue,
       mirroedVotes: new Map(json.mirroedVotes),
       rapporteurId: json.rapporteur ?? null,

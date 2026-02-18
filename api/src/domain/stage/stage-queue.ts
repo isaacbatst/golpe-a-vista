@@ -3,10 +3,10 @@ import { Stage } from './stage';
 
 export enum RoundStageIndex {
   IMPEACHMENT = 0,
-  CRISIS = 1,
+  SABOTAGE_CARD = 1,
   LEGISLATIVE = 2,
-  DOSSIER = 3,
-  SABOTAGE = 4,
+  CPI = 3,
+  INTERCEPTION = 4,
   RADICALIZATION = 5,
 }
 

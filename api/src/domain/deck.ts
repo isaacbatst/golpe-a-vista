@@ -3,7 +3,7 @@ import { Random } from './random';
 import { InferSerialized, Serializable } from './serializable';
 
 type Card<T> = Serializable<InferSerialized<T>> & {
-  cardType: 'LAW' | 'CRISIS';
+  cardType: 'LAW' | 'SABOTAGE_CARD';
 };
 
 type DeckJSON<T> = {

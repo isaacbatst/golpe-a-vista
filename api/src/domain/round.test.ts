@@ -1,18 +1,18 @@
-import CRISES from 'src/data/crises';
-import { Crisis } from 'src/domain/crisis/crisis';
+import SABOTAGE_CARDS from 'src/data/sabotage-cards';
+import { SabotageCard } from 'src/domain/sabotage-card/sabotage-card';
 import { StageType } from 'src/domain/stage/stage';
 import { describe, expect, it } from 'vitest';
 import { Law } from '../data/laws';
-import { makeCrisesDeck, makeLawsDeck } from './mock';
+import { makeSabotageCardsDeck, makeLawsDeck } from './mock';
 import { Player } from './player';
 import { PresidentQueue } from './president-queue';
 import { LawType, Role } from './role';
 import { Round } from './round';
-import { CrisisStage } from './stage/crisis-stage';
-import { DossierAction, DossierStage } from './stage/dossier-stage';
+import { SabotageCardStage } from './stage/sabotage-card-stage';
+import { CPIAction, CPIStage } from './stage/cpi-stage';
 import { ImpeachmentAction, ImpeachmentStage } from './stage/impeachment-stage';
 import { LegislativeAction, LegislativeStage } from './stage/legislative-stage';
-import { SabotageAction, SabotageStage } from './stage/sabotage-stage';
+import { InterceptionAction, InterceptionStage } from './stage/interception-stage';
 import { RoundStageIndex, StageQueue } from './stage/stage-queue';
 import { LegislativeProposal } from 'src/domain/stage/legislative-proposal';
 
@@ -88,11 +88,11 @@ describe('Estágios', () => {
           ],
         }),
       ],
-      stageQueue: new StageQueue(RoundStageIndex.DOSSIER),
+      stageQueue: new StageQueue(RoundStageIndex.CPI),
     });
     const [error, stage] = round.nextStage();
     expect(error).toBeUndefined();
-    expect(stage?.type).toBe(StageType.REPORT_DOSSIER);
+    expect(stage?.type).toBe(StageType.CPI);
   });
 
   it('Deve finalizar round após o dossiê', () => {
@@ -102,11 +102,11 @@ describe('Estágios', () => {
     ]);
     const round = new Round({
       presidentQueue,
-      stageQueue: new StageQueue(RoundStageIndex.DOSSIER),
+      stageQueue: new StageQueue(RoundStageIndex.CPI),
       stages: [
-        new DossierStage({
+        new CPIStage({
           proposals: [],
-          currentAction: DossierAction.ADVANCE_STAGE,
+          currentAction: CPIAction.ADVANCE_STAGE,
         }),
       ],
     });
@@ -149,18 +149,18 @@ describe('Estágios', () => {
     expect(legislativeStage.votingResult).toBe(true);
     const round = new Round({
       presidentQueue: new PresidentQueue([president, nextPresident]),
-      stageQueue: new StageQueue(RoundStageIndex.SABOTAGE),
+      stageQueue: new StageQueue(RoundStageIndex.INTERCEPTION),
       stages: [
         legislativeStage,
-        new DossierStage({
+        new CPIStage({
           proposals: [],
-          currentAction: DossierAction.ADVANCE_STAGE,
+          currentAction: CPIAction.ADVANCE_STAGE,
         }),
       ],
     });
     const [error, stage] = round.nextStage();
     expect(error).toBeUndefined();
-    expect(stage?.type).toBe(StageType.SABOTAGE);
+    expect(stage?.type).toBe(StageType.INTERCEPTION);
   });
 
   it('Deve avançar do Dossiê para o estágio de Radicalização se não houver Sabotagem, pelo menos X leis progressistas ou Y leis conservadoras foram ativadas e a rodada atual tiver uma crise', () => {
@@ -172,16 +172,16 @@ describe('Estágios', () => {
       minRadicalizationProgressiveLaws: 2,
       previouslyApprovedConservativeLaws: 2,
       previouslyApprovedProgressiveLaws: 2,
-      crisis: new Crisis(CRISES.PLANO_COHEN),
+      sabotageCard: new SabotageCard(SABOTAGE_CARDS.PLANO_COHEN),
       stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION),
       stages: [
         new LegislativeStage({
           mustVeto: null,
           currentAction: LegislativeAction.ADVANCE_STAGE,
         }),
-        new DossierStage({
+        new CPIStage({
           proposals: [],
-          currentAction: DossierAction.ADVANCE_STAGE,
+          currentAction: CPIAction.ADVANCE_STAGE,
         }),
       ],
     });
@@ -199,8 +199,8 @@ describe('Estágios', () => {
       minRadicalizationProgressiveLaws: 2,
       previouslyApprovedConservativeLaws: 2,
       previouslyApprovedProgressiveLaws: 2,
-      crisis: new Crisis(CRISES.PLANO_COHEN),
-      stages: [new SabotageStage(SabotageAction.ADVANCE_STAGE)],
+      sabotageCard: new SabotageCard(SABOTAGE_CARDS.PLANO_COHEN),
+      stages: [new InterceptionStage(InterceptionAction.ADVANCE_STAGE)],
       stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION),
       hasLastRoundBeenSabotaged: true,
     });
@@ -212,24 +212,24 @@ describe('Estágios', () => {
   it('Deve retornar a crise selecionada na sabotagem', () => {
     const president = new Player('p1', 'p1', Role.MODERADO);
     const nextPresident = new Player('p2', 'p2', Role.MODERADO);
-    const sabotageStage = new SabotageStage();
-    sabotageStage.drawCrises(makeCrisesDeck());
-    sabotageStage.chooseSabotageCrisis(0);
+    const interceptionStage = new InterceptionStage();
+    interceptionStage.drawSabotageCards(makeSabotageCardsDeck());
+    interceptionStage.chooseSabotageCard(0);
     const round = new Round({
       presidentQueue: new PresidentQueue([president, nextPresident]),
-      stages: [sabotageStage],
+      stages: [interceptionStage],
     });
-    expect(round.sabotageCrisis).toBe(sabotageStage.selectedCrisis);
+    expect(round.interceptionSabotageCard).toBe(interceptionStage.selectedSabotageCard);
   });
 
   it('Deve retornar relator da próxima rodada', () => {
     const president = new Player('p1', 'p1', Role.MODERADO);
     const nextPresident = new Player('p2', 'p2', Role.MODERADO);
-    const dossierStage = new DossierStage({
+    const cpiStage = new CPIStage({
       proposals: [],
     });
     const nextRapporteur = new Player('p4', 'p4', Role.MODERADO);
-    dossierStage.chooseNextRapporteur({
+    cpiStage.chooseNextRapporteur({
       chosen: nextRapporteur,
       currentPresident: president,
       nextPresident,
@@ -237,7 +237,7 @@ describe('Estágios', () => {
     });
     const round = new Round({
       presidentQueue: new PresidentQueue([president, nextPresident]),
-      stages: [dossierStage],
+      stages: [cpiStage],
       rapporteurId: 'p3',
     });
     expect(round.nextRapporteur).toBe(nextRapporteur.id);
@@ -252,13 +252,13 @@ describe('Crises', () => {
       const round = new Round({
         index: 1,
         presidentQueue: new PresidentQueue([president, nextPresident]),
-        crisis: new Crisis(CRISES.PLANO_COHEN),
+        sabotageCard: new SabotageCard(SABOTAGE_CARDS.PLANO_COHEN),
       });
 
-      expect(round.currentStage.type).toBe(StageType.CRISIS);
-      const crisisStage = round.currentStage as CrisisStage;
-      crisisStage.startCrisis(round);
-      expect(round.isDossierFake).toBe(true);
+      expect(round.currentStage.type).toBe(StageType.SABOTAGE_CARD);
+      const sabotageCardStage = round.currentStage as SabotageCardStage;
+      sabotageCardStage.applySabotageCard(round);
+      expect(round.isObstructed).toBe(true);
     });
   });
 
@@ -269,20 +269,20 @@ describe('Crises', () => {
       const round = new Round({
         index: 1,
         presidentQueue: new PresidentQueue([president, nextPresident]),
-        crisis: new Crisis(CRISES.CAFE_COM_A_ABIN),
+        sabotageCard: new SabotageCard(SABOTAGE_CARDS.CAFE_COM_A_ABIN),
       });
-      expect(round.currentStage.type).toBe(StageType.CRISIS);
-      const crisisStage = round.currentStage as CrisisStage;
-      crisisStage.startCrisis(round);
-      expect(round.isDossierOmitted).toBe(true);
+      expect(round.currentStage.type).toBe(StageType.SABOTAGE_CARD);
+      const sabotageCardStage = round.currentStage as SabotageCardStage;
+      sabotageCardStage.applySabotageCard(round);
+      expect(round.isCPIOmitted).toBe(true);
     });
   });
 
   describe.each([
-    { name: 'FMI Mandou', factory: () => new Crisis(CRISES.O_FMI_MANDOU) },
+    { name: 'FMI Mandou', factory: () => new SabotageCard(SABOTAGE_CARDS.O_FMI_MANDOU) },
     {
       name: 'Forças Ocultas',
-      factory: () => new Crisis(CRISES.FORCAS_OCULTAS),
+      factory: () => new SabotageCard(SABOTAGE_CARDS.FORCAS_OCULTAS),
     },
   ])('$name', ({ factory }) => {
     it('Deve ser obrigatório vetar uma lei progressista', () => {
@@ -291,11 +291,11 @@ describe('Crises', () => {
       const round = new Round({
         index: 1,
         presidentQueue: new PresidentQueue([president, nextPresident]),
-        crisis: factory(),
+        sabotageCard: factory(),
       });
-      expect(round.currentStage.type).toBe(StageType.CRISIS);
-      const crisisStage = round.currentStage as CrisisStage;
-      crisisStage.startCrisis(round);
+      expect(round.currentStage.type).toBe(StageType.SABOTAGE_CARD);
+      const sabotageCardStage = round.currentStage as SabotageCardStage;
+      sabotageCardStage.applySabotageCard(round);
       expect(round.requiredVeto).toBe(LawType.PROGRESSISTAS);
       const [nextStageError] = round.nextStage();
       expect(nextStageError).toBeUndefined();
@@ -312,11 +312,11 @@ describe('Crises', () => {
       const round = new Round({
         index: 1,
         presidentQueue: new PresidentQueue([president, nextPresident]),
-        crisis: new Crisis(CRISES.SESSAO_SECRETA),
+        sabotageCard: new SabotageCard(SABOTAGE_CARDS.SESSAO_SECRETA),
       });
-      expect(round.currentStage.type).toBe(StageType.CRISIS);
-      const crisisStage = round.currentStage as CrisisStage;
-      crisisStage.startCrisis(round);
+      expect(round.currentStage.type).toBe(StageType.SABOTAGE_CARD);
+      const sabotageCardStage = round.currentStage as SabotageCardStage;
+      sabotageCardStage.applySabotageCard(round);
       expect(round.isLegislativeVotingSecret).toBe(true);
     });
   });

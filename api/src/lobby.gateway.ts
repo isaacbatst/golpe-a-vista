@@ -12,13 +12,13 @@ import { AppService } from './app.service';
 import { LegislativeAction } from './domain/stage/legislative-stage';
 import { StageType } from './domain/stage/stage';
 import { WsExceptionFilter } from './filters/ws-exception.filter';
-import { DossierAction } from 'src/domain/stage/dossier-stage';
-import { SabotageAction } from 'src/domain/stage/sabotage-stage';
-import { CrisisStageAction } from 'src/domain/stage/crisis-stage';
+import { CPIAction } from 'src/domain/stage/cpi-stage';
+import { InterceptionAction } from 'src/domain/stage/interception-stage';
+import { SabotageCardStageAction } from 'src/domain/stage/sabotage-card-stage';
 import { ConfigService } from '@nestjs/config';
 import { RadicalizationAction } from './domain/stage/radicalization-stage';
-import { MensalaoAction } from 'src/domain/crisis/mensalao';
-import { CRISIS_NAMES } from 'src/domain/crisis/crisis-names';
+import { MensalaoAction } from 'src/domain/sabotage-card/mensalao';
+import { SABOTAGE_CARD_NAMES } from 'src/domain/sabotage-card/sabotage-card-names';
 import { ImpeachmentAction } from 'src/domain/stage/impeachment-stage';
 
 @WebSocketGateway({
@@ -260,7 +260,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage(
-    `${StageType.REPORT_DOSSIER}:${DossierAction.SELECT_RAPPORTEUR}`,
+    `${StageType.CPI}:${CPIAction.SELECT_RAPPORTEUR}`,
   )
   async selectRapporteur(
     client: Socket,
@@ -269,7 +269,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!client.request.session.userId) {
       return this.handleSocketError(client, 'Usuário não reconhecido');
     }
-    const [error, lobby] = await this.service.dossierStageSelectRapporteur({
+    const [error, lobby] = await this.service.cpiStageSelectRapporteur({
       issuerId: client.request.session.userId,
       lobbyId: data.lobbyId,
       rapporteurId: data.rapporteurId,
@@ -280,12 +280,12 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(data.lobbyId).emit('lobby:updated', lobby);
   }
 
-  @SubscribeMessage(`${StageType.REPORT_DOSSIER}:${DossierAction.PASS_DOSSIER}`)
-  async passDossier(client: Socket, data: { lobbyId: string }) {
+  @SubscribeMessage(`${StageType.CPI}:${CPIAction.DELIVER_CPI}`)
+  async deliverCPI(client: Socket, data: { lobbyId: string }) {
     if (!client.request.session.userId) {
       return this.handleSocketError(client, 'Usuário não reconhecido');
     }
-    const [error, lobby] = await this.service.dossierStagePassDossier({
+    const [error, lobby] = await this.service.cpiStageDeliverCPI({
       issuerId: client.request.session.userId,
       lobbyId: data.lobbyId,
     });
@@ -296,13 +296,13 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage(
-    `${StageType.REPORT_DOSSIER}:${DossierAction.ADVANCE_STAGE}`,
+    `${StageType.CPI}:${CPIAction.ADVANCE_STAGE}`,
   )
-  async advanceDossierStage(client: Socket, data: { lobbyId: string }) {
+  async advanceCPIStage(client: Socket, data: { lobbyId: string }) {
     if (!client.request.session.userId) {
       return this.handleSocketError(client, 'Usuário não reconhecido');
     }
-    const [error, lobby] = await this.service.dossierStageAdvanceStage({
+    const [error, lobby] = await this.service.cpiStageAdvanceStage({
       issuerId: client.request.session.userId,
       lobbyId: data.lobbyId,
     });
@@ -312,18 +312,18 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(data.lobbyId).emit('lobby:updated', lobby);
   }
 
-  @SubscribeMessage(`${StageType.SABOTAGE}:${SabotageAction.SABOTAGE_OR_SKIP}`)
-  async sabotageOrSkip(
+  @SubscribeMessage(`${StageType.INTERCEPTION}:${InterceptionAction.INTERCEPT_OR_SKIP}`)
+  async interceptOrSkip(
     client: Socket,
-    data: { lobbyId: string; sabotage: boolean },
+    data: { lobbyId: string; intercept: boolean },
   ) {
     if (!client.request.session.userId) {
       return this.handleSocketError(client, 'Usuário não reconhecido');
     }
-    const [error, lobby] = await this.service.sabotageStageSabotageOrSkip({
+    const [error, lobby] = await this.service.interceptionStageInterceptOrSkip({
       issuerId: client.request.session.userId,
       lobbyId: data.lobbyId,
-      sabotage: data.sabotage,
+      intercept: data.intercept,
     });
     if (error) {
       return this.handleSocketError(client, error.message);
@@ -331,12 +331,12 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(data.lobbyId).emit('lobby:updated', lobby);
   }
 
-  @SubscribeMessage(`${StageType.SABOTAGE}:${SabotageAction.ADVANCE_STAGE}`)
-  async advanceSabotageStage(client: Socket, data: { lobbyId: string }) {
+  @SubscribeMessage(`${StageType.INTERCEPTION}:${InterceptionAction.ADVANCE_STAGE}`)
+  async advanceInterceptionStage(client: Socket, data: { lobbyId: string }) {
     if (!client.request.session.userId) {
       return this.handleSocketError(client, 'Usuário não reconhecido');
     }
-    const [error, lobby] = await this.service.sabotageStageAdvanceStage({
+    const [error, lobby] = await this.service.interceptionStageAdvanceStage({
       issuerId: client.request.session.userId,
       lobbyId: data.lobbyId,
     });
@@ -346,12 +346,12 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(data.lobbyId).emit('lobby:updated', lobby);
   }
 
-  @SubscribeMessage(`${StageType.SABOTAGE}:${SabotageAction.DRAW_CRISIS}`)
+  @SubscribeMessage(`${StageType.INTERCEPTION}:${InterceptionAction.DRAW_SABOTAGE_CARDS}`)
   async drawCrises(client: Socket, data: { lobbyId: string }) {
     if (!client.request.session.userId) {
       return this.handleSocketError(client, 'Usuário não reconhecido');
     }
-    const [error, lobby] = await this.service.sabotageDrawCrises({
+    const [error, lobby] = await this.service.interceptionStageDrawCrises({
       lobbyId: data.lobbyId,
       issuerId: client.request.session.userId,
     });
@@ -361,18 +361,18 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(data.lobbyId).emit('lobby:updated', lobby);
   }
 
-  @SubscribeMessage(`${StageType.SABOTAGE}:${SabotageAction.CHOOSE_CRISIS}`)
-  async chooseCrisis(
+  @SubscribeMessage(`${StageType.INTERCEPTION}:${InterceptionAction.CHOOSE_SABOTAGE_CARD}`)
+  async chooseSabotageCard(
     client: Socket,
-    data: { lobbyId: string; crisisIndex: number },
+    data: { lobbyId: string; sabotageCardIndex: number },
   ) {
     if (!client.request.session.userId) {
       return this.handleSocketError(client, 'Usuário não reconhecido');
     }
-    const [error, lobby] = await this.service.sabotageChooseCrisis({
+    const [error, lobby] = await this.service.interceptionStageChooseSabotageCard({
       lobbyId: data.lobbyId,
       issuerId: client.request.session.userId,
-      crisisIndex: data.crisisIndex,
+      sabotageCardIndex: data.sabotageCardIndex,
     });
     if (error) {
       return this.handleSocketError(client, error.message);
@@ -380,12 +380,12 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(data.lobbyId).emit('lobby:updated', lobby);
   }
 
-  @SubscribeMessage(`${StageType.CRISIS}:${CrisisStageAction.START_CRISIS}`)
-  async startCrisis(client: Socket, data: { lobbyId: string }) {
+  @SubscribeMessage(`${StageType.SABOTAGE_CARD}:${SabotageCardStageAction.APPLY_SABOTAGE_CARD}`)
+  async applySabotageCard(client: Socket, data: { lobbyId: string }) {
     if (!client.request.session.userId) {
       return this.handleSocketError(client, 'Usuário não reconhecido');
     }
-    const [error, lobby] = await this.service.crisisStageStartCrisis({
+    const [error, lobby] = await this.service.sabotageCardStageApply({
       lobbyId: data.lobbyId,
       issuerId: client.request.session.userId,
     });
@@ -396,7 +396,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage(
-    `${StageType.CRISIS}:${CRISIS_NAMES.MENSALAO}:${MensalaoAction.CHOOSE_PLAYER}`,
+    `${StageType.SABOTAGE_CARD}:${SABOTAGE_CARD_NAMES.MENSALAO}:${MensalaoAction.CHOOSE_PLAYER}`,
   )
   async mensalaoChoosePlayer(
     client: Socket,
@@ -405,7 +405,7 @@ export class LobbyGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!client.request.session.userId) {
       return this.handleSocketError(client, 'Usuário não reconhecido');
     }
-    const [error, lobby] = await this.service.crisisStageMensalaoChoosePlayers({
+    const [error, lobby] = await this.service.sabotageCardStageMensalaoChoosePlayers({
       lobbyId: data.lobbyId,
       issuerId: client.request.session.userId,
       chosenPlayers: data.players,
