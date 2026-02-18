@@ -1,19 +1,19 @@
-import { CrisisEffectFactory } from 'src/domain/crisis/crisis-effect-factory';
-import { CrisisStage } from './crisis-stage';
-import { DossierStage } from './dossier-stage';
+import { SabotageCardEffectFactory } from 'src/domain/sabotage-card/sabotage-card-effect-factory';
+import { SabotageCardStage } from './sabotage-card-stage';
+import { CPIStage } from './cpi-stage';
 import { ImpeachmentStage } from './impeachment-stage';
 import { LegislativeStage } from './legislative-stage';
 import { RadicalizationStage } from './radicalization-stage';
-import { SabotageStage } from './sabotage-stage';
+import { InterceptionStage } from './interception-stage';
 import { Stage, StageType } from './stage';
 
 type ToJson<T extends { toJSON: any }> = ReturnType<T['toJSON']>;
 export type StageJSON =
-  | ToJson<CrisisStage>
+  | ToJson<SabotageCardStage>
   | ToJson<LegislativeStage>
   | ToJson<ImpeachmentStage>
-  | ToJson<DossierStage>
-  | ToJson<SabotageStage>
+  | ToJson<CPIStage>
+  | ToJson<InterceptionStage>
   | ToJson<RadicalizationStage>;
 
 export abstract class StageFactory {
@@ -22,16 +22,16 @@ export abstract class StageFactory {
 
   static fromJSON(json: StageJSON): Stage {
     switch (json.type) {
-      case StageType.CRISIS:
-        return CrisisStage.fromJSON(json, CrisisEffectFactory);
+      case StageType.SABOTAGE_CARD:
+        return SabotageCardStage.fromJSON(json, SabotageCardEffectFactory);
       case StageType.LEGISLATIVE:
         return LegislativeStage.fromJSON(json);
       case StageType.IMPEACHMENT:
         return ImpeachmentStage.fromJSON(json);
-      case StageType.REPORT_DOSSIER:
-        return DossierStage.fromJSON(json);
-      case StageType.SABOTAGE:
-        return SabotageStage.fromJSON(json);
+      case StageType.CPI:
+        return CPIStage.fromJSON(json);
+      case StageType.INTERCEPTION:
+        return InterceptionStage.fromJSON(json);
       case StageType.RADICALIZATION:
         return RadicalizationStage.fromJSON(json);
     }

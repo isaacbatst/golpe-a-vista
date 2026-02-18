@@ -1,5 +1,5 @@
-import { Crisis } from 'src/domain/crisis/crisis';
-import CRISES from '../data/crises';
+import { SabotageCard } from 'src/domain/sabotage-card/sabotage-card';
+import SABOTAGE_CARDS from '../data/sabotage-cards';
 import { Law } from '../data/laws';
 import { Deck } from './deck';
 import { Player } from './player';
@@ -7,9 +7,9 @@ import { PresidentQueue } from './president-queue';
 import { LawType, Role } from './role';
 import { Round, RoundParams } from './round';
 
-export const makeCrisesDeck = () => {
+export const makeSabotageCardsDeck = () => {
   const [error, deck] = Deck.create(
-    Object.values(CRISES).map(() => new Crisis(CRISES.CAFE_COM_A_ABIN)),
+    Object.values(SABOTAGE_CARDS).map(() => new SabotageCard(SABOTAGE_CARDS.CAFE_COM_A_ABIN)),
   );
   if (!deck) {
     throw new Error(error);

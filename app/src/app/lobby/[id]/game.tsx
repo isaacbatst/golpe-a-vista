@@ -1,9 +1,9 @@
 import DevOptions from "@/app/lobby/[id]/dev-options";
-import CrisisStage from "@/app/lobby/[id]/stages/crisis-stage/crisis-stage";
-import DossierStage from "@/app/lobby/[id]/stages/dossier-stage/dossier-stage";
+import SabotageCardStage from "@/app/lobby/[id]/stages/sabotage-card-stage/sabotage-card-stage";
+import CPIStage from "@/app/lobby/[id]/stages/cpi-stage/cpi-stage";
 import ImpeachmentStage from "@/app/lobby/[id]/stages/impeachment-stage/impeachment-stage";
 import RadicalizationStage from "@/app/lobby/[id]/stages/radicalization-stage/radicalization-stage";
-import SabotageStage from "@/app/lobby/[id]/stages/sabotage-stage/sabotage-stage";
+import InterceptionStage from "@/app/lobby/[id]/stages/interception-stage/interception-stage";
 import { cn } from "@/lib/utils";
 import { Check, Dot, Info } from "lucide-react";
 import { Button } from "../../../components/ui/button";
@@ -28,9 +28,9 @@ type Props = {
 
 const readableStageType: Record<StageType, string> = {
   [StageType.LEGISLATIVE]: "Legislativa",
-  [StageType.REPORT_DOSSIER]: "Relatório do Dossiê",
-  [StageType.SABOTAGE]: "Sabotagem",
-  [StageType.CRISIS]: "Crise",
+  [StageType.CPI]: "CPI",
+  [StageType.INTERCEPTION]: "Interceptação",
+  [StageType.SABOTAGE_CARD]: "Sabotagem",
   [StageType.IMPEACHMENT]: "Impeachment",
   [StageType.RADICALIZATION]: "Radicalização",
 };
@@ -116,20 +116,20 @@ export default function Game({ userId, lobby }: Props) {
                       />
                     )}
                     {lobby.currentGame.currentRound.currentStage.type ===
-                      StageType.REPORT_DOSSIER && (
-                      <DossierStage
+                      StageType.CPI && (
+                      <CPIStage
                         stage={lobby.currentGame.currentRound.currentStage}
                       />
                     )}
                     {lobby.currentGame.currentRound.currentStage.type ===
-                      StageType.SABOTAGE && (
-                      <SabotageStage
+                      StageType.INTERCEPTION && (
+                      <InterceptionStage
                         stage={lobby.currentGame.currentRound.currentStage}
                       />
                     )}
                     {lobby.currentGame.currentRound.currentStage.type ===
-                      StageType.CRISIS && (
-                      <CrisisStage
+                      StageType.SABOTAGE_CARD && (
+                      <SabotageCardStage
                         stage={lobby.currentGame.currentRound.currentStage}
                         roundIndex={lobby.currentGame.currentRound.index}
                       />
