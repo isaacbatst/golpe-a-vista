@@ -32,7 +32,6 @@ describe('Rodadas', () => {
         ['p4', 'p4'],
         ['p5', 'p5'],
         ['p6', 'p6'],
-        ['p7', 'p7'],
       ]),
       crisesDeck,
       lawsDeck,
@@ -52,7 +51,6 @@ describe('Rodadas', () => {
       ['p4', 'p4'],
       ['p5', 'p5'],
       ['p6', 'p6'],
-      ['p7', 'p7'],
     ]);
     const crisesDeck = makeCrisesDeck();
     const lawsDeck = makeLawsDeck();
@@ -86,7 +84,6 @@ describe('Rodadas', () => {
       ['p4', 'p4'],
       ['p5', 'p5'],
       ['p6', 'p6'],
-      ['p7', 'p7'],
     ]);
     const crisesDeck = makeCrisesDeck();
     const lawsDeck = makeLawsDeck();
@@ -126,7 +123,7 @@ describe('Rodadas', () => {
 });
 
 describe('Distribuição de Papéis', () => {
-  it('deve distribuir jogadores aleatóriamente entre 1 radical, 4 moderados e 2 conservadores', () => {
+  it('deve distribuir jogadores aleatóriamente entre 1 radical, 3 moderados e 2 conservadores', () => {
     const crisesDeck = makeCrisesDeck();
     const lawsDeck = makeLawsDeck();
 
@@ -138,7 +135,6 @@ describe('Distribuição de Papéis', () => {
         ['p4', 'p4'],
         ['p5', 'p5'],
         ['p6', 'p6'],
-        ['p7', 'p7'],
       ]),
       crisesDeck,
       lawsDeck,
@@ -147,33 +143,11 @@ describe('Distribuição de Papéis', () => {
     expect(game).toBeDefined();
     expect(game!.players.filter((p) => p.role === Role.RADICAL).length).toBe(1);
     expect(game!.players.filter((p) => p.role === Role.MODERADO).length).toBe(
-      4,
+      3,
     );
     expect(
       game!.players.filter((p) => p.role === Role.CONSERVADOR).length,
     ).toBe(2);
-  });
-
-  it('deve definir um dos conservadores como sabotador', () => {
-    const crisesDeck = makeCrisesDeck();
-    const lawsDeck = makeLawsDeck();
-
-    const [error, game] = Game.create({
-      players: Game.createPlayers([
-        ['p1', 'p1'],
-        ['p2', 'p2'],
-        ['p3', 'p3'],
-        ['p4', 'p4'],
-        ['p5', 'p5'],
-        ['p6', 'p6'],
-        ['p7', 'p7'],
-      ]),
-      crisesDeck,
-      lawsDeck,
-    });
-    expect(error).toBeUndefined();
-    expect(game).toBeDefined();
-    expect(game!.players.filter((p) => p.saboteur).length).toBe(1);
   });
 });
 
@@ -190,7 +164,6 @@ describe('Crises', () => {
         ['p4', 'p4'],
         ['p5', 'p5'],
         ['p6', 'p6'],
-        ['p7', 'p7'],
       ];
       const players = Game.createPlayers(
         playersNames,
@@ -257,7 +230,6 @@ describe('Crises', () => {
         ['p4', 'p4'],
         ['p5', 'p5'],
         ['p6', 'p6'],
-        ['p7', 'p7'],
       ];
       const players = Game.createPlayers(
         playersNames,
@@ -331,7 +303,6 @@ describe('Crises', () => {
           ['p4', 'p4'],
           ['p5', 'p5'],
           ['p6', 'p6'],
-          ['p7', 'p7'],
         ];
         const players = Game.createPlayers(playersNames);
         const legislativeStage = new LegislativeStage();
@@ -368,7 +339,6 @@ describe('Crises', () => {
           ['p4', 'p4'],
           ['p5', 'p5'],
           ['p6', 'p6'],
-          ['p7', 'p7'],
         ]),
         crisesDeck,
         lawsDeck,
@@ -399,7 +369,6 @@ describe('Crises', () => {
       ['p4', 'p4'],
       ['p5', 'p5'],
       ['p6', 'p6'],
-      ['p7', 'p7'],
     ]);
     const rounds = [
       new Round({
@@ -438,7 +407,6 @@ describe('Cassações', () => {
         ['p4', 'p4'],
         ['p5', 'p5'],
         ['p6', 'p6'],
-        ['p7', 'p7'],
       ];
       const players = Game.createPlayers(playersNames);
       const rounds = Array.from({ length: n }, () => {
@@ -482,7 +450,6 @@ describe('Presidência', () => {
         ['p4', 'p4'],
         ['p5', 'p5'],
         ['p6', 'p6'],
-        ['p7', 'p7'],
       ]),
       crisesDeck,
       lawsDeck,
@@ -501,7 +468,6 @@ describe('Presidência', () => {
       ['p4', 'p4'],
       ['p5', 'p5'],
       ['p6', 'p6'],
-      ['p7', 'p7'],
     ]);
     const crisesDeck = makeCrisesDeck();
     const lawsDeck = makeLawsDeck();
@@ -539,7 +505,6 @@ describe('Presidência', () => {
       ['p4', 'p4'],
       ['p5', 'p5'],
       ['p6', 'p6'],
-      ['p7', 'p7'],
     ];
     const players = Game.createPlayers(playersNames);
     players.get('p1')!.impeached = true;
@@ -577,7 +542,6 @@ describe('Presidência', () => {
       ['p4', 'p4'],
       ['p5', 'p5'],
       ['p6', 'p6'],
-      ['p7', 'p7'],
     ];
     const players = Game.createPlayers(playersNames);
     const crisesDeck = makeCrisesDeck();
@@ -618,7 +582,7 @@ describe('Presidência', () => {
 });
 
 describe('Condições de Vitória', () => {
-  it.each([6, 7, 8])(
+  it.each([5, 6, 7])(
     'deve declarar moderados vencedores se aprovar %d leis progressistas',
     (n) => {
       const playersNames: [string, string][] = [
@@ -628,7 +592,6 @@ describe('Condições de Vitória', () => {
         ['p4', 'p4'],
         ['p5', 'p5'],
         ['p6', 'p6'],
-        ['p7', 'p7'],
       ];
       const players = Game.createPlayers(playersNames);
       const lawsDeck = makeLawsDeck('progressive');
@@ -673,7 +636,7 @@ describe('Condições de Vitória', () => {
     },
   );
 
-  it.each([6, 7, 8])(
+  it.each([5, 6, 7])(
     'deve declarar conservador vencedor se aprovar %d leis conservadoras',
     (n) => {
       const playersNames: [string, string][] = [
@@ -683,7 +646,6 @@ describe('Condições de Vitória', () => {
         ['p4', 'p4'],
         ['p5', 'p5'],
         ['p6', 'p6'],
-        ['p7', 'p7'],
       ];
       const players = Game.createPlayers(playersNames);
       const lawsDeck = makeLawsDeck('conservative');
@@ -736,7 +698,6 @@ describe('Condições de Vitória', () => {
       ['p4', 'p4'],
       ['p5', 'p5'],
       ['p6', 'p6'],
-      ['p7', 'p7'],
     ];
     const players = Game.createPlayers(playersNames);
     const lawsDeck = makeLawsDeck('conservative');
@@ -780,7 +741,6 @@ describe('Condições de Vitória', () => {
       ['p4', 'p4'],
       ['p5', 'p5'],
       ['p6', 'p6'],
-      ['p7', 'p7'],
     ];
     const players = Game.createPlayers(playersNames);
     const lawsDeck = makeLawsDeck('conservative');
@@ -816,12 +776,64 @@ describe('Condições de Vitória', () => {
       lawsDeck,
       players,
       conservativesImpeachedToRadicalWin: 2,
+      conservativesImpeachedToModerateWin: 3,
       presidentQueue,
       rounds,
     });
     expect(error).toBeUndefined();
     expect(game).toBeDefined();
     expect(game!.winner).toBe(Role.RADICAL);
+  });
+
+  it('deve declarar moderado vencedor se cassar 2 conservadores', () => {
+    const playersNames: [string, string][] = [
+      ['p1', 'p1'],
+      ['p2', 'p2'],
+      ['p3', 'p3'],
+      ['p4', 'p4'],
+      ['p5', 'p5'],
+      ['p6', 'p6'],
+    ];
+    const players = Game.createPlayers(playersNames);
+    const lawsDeck = makeLawsDeck('conservative');
+    const crisesDeck = makeCrisesDeck();
+    const conservatives = Array.from(players.values()).filter(
+      (p) => p.role === Role.CONSERVADOR,
+    );
+    const accuser = Array.from(players.values()).find(
+      (p) => p.role !== Role.CONSERVADOR,
+    )!;
+    const presidentQueue = new PresidentQueue(
+      Array.from(players.values()).map((p) => p.id),
+    );
+
+    const stages = conservatives.map((target) => {
+      const impeachmentStage = new ImpeachmentStage(accuser.id);
+      impeachmentStage.chooseTarget(target.id, target.role);
+      impeachmentStage.startVoting(playersNames.map(([id]) => id));
+      for (const player of players) {
+        impeachmentStage.vote(player[0], true, target);
+      }
+      return impeachmentStage;
+    });
+
+    const rounds = [
+      new Round({
+        presidentQueue,
+        stages,
+      }),
+    ];
+    const [error, game] = Game.create({
+      crisesDeck,
+      lawsDeck,
+      players,
+      conservativesImpeachedToModerateWin: 2,
+      presidentQueue,
+      rounds,
+    });
+    expect(error).toBeUndefined();
+    expect(game).toBeDefined();
+    expect(game!.winner).toBe(Role.MODERADO);
   });
 
   it('deve desconsiderar leis aprovadas, que na rodada seguinte foram desabilitadas', () => {
@@ -832,7 +844,6 @@ describe('Condições de Vitória', () => {
       ['p4', 'p4'],
       ['p5', 'p5'],
       ['p6', 'p6'],
-      ['p7', 'p7'],
     ];
     const players = Game.createPlayers(playersNames);
     const lawsDeck = makeLawsDeck('progressive');

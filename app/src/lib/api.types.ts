@@ -46,7 +46,6 @@ export type PlayerDTO = {
   role: Role;
   impeached: boolean;
   radicalized: boolean;
-  saboteur: boolean;
   isPresident: boolean;
   isRapporteur: boolean;
   isNextPresident: boolean;

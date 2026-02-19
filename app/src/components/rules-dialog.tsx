@@ -162,8 +162,8 @@ const roles = {
       <div className="space-y-8">
         <RoleObjectives
           objectives={[
-            "Aprovar 6 leis progressistas",
-            "Cassar todos os conservadores",
+            "Aprovar 5 leis progressistas",
+            "Cassar 2 conservadores",
           ]}
           color="from-yellow-400 to-yellow-500"
         />
@@ -261,7 +261,7 @@ const roles = {
     description: (
       <div className="space-y-8">
         <RoleObjectives
-          objectives={["Cassar o radical", "Aprovar 7 leis conservadoras"]}
+          objectives={["Cassar o radical", "Aprovar 5 leis conservadoras"]}
           color="from-blue-400 to-blue-500"
         />
         <RolePowers
@@ -406,16 +406,13 @@ export function RulesDialog({ onOpenChange, open, role }: Props) {
                     description={
                       <div>
                         <p>
-                          Para 7-10 jogadores, os papéis são distribuídos da
+                          Para 6 jogadores, os papéis são distribuídos da
                           seguinte forma:
                         </p>
                         <ul className="list-disc list-inside mt-2">
                           <li>1 Radical</li>
-                          <li>
-                            2-3 Conservadores (dependendo do número de
-                            jogadores)
-                          </li>
-                          <li>Restante como Moderados</li>
+                          <li>2 Conservadores</li>
+                          <li>3 Moderados</li>
                         </ul>
                       </div>
                     }

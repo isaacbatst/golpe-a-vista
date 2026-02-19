@@ -45,7 +45,7 @@ const Lobby = ({ lobby, userId }: Props) => {
         </CardHeader>
         <CardContent className="flex flex-col">
           <ul className="space-y-2">
-            {[...Array(7)].map((_, index) => {
+            {[...Array(6)].map((_, index) => {
               const player = lobby.users[index];
               const isMe = player?.id === myPlayer?.id;
               const canKick = myPlayer?.isHost && !isMe;
@@ -104,7 +104,7 @@ const Lobby = ({ lobby, userId }: Props) => {
           {myPlayer?.isHost ? (
             <Button
               className="mt-4"
-              disabled={lobby.users.length < 7}
+              disabled={lobby.users.length < 6}
               onClick={() => {
                 startGame();
               }}

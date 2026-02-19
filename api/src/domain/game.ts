@@ -23,6 +23,7 @@ type GameParams = {
   rejectedLawsIntervalToCrisis?: number;
   presidentQueue?: PresidentQueue;
   conservativesImpeachedToRadicalWin?: number;
+  conservativesImpeachedToModerateWin?: number;
   minRadicalizationConservativesLaws?: number;
   minRadicalizationProgressiveLaws?: number;
 };
@@ -34,48 +35,23 @@ export class Game {
   ): Map<string, Player> {
     const rolesToDistribute = [...roles];
 
-    let alreadyHasSaboteur = false;
-
     return new Map(
       players.map(([id, name]) => {
         const role = Random.extractFromArray(rolesToDistribute);
-        const areThereConservativesRemaining = rolesToDistribute.includes(
-          Role.CONSERVADOR,
-        );
-        let isSaboteur = false;
-        if (
-          role === Role.CONSERVADOR &&
-          !alreadyHasSaboteur &&
-          areThereConservativesRemaining
-        ) {
-          isSaboteur = Random.boolean();
-          alreadyHasSaboteur = isSaboteur;
-        }
-
-        if (
-          role === Role.CONSERVADOR &&
-          !alreadyHasSaboteur &&
-          !areThereConservativesRemaining
-        ) {
-          isSaboteur = true;
-          alreadyHasSaboteur = true;
-        }
-
-        return [id, new Player(id, name, role, false, false, isSaboteur)];
+        return [id, new Player(id, name, role)];
       }),
     );
   }
 
   static rolesByPlayersLength(length: number) {
     const map: Record<number, Role[]> = {
-      7: [
+      6: [
         Role.RADICAL,
         Role.MODERADO,
         Role.MODERADO,
         Role.MODERADO,
         Role.CONSERVADOR,
         Role.CONSERVADOR,
-        Role.MODERADO,
       ],
     };
 
@@ -97,6 +73,7 @@ export class Game {
   private _progressiveLawsToFear: number;
   private _rejectedLawsIntervalToCrisis: number;
   private _conservativesImpeachedToRadicalWin: number;
+  private _conservativesImpeachedToModerateWin: number;
   private _minRadicalizationConservativesLaws: number;
   private _minRadicalizationProgressiveLaws: number;
 
@@ -105,12 +82,13 @@ export class Game {
       players,
       lawsDeck,
       crisesDeck,
-      lawsToProgressiveWin = 6,
-      lawsToConservativeWin = 7,
+      lawsToProgressiveWin = 5,
+      lawsToConservativeWin = 5,
       crisesIntervalToImpeach = 3,
       minProgressiveLawsToFearCrisis = 2,
       rejectedLawsIntervalToCrisis = 2,
       conservativesImpeachedToRadicalWin = 2,
+      conservativesImpeachedToModerateWin = 2,
       minRadicalizationConservativesLaws = 4,
       minRadicalizationProgressiveLaws = 4,
     } = props;
@@ -126,6 +104,7 @@ export class Game {
         minProgressiveLawsToFearCrisis,
         rejectedLawsIntervalToCrisis,
         conservativesImpeachedToRadicalWin,
+        conservativesImpeachedToModerateWin,
         minRadicalizationConservativesLaws,
         minRadicalizationProgressiveLaws,
         props.presidentQueue,
@@ -144,6 +123,7 @@ export class Game {
     progressiveLawsIntervalToCrisis: number,
     rejectedLawsIntervalToCrisis: number,
     conservativesImpeachedToRadicalWin: number,
+    conservativesImpeachedToModerateWin: number,
     minRadicalizationConservativesLaws: number,
     minRadicalizationProgressiveLaws: number,
     presidentQueue?: PresidentQueue,
@@ -167,6 +147,8 @@ export class Game {
     this._minRadicalizationProgressiveLaws = minRadicalizationProgressiveLaws;
     this._conservativesImpeachedToRadicalWin =
       conservativesImpeachedToRadicalWin;
+    this._conservativesImpeachedToModerateWin =
+      conservativesImpeachedToModerateWin;
     this._rounds = rounds ?? [
       new Round({
         index: 0,
@@ -298,6 +280,13 @@ export class Game {
           this.approvedLaws.filter((law) => law.type === LawType.PROGRESSISTAS)
             .length >= this._lawsToProgressiveWin,
         message: `Aprovar ${this._lawsToProgressiveWin} leis progressistas`,
+      },
+      {
+        isFulfilled:
+          Array.from(this._players.values()).filter(
+            (player) => player.role === Role.CONSERVADOR && player.impeached,
+          ).length >= this._conservativesImpeachedToModerateWin,
+        message: `Cassar ${this._conservativesImpeachedToModerateWin} conservadores`,
       },
     ];
     return conditions;
@@ -474,11 +463,11 @@ export class Game {
       }
 
       if (controller === CrisisControlledBy.SABOTEUR) {
-        const saboteur = Array.from(this._players.values()).find(
-          (player) => player.saboteur && !player.impeached,
+        const conservative = Array.from(this._players.values()).find(
+          (player) => player.role === Role.CONSERVADOR && !player.impeached,
         );
-        if (saboteur) {
-          return saboteur.id;
+        if (conservative) {
+          return conservative.id;
         }
       }
 
@@ -556,6 +545,8 @@ export class Game {
       rejectedLawsIntervalToCrisis: this._rejectedLawsIntervalToCrisis,
       conservativesImpeachedToRadicalWin:
         this._conservativesImpeachedToRadicalWin,
+      conservativesImpeachedToModerateWin:
+        this._conservativesImpeachedToModerateWin,
     };
   }
 

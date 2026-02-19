@@ -86,7 +86,7 @@ const PlayersGrid = ({ me, players, users, showRoles = false }: Props) => {
                   )}
                 >
                   {canSeePlayerRole
-                    ? player.role.concat(player.saboteur ? " (Golpista)" : "")
+                    ? player.role
                     : "Desconhecido"}
                 </span>
               }
