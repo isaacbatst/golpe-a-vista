@@ -1,8 +1,8 @@
-import { CrisisControlledBy } from 'src/domain/crisis/crisis-controlled-by';
-import { CrisisFactory } from 'src/domain/crisis/crisis-factory';
-import { DossierStage } from 'src/domain/stage/dossier-stage';
+import { SabotageCardControlledBy } from 'src/domain/sabotage-card/sabotage-card-controlled-by';
+import { SabotageCardFactory } from 'src/domain/sabotage-card/sabotage-card-factory';
+import { CPIStage } from 'src/domain/stage/cpi-stage';
 import { Law } from '../data/laws';
-import { Crisis } from './crisis/crisis';
+import { SabotageCard } from './sabotage-card/sabotage-card';
 import { Deck } from './deck';
 import { Either, left, right } from './either';
 import { Player } from './player';
@@ -15,12 +15,12 @@ type GameParams = {
   players: Map<string, Player>;
   lawsToProgressiveWin?: number;
   lawsToConservativeWin?: number;
-  crisesIntervalToImpeach?: number;
-  crisesDeck: Deck<Crisis>;
+  sabotagesIntervalToImpeach?: number;
+  sabotageCardsDeck: Deck<SabotageCard>;
   lawsDeck: Deck<Law>;
-  minProgressiveLawsToFearCrisis?: number;
+  minProgressiveLawsToFearSabotage?: number;
   rounds?: Round[];
-  rejectedLawsIntervalToCrisis?: number;
+  rejectedLawsIntervalToSabotage?: number;
   presidentQueue?: PresidentQueue;
   conservativesImpeachedToRadicalWin?: number;
   conservativesImpeachedToModerateWin?: number;
@@ -66,12 +66,12 @@ export class Game {
   private _lawsDeck: Deck<Law>;
   private _lawsToProgressiveWin: number;
   private _lawsToConservativeWin: number;
-  private _crisesIntervalToImpeach: number;
+  private _sabotagesIntervalToImpeach: number;
   private _presidentQueue: PresidentQueue;
   private _rounds: Round[];
-  private _crisesDeck: Deck<Crisis>;
+  private _sabotageCardsDeck: Deck<SabotageCard>;
   private _progressiveLawsToFear: number;
-  private _rejectedLawsIntervalToCrisis: number;
+  private _rejectedLawsIntervalToSabotage: number;
   private _conservativesImpeachedToRadicalWin: number;
   private _conservativesImpeachedToModerateWin: number;
   private _minRadicalizationConservativesLaws: number;
@@ -81,12 +81,12 @@ export class Game {
     const {
       players,
       lawsDeck,
-      crisesDeck,
+      sabotageCardsDeck,
       lawsToProgressiveWin = 5,
       lawsToConservativeWin = 5,
-      crisesIntervalToImpeach = 3,
-      minProgressiveLawsToFearCrisis = 2,
-      rejectedLawsIntervalToCrisis = 2,
+      sabotagesIntervalToImpeach = 3,
+      minProgressiveLawsToFearSabotage = 2,
+      rejectedLawsIntervalToSabotage = 2,
       conservativesImpeachedToRadicalWin = 2,
       conservativesImpeachedToModerateWin = 2,
       minRadicalizationConservativesLaws = 4,
@@ -99,10 +99,10 @@ export class Game {
         lawsDeck,
         lawsToProgressiveWin,
         lawsToConservativeWin,
-        crisesDeck,
-        crisesIntervalToImpeach,
-        minProgressiveLawsToFearCrisis,
-        rejectedLawsIntervalToCrisis,
+        sabotageCardsDeck,
+        sabotagesIntervalToImpeach,
+        minProgressiveLawsToFearSabotage,
+        rejectedLawsIntervalToSabotage,
         conservativesImpeachedToRadicalWin,
         conservativesImpeachedToModerateWin,
         minRadicalizationConservativesLaws,
@@ -118,10 +118,10 @@ export class Game {
     lawsDeck: Deck<Law>,
     lawsToProgressiveWin: number,
     lawsToConservativeWin: number,
-    crisesDeck: Deck<Crisis>,
-    crisesIntervalToImpeach: number,
-    progressiveLawsIntervalToCrisis: number,
-    rejectedLawsIntervalToCrisis: number,
+    sabotageCardsDeck: Deck<SabotageCard>,
+    sabotagesIntervalToImpeach: number,
+    progressiveLawsIntervalToSabotage: number,
+    rejectedLawsIntervalToSabotage: number,
     conservativesImpeachedToRadicalWin: number,
     conservativesImpeachedToModerateWin: number,
     minRadicalizationConservativesLaws: number,
@@ -133,15 +133,15 @@ export class Game {
     this._lawsDeck = lawsDeck;
     this._lawsToProgressiveWin = lawsToProgressiveWin;
     this._lawsToConservativeWin = lawsToConservativeWin;
-    this._crisesIntervalToImpeach = crisesIntervalToImpeach;
+    this._sabotagesIntervalToImpeach = sabotagesIntervalToImpeach;
     this._presidentQueue =
       presidentQueue ??
       new PresidentQueue(
         Random.sort(Array.from(players.values()).map((p) => p.id)),
       );
-    this._crisesDeck = crisesDeck;
-    this._progressiveLawsToFear = progressiveLawsIntervalToCrisis;
-    this._rejectedLawsIntervalToCrisis = rejectedLawsIntervalToCrisis;
+    this._sabotageCardsDeck = sabotageCardsDeck;
+    this._progressiveLawsToFear = progressiveLawsIntervalToSabotage;
+    this._rejectedLawsIntervalToSabotage = rejectedLawsIntervalToSabotage;
     this._minRadicalizationConservativesLaws =
       minRadicalizationConservativesLaws;
     this._minRadicalizationProgressiveLaws = minRadicalizationProgressiveLaws;
@@ -187,13 +187,13 @@ export class Game {
     const round = new Round({
       presidentQueue: this._presidentQueue,
       index: this._rounds.length,
-      crisis: this.nextRoundCrisis,
+      sabotageCard: this.nextRoundSabotageCard,
       hasImpeachment: this.nextRoundShouldImpeach,
       rapporteurId: this.currentRound.nextRapporteur,
       minRadicalizationConservativeLaws:
         this._minRadicalizationConservativesLaws,
       minRadicalizationProgressiveLaws: this._minRadicalizationProgressiveLaws,
-      hasLastRoundBeenSabotaged: Boolean(this.currentRound.sabotageCrisis),
+      hasLastRoundBeenSabotaged: Boolean(this.currentRound.interceptionSabotageCard),
       previouslyImpeachedRadical: this.players.some(
         (player) => player.role === Role.RADICAL && player.impeached,
       ),
@@ -220,8 +220,8 @@ export class Game {
     return this._players.get(id);
   }
 
-  get crisesDeck() {
-    return this._crisesDeck;
+  get sabotageCardsDeck() {
+    return this._sabotageCardsDeck;
   }
 
   get lawsDeck() {
@@ -229,35 +229,35 @@ export class Game {
   }
 
   get nextRoundShouldImpeach() {
-    const crisesCount = this._rounds.filter((round) => round.crisis).length;
-    if (crisesCount > 0 && crisesCount % this._crisesIntervalToImpeach === 0) {
+    const sabotageCardsCount = this._rounds.filter((round) => round.sabotageCard).length;
+    if (sabotageCardsCount > 0 && sabotageCardsCount % this._sabotagesIntervalToImpeach === 0) {
       return true;
     }
   }
 
-  get nextRoundCrisis() {
-    if (this.currentRound.sabotageCrisis) {
-      return this.currentRound.sabotageCrisis;
+  get nextRoundSabotageCard() {
+    if (this.currentRound.interceptionSabotageCard) {
+      return this.currentRound.interceptionSabotageCard;
     }
 
     if (
-      this.nextShouldHaveCrisisPerRejectedLaws ||
-      this.nextShouldHaveCrisisPerModerateFear
+      this.nextShouldHaveSabotagePerRejectedLaws ||
+      this.nextShouldHaveSabotagePerModerateFear
     ) {
-      return this._crisesDeck.draw(1)[0];
+      return this._sabotageCardsDeck.draw(1)[0];
     }
 
     return null;
   }
 
-  get nextShouldHaveCrisisPerRejectedLaws() {
+  get nextShouldHaveSabotagePerRejectedLaws() {
     return (
       this.rejectedLaws > 0 &&
-      this.rejectedLaws % this._rejectedLawsIntervalToCrisis === 0
+      this.rejectedLaws % this._rejectedLawsIntervalToSabotage === 0
     );
   }
 
-  get nextShouldHaveCrisisPerModerateFear() {
+  get nextShouldHaveSabotagePerModerateFear() {
     const lastRounds = this._rounds.slice(-this._progressiveLawsToFear);
     const lastRoundsApprovedProgressiveLaws = lastRounds.every((round) =>
       round.hasApprovedLaw(LawType.PROGRESSISTAS),
@@ -434,35 +434,35 @@ export class Game {
     return this.players.filter((player) => !player.impeached);
   }
 
-  get crisesIntervalToImpeach() {
-    return this._crisesIntervalToImpeach;
+  get sabotagesIntervalToImpeach() {
+    return this._sabotagesIntervalToImpeach;
   }
 
   get presidentQueue() {
     return this._presidentQueue;
   }
 
-  get crisisControlledBy(): string | null {
-    if (!this.currentRound.crisis) {
+  get sabotageCardControlledBy(): string | null {
+    if (!this.currentRound.sabotageCard) {
       return null;
     }
-    if (this.currentRound.crisis.controlledBy.length === 0) {
+    if (this.currentRound.sabotageCard.controlledBy.length === 0) {
       return this.presidentId;
     }
 
-    for (const controller of this.currentRound.crisis.controlledBy) {
-      if (controller === CrisisControlledBy.PRESIDENT) {
+    for (const controller of this.currentRound.sabotageCard.controlledBy) {
+      if (controller === SabotageCardControlledBy.PRESIDENT) {
         return this.presidentId;
       }
 
       if (
-        controller === CrisisControlledBy.RAPPORTEUR &&
+        controller === SabotageCardControlledBy.RAPPORTEUR &&
         this.currentRound.rapporteurId
       ) {
         return this.currentRound.rapporteurId;
       }
 
-      if (controller === CrisisControlledBy.SABOTEUR) {
+      if (controller === SabotageCardControlledBy.SABOTEUR) {
         const conservative = Array.from(this._players.values()).find(
           (player) => player.role === Role.CONSERVADOR && !player.impeached,
         );
@@ -471,7 +471,7 @@ export class Game {
         }
       }
 
-      if (controller === CrisisControlledBy.CONSERVATIVE) {
+      if (controller === SabotageCardControlledBy.CONSERVATIVE) {
         const conservative = Array.from(this._players.values()).find(
           (player) => player.role === Role.CONSERVADOR && !player.impeached,
         );
@@ -498,7 +498,7 @@ export class Game {
     return {
       players: Array.from(this._players.entries()).map(([id, player]) => {
         const [canBeRapporteurError, canBeRapporteur] =
-          DossierStage.canBeNextRapporteur({
+          CPIStage.canBeNextRapporteur({
             chosen: player,
             currentPresident: this.presidentId,
             currentRapporteur: this.rapporteur,
@@ -521,7 +521,7 @@ export class Game {
       rounds: this._rounds.map((round) => round.toJSON()),
       presidentQueue: this._presidentQueue.toJSON(),
       lawsDeck: this._lawsDeck.toJSON(),
-      crisesDeck: this._crisesDeck.toJSON(),
+      sabotageCardsDeck: this._sabotageCardsDeck.toJSON(),
       president: this.president,
       nextPresident: this.nextPresident,
       rapporteur: this.rapporteur,
@@ -537,12 +537,12 @@ export class Game {
       approvedProgressiveLaws: approvedLaws.filter(
         (law) => law.type === LawType.PROGRESSISTAS,
       ),
-      crisesIntervalToImpeach: this._crisesIntervalToImpeach,
+      sabotagesIntervalToImpeach: this._sabotagesIntervalToImpeach,
       currentRound: this.currentRound,
-      crisisControlledBy: this.crisisControlledBy,
+      sabotageCardControlledBy: this.sabotageCardControlledBy,
       winnerWinConditions: this.winnerWinConditions,
       progressiveLawsToFear: this._progressiveLawsToFear,
-      rejectedLawsIntervalToCrisis: this._rejectedLawsIntervalToCrisis,
+      rejectedLawsIntervalToSabotage: this._rejectedLawsIntervalToSabotage,
       conservativesImpeachedToRadicalWin:
         this._conservativesImpeachedToRadicalWin,
       conservativesImpeachedToModerateWin:
@@ -555,7 +555,7 @@ export class Game {
       json.players.map((player) => [player.id, Player.fromJSON(player)]),
     );
 
-    const crisesDeck = Deck.fromJSON(json.crisesDeck, CrisisFactory);
+    const sabotageCardsDeck = Deck.fromJSON(json.sabotageCardsDeck, SabotageCardFactory);
     const lawsDeck = Deck.fromJSON(json.lawsDeck, Law);
     const presidentQueue = PresidentQueue.fromJSON({
       offset: json.presidentQueue.offset,
@@ -565,7 +565,7 @@ export class Game {
     const [, game] = Game.create({
       ...json,
       players,
-      crisesDeck,
+      sabotageCardsDeck,
       lawsDeck,
       presidentQueue,
       rounds: json.rounds.map((round) => Round.fromJSON(round, presidentQueue)),

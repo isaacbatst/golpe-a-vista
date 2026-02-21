@@ -1,0 +1,6 @@
+export enum SabotageCardControlledBy {
+  PRESIDENT = 'PRESIDENT',
+  SABOTEUR = 'SABOTEUR',
+  CONSERVATIVE = 'CONSERVATIVE',
+  RAPPORTEUR = 'RAPPORTEUR',
+}

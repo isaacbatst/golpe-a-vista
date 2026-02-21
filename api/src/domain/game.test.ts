@@ -1,20 +1,20 @@
-import CRISES from 'src/data/crises';
-import { Crisis } from 'src/domain/crisis/crisis';
+import SABOTAGE_CARDS from 'src/data/sabotage-cards';
+import { SabotageCard } from 'src/domain/sabotage-card/sabotage-card';
 import { StageType } from 'src/domain/stage/stage';
 import { describe, expect, it } from 'vitest';
 import { Game } from './game';
-import { makeCrisesDeck, makeLawsDeck } from './mock';
+import { makeSabotageCardsDeck, makeLawsDeck } from './mock';
 import { PresidentQueue } from './president-queue';
 import { LawType, Role } from './role';
 import { Round } from './round';
-import { DossierStage } from './stage/dossier-stage';
+import { CPIStage } from './stage/cpi-stage';
 import { ImpeachmentStage } from './stage/impeachment-stage';
 import { LegislativeAction, LegislativeStage } from './stage/legislative-stage';
 import {
   RadicalizationAction,
   RadicalizationStage,
 } from './stage/radicalization-stage';
-import { SabotageStage } from './stage/sabotage-stage';
+import { InterceptionStage } from './stage/interception-stage';
 import { RoundStageIndex, StageQueue } from './stage/stage-queue';
 import { LegislativeProposal } from 'src/domain/stage/legislative-proposal';
 import { Law } from 'src/data/laws';
@@ -22,7 +22,7 @@ import { Voting } from 'src/domain/voting';
 
 describe('Rodadas', () => {
   it('não deve finalizar rodada se ainda houver estágios a serem jogados', () => {
-    const crisesDeck = makeCrisesDeck();
+    const sabotageCardsDeck = makeSabotageCardsDeck();
     const lawsDeck = makeLawsDeck();
     const [error, game] = Game.create({
       players: Game.createPlayers([
@@ -33,7 +33,7 @@ describe('Rodadas', () => {
         ['p5', 'p5'],
         ['p6', 'p6'],
       ]),
-      crisesDeck,
+      sabotageCardsDeck,
       lawsDeck,
     });
     expect(error).toBeUndefined();
@@ -52,14 +52,14 @@ describe('Rodadas', () => {
       ['p5', 'p5'],
       ['p6', 'p6'],
     ]);
-    const crisesDeck = makeCrisesDeck();
+    const sabotageCardsDeck = makeSabotageCardsDeck();
     const lawsDeck = makeLawsDeck();
     const presidentQueue = new PresidentQueue(
       Array.from(players.values()).map((p) => p.id),
     );
     const [error, game] = Game.create({
       players,
-      crisesDeck,
+      sabotageCardsDeck,
       lawsDeck,
       presidentQueue,
       rounds: [
@@ -85,12 +85,12 @@ describe('Rodadas', () => {
       ['p5', 'p5'],
       ['p6', 'p6'],
     ]);
-    const crisesDeck = makeCrisesDeck();
+    const sabotageCardsDeck = makeSabotageCardsDeck();
     const lawsDeck = makeLawsDeck();
-    const dossierStage = new DossierStage({
+    const cpiStage = new CPIStage({
       proposals: [],
     });
-    const [chooseNextRapporteurError] = dossierStage.chooseNextRapporteur({
+    const [chooseNextRapporteurError] = cpiStage.chooseNextRapporteur({
       chosen: players.get('p3')!,
       currentPresident: players.get('p1')!.id,
       nextPresident: players.get('p2')!,
@@ -102,14 +102,14 @@ describe('Rodadas', () => {
     );
     const [error, game] = Game.create({
       players,
-      crisesDeck,
+      sabotageCardsDeck,
       lawsDeck,
       presidentQueue,
       rounds: [
         new Round({
           presidentQueue,
-          stageQueue: new StageQueue(RoundStageIndex.DOSSIER),
-          stages: [dossierStage],
+          stageQueue: new StageQueue(RoundStageIndex.CPI),
+          stages: [cpiStage],
         }),
       ],
     });
@@ -124,7 +124,7 @@ describe('Rodadas', () => {
 
 describe('Distribuição de Papéis', () => {
   it('deve distribuir jogadores aleatóriamente entre 1 radical, 3 moderados e 2 conservadores', () => {
-    const crisesDeck = makeCrisesDeck();
+    const sabotageCardsDeck = makeSabotageCardsDeck();
     const lawsDeck = makeLawsDeck();
 
     const [error, game] = Game.create({
@@ -136,7 +136,7 @@ describe('Distribuição de Papéis', () => {
         ['p5', 'p5'],
         ['p6', 'p6'],
       ]),
-      crisesDeck,
+      sabotageCardsDeck,
       lawsDeck,
     });
     expect(error).toBeUndefined();
@@ -155,7 +155,7 @@ describe('Crises', () => {
   it.each([2, 3, 4])(
     'deve iniciar rodada com crise por Receio ao moderado aprovar %dª lei progressita consecutiva',
     (n) => {
-      const crisesDeck = makeCrisesDeck();
+      const sabotageCardsDeck = makeSabotageCardsDeck();
       const lawsDeck = makeLawsDeck('progressive');
       const playersNames: [string, string][] = [
         ['p1', 'p1'],
@@ -205,23 +205,23 @@ describe('Crises', () => {
 
       const [error, game] = Game.create({
         players,
-        crisesDeck,
+        sabotageCardsDeck,
         lawsDeck,
-        minProgressiveLawsToFearCrisis: n,
+        minProgressiveLawsToFearSabotage: n,
         rounds,
       });
       expect(error).toBeUndefined();
       expect(game).toBeDefined();
       const [errorNextRound] = game!.nextRound();
       expect(errorNextRound).toBeUndefined();
-      expect(game!.currentRound.crisis).not.toBeNull();
+      expect(game!.currentRound.sabotageCard).not.toBeNull();
     },
   );
 
   it.each([2, 3, 4])(
     'não deve iniciar rodada com crise por Receio ao moderado aprovar %dª lei progressita consecutiva se moderado estiver radicalizado',
     (n) => {
-      const crisesDeck = makeCrisesDeck();
+      const sabotageCardsDeck = makeSabotageCardsDeck();
       const lawsDeck = makeLawsDeck('progressive');
       const playersNames: [string, string][] = [
         ['p1', 'p1'],
@@ -276,23 +276,23 @@ describe('Crises', () => {
 
       const [error, game] = Game.create({
         players,
-        crisesDeck,
+        sabotageCardsDeck,
         lawsDeck,
-        minProgressiveLawsToFearCrisis: n,
+        minProgressiveLawsToFearSabotage: n,
         rounds,
       });
       expect(error).toBeUndefined();
       expect(game).toBeDefined();
       const [errorNextRound] = game!.nextRound();
       expect(errorNextRound).toBeUndefined();
-      expect(game!.currentRound.crisis).toBeNull();
+      expect(game!.currentRound.sabotageCard).toBeNull();
     },
   );
 
   it.each([2, 3, 4])(
     'deve iniciar rodada com crise a cada %d leis rejeitadas',
     (n: number) => {
-      const crisesDeck = makeCrisesDeck();
+      const sabotageCardsDeck = makeSabotageCardsDeck();
       const lawsDeck = makeLawsDeck('progressive');
 
       const rounds = Array.from({ length: n }, (_, i) => {
@@ -340,10 +340,10 @@ describe('Crises', () => {
           ['p5', 'p5'],
           ['p6', 'p6'],
         ]),
-        crisesDeck,
+        sabotageCardsDeck,
         lawsDeck,
         rounds,
-        rejectedLawsIntervalToCrisis: n,
+        rejectedLawsIntervalToSabotage: n,
       });
       expect(error).toBeUndefined();
       expect(game).toBeDefined();
@@ -351,17 +351,17 @@ describe('Crises', () => {
       const [errorNextRound] = game!.nextRound();
       expect(errorNextRound).toBeUndefined();
 
-      expect(game!.currentRound.crisis).not.toBeNull();
+      expect(game!.currentRound.sabotageCard).not.toBeNull();
     },
   );
 
   it('deve iniciar rodada com crise se ocorrer uma sabotagem', () => {
-    const crisesDeck = makeCrisesDeck();
+    const sabotageCardsDeck = makeSabotageCardsDeck();
     const lawsDeck = makeLawsDeck('progressive');
-    const sabotageStage = new SabotageStage();
-    sabotageStage.sabotageOrSkip(true);
-    sabotageStage.drawCrises(crisesDeck);
-    sabotageStage.chooseSabotageCrisis(0);
+    const interceptionStage = new InterceptionStage();
+    interceptionStage.interceptOrSkip(true);
+    interceptionStage.drawSabotageCards(sabotageCardsDeck);
+    interceptionStage.chooseSabotageCard(0);
     const players = Game.createPlayers([
       ['p1', 'p1'],
       ['p2', 'p2'],
@@ -375,14 +375,14 @@ describe('Crises', () => {
         presidentQueue: new PresidentQueue(
           Array.from(players.values()).map((p) => p.id),
         ),
-        stages: [sabotageStage],
-        stageQueue: new StageQueue(RoundStageIndex.SABOTAGE),
+        stages: [interceptionStage],
+        stageQueue: new StageQueue(RoundStageIndex.INTERCEPTION),
       }),
     ];
 
     const [error, game] = Game.create({
       players,
-      crisesDeck,
+      sabotageCardsDeck,
       lawsDeck,
       rounds,
     });
@@ -390,7 +390,7 @@ describe('Crises', () => {
     expect(game).toBeDefined();
     const [errorNextRound] = game!.nextRound();
     expect(errorNextRound).toBeUndefined();
-    expect(game!.currentRound.crisis).not.toBeNull();
+    expect(game!.currentRound.sabotageCard).not.toBeNull();
   });
 });
 
@@ -398,7 +398,7 @@ describe('Cassações', () => {
   it.each([2, 3, 4])(
     'Deve iniciar o round com Impeachment a cada %d crises',
     (n) => {
-      const crisesDeck = makeCrisesDeck();
+      const sabotageCardsDeck = makeSabotageCardsDeck();
       const lawsDeck = makeLawsDeck('progressive');
       const playersNames: [string, string][] = [
         ['p1', 'p1'],
@@ -413,7 +413,7 @@ describe('Cassações', () => {
         return new Round({
           stages: [new RadicalizationStage(RadicalizationAction.ADVANCE_STAGE)],
           stageQueue: new StageQueue(RoundStageIndex.RADICALIZATION),
-          crisis: new Crisis(CRISES.PLANO_COHEN),
+          sabotageCard: new SabotageCard(SABOTAGE_CARDS.PLANO_COHEN),
           presidentQueue: new PresidentQueue(
             Array.from(players.values()).map((p) => p.id),
           ),
@@ -422,10 +422,10 @@ describe('Cassações', () => {
 
       const [error, game] = Game.create({
         players,
-        crisesDeck,
+        sabotageCardsDeck,
         lawsDeck,
         rounds,
-        crisesIntervalToImpeach: n,
+        sabotagesIntervalToImpeach: n,
       });
       expect(error).toBeUndefined();
       expect(game).toBeDefined();
@@ -440,7 +440,7 @@ describe('Cassações', () => {
 
 describe('Presidência', () => {
   it('deve iniciar a primeira rodada com um jogador aleatório como presidente interino', () => {
-    const crisesDeck = makeCrisesDeck();
+    const sabotageCardsDeck = makeSabotageCardsDeck();
     const lawsDeck = makeLawsDeck();
     const [error, game] = Game.create({
       players: Game.createPlayers([
@@ -451,7 +451,7 @@ describe('Presidência', () => {
         ['p5', 'p5'],
         ['p6', 'p6'],
       ]),
-      crisesDeck,
+      sabotageCardsDeck,
       lawsDeck,
     });
     expect(error).toBeUndefined();
@@ -469,14 +469,14 @@ describe('Presidência', () => {
       ['p5', 'p5'],
       ['p6', 'p6'],
     ]);
-    const crisesDeck = makeCrisesDeck();
+    const sabotageCardsDeck = makeSabotageCardsDeck();
     const lawsDeck = makeLawsDeck();
     const presidentQueue = new PresidentQueue(
       Array.from(players.values()).map((p) => p.id),
     );
     const [error, game] = Game.create({
       players,
-      crisesDeck,
+      sabotageCardsDeck,
       lawsDeck,
       presidentQueue,
       rounds: [
@@ -508,14 +508,14 @@ describe('Presidência', () => {
     ];
     const players = Game.createPlayers(playersNames);
     players.get('p1')!.impeached = true;
-    const crisesDeck = makeCrisesDeck();
+    const sabotageCardsDeck = makeSabotageCardsDeck();
     const lawsDeck = makeLawsDeck();
     const presidentQueue = new PresidentQueue(
       Array.from(players.values()).map((p) => p.id),
     );
     const [error, game] = Game.create({
       players,
-      crisesDeck,
+      sabotageCardsDeck,
       lawsDeck,
       presidentQueue,
       rounds: [
@@ -544,11 +544,11 @@ describe('Presidência', () => {
       ['p6', 'p6'],
     ];
     const players = Game.createPlayers(playersNames);
-    const crisesDeck = makeCrisesDeck();
+    const sabotageCardsDeck = makeSabotageCardsDeck();
     const lawsDeck = makeLawsDeck();
     const [error, game] = Game.create({
       players,
-      crisesDeck,
+      sabotageCardsDeck,
       lawsDeck,
       rounds: [
         new Round({
@@ -595,7 +595,7 @@ describe('Condições de Vitória', () => {
       ];
       const players = Game.createPlayers(playersNames);
       const lawsDeck = makeLawsDeck('progressive');
-      const crisesDeck = makeCrisesDeck();
+      const sabotageCardsDeck = makeSabotageCardsDeck();
       const presidentQueue = new PresidentQueue(
         Array.from(players.values()).map((p) => p.id),
       );
@@ -622,7 +622,7 @@ describe('Condições de Vitória', () => {
         },
       );
       const [error, game] = Game.create({
-        crisesDeck,
+        sabotageCardsDeck,
         lawsDeck,
         players,
         presidentQueue,
@@ -649,7 +649,7 @@ describe('Condições de Vitória', () => {
       ];
       const players = Game.createPlayers(playersNames);
       const lawsDeck = makeLawsDeck('conservative');
-      const crisesDeck = makeCrisesDeck();
+      const sabotageCardsDeck = makeSabotageCardsDeck();
       const presidentQueue = new PresidentQueue(
         Array.from(players.values()).map((p) => p.id),
       );
@@ -676,7 +676,7 @@ describe('Condições de Vitória', () => {
         },
       );
       const [error, game] = Game.create({
-        crisesDeck,
+        sabotageCardsDeck,
         lawsDeck,
         players,
         lawsToConservativeWin: n,
@@ -701,7 +701,7 @@ describe('Condições de Vitória', () => {
     ];
     const players = Game.createPlayers(playersNames);
     const lawsDeck = makeLawsDeck('conservative');
-    const crisesDeck = makeCrisesDeck();
+    const sabotageCardsDeck = makeSabotageCardsDeck();
     const radical = Array.from(players.values()).find(
       (p) => p.role === Role.RADICAL,
     )!;
@@ -722,7 +722,7 @@ describe('Condições de Vitória', () => {
       }),
     ];
     const [error, game] = Game.create({
-      crisesDeck,
+      sabotageCardsDeck,
       lawsDeck,
       players,
       presidentQueue,
@@ -744,7 +744,7 @@ describe('Condições de Vitória', () => {
     ];
     const players = Game.createPlayers(playersNames);
     const lawsDeck = makeLawsDeck('conservative');
-    const crisesDeck = makeCrisesDeck();
+    const sabotageCardsDeck = makeSabotageCardsDeck();
     const conservatives = Array.from(players.values()).filter(
       (p) => p.role === Role.CONSERVADOR,
     );
@@ -772,7 +772,7 @@ describe('Condições de Vitória', () => {
       }),
     ];
     const [error, game] = Game.create({
-      crisesDeck,
+      sabotageCardsDeck,
       lawsDeck,
       players,
       conservativesImpeachedToRadicalWin: 2,
@@ -796,7 +796,7 @@ describe('Condições de Vitória', () => {
     ];
     const players = Game.createPlayers(playersNames);
     const lawsDeck = makeLawsDeck('conservative');
-    const crisesDeck = makeCrisesDeck();
+    const sabotageCardsDeck = makeSabotageCardsDeck();
     const conservatives = Array.from(players.values()).filter(
       (p) => p.role === Role.CONSERVADOR,
     );
@@ -824,7 +824,7 @@ describe('Condições de Vitória', () => {
       }),
     ];
     const [error, game] = Game.create({
-      crisesDeck,
+      sabotageCardsDeck,
       lawsDeck,
       players,
       conservativesImpeachedToModerateWin: 2,
@@ -847,7 +847,7 @@ describe('Condições de Vitória', () => {
     ];
     const players = Game.createPlayers(playersNames);
     const lawsDeck = makeLawsDeck('progressive');
-    const crisesDeck = makeCrisesDeck();
+    const sabotageCardsDeck = makeSabotageCardsDeck();
     const presidentQueue = new PresidentQueue(
       Array.from(players.values()).map((p) => p.id),
     );
@@ -879,7 +879,7 @@ describe('Condições de Vitória', () => {
     });
 
     const [error, game] = Game.create({
-      crisesDeck,
+      sabotageCardsDeck,
       lawsDeck,
       players,
       presidentQueue,

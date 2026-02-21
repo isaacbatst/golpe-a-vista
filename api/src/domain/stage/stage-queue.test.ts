@@ -1,6 +1,6 @@
 import { Law } from 'src/data/laws';
 import { LawType } from 'src/domain/role';
-import { DossierStageFactory } from 'src/domain/stage/dossier-stage.factory';
+import { CPIStageFactory } from 'src/domain/stage/cpi-stage.factory';
 import { ImpeachmentStageFactory } from 'src/domain/stage/impeachment-stage.factory';
 import { LegislativeStageFactory } from 'src/domain/stage/legislative-stage.factory';
 import { StageType } from 'src/domain/stage/stage';
@@ -28,21 +28,21 @@ describe('Stage Queue', () => {
   it('deve começar pelo segundo estágio', () => {
     const factories = [
       new LegislativeStageFactory(),
-      new DossierStageFactory([new Law('1', LawType.CONSERVADORES, '1')]),
+      new CPIStageFactory([new Law('1', LawType.CONSERVADORES, '1')]),
     ];
     const queue = new StageQueue(1);
     const stage = queue.nextStage(factories);
-    expect(stage?.type).toBe(StageType.REPORT_DOSSIER);
+    expect(stage?.type).toBe(StageType.CPI);
   });
   it('deve pular o segundo estágio', () => {
     const factories = [
       new LegislativeStageFactory(),
       new ImpeachmentStageFactory('1'),
-      new DossierStageFactory([new Law('1', LawType.CONSERVADORES, '1')]),
+      new CPIStageFactory([new Law('1', LawType.CONSERVADORES, '1')]),
     ];
     const queue = new StageQueue(1);
     const stage = queue.nextStage(factories);
-    expect(stage?.type).toBe(StageType.REPORT_DOSSIER);
+    expect(stage?.type).toBe(StageType.CPI);
   });
 
   it('deve pular o segundo e o terceiro estágio', () => {
@@ -50,11 +50,11 @@ describe('Stage Queue', () => {
       new LegislativeStageFactory(),
       new ImpeachmentStageFactory('1'),
       new ImpeachmentStageFactory('1'),
-      new DossierStageFactory([new Law('1', LawType.CONSERVADORES, '1')]),
+      new CPIStageFactory([new Law('1', LawType.CONSERVADORES, '1')]),
     ];
     const queue = new StageQueue(1);
     const stage = queue.nextStage(factories);
-    expect(stage?.type).toBe(StageType.REPORT_DOSSIER);
+    expect(stage?.type).toBe(StageType.CPI);
   });
 
   it('deve retornar nulo se não houver mais estágios', () => {

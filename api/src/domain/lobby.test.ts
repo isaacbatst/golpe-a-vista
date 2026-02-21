@@ -3,15 +3,15 @@ import { Lobby } from './lobby';
 import { User } from './user';
 import { Deck } from './deck';
 import { Law } from '../data/laws';
-import { Crisis } from './crisis/crisis';
-import { makeCrisesDeck, makeLawsDeck } from './mock';
+import { SabotageCard } from './sabotage-card/sabotage-card';
+import { makeSabotageCardsDeck, makeLawsDeck } from './mock';
 
 let lawsDeck: Deck<Law>;
-let crisesDeck: Deck<Crisis>;
+let sabotageCardsDeck: Deck<SabotageCard>;
 
 beforeEach(() => {
   lawsDeck = makeLawsDeck();
-  crisesDeck = makeCrisesDeck();
+  sabotageCardsDeck = makeSabotageCardsDeck();
 });
 
 it('deve criar um lobby', () => {
@@ -62,7 +62,7 @@ it('deve iniciar um jogo com 6 jogadores', () => {
   lobby!.addUser(new User({ id: 'p4', name: 'p4' }));
   lobby!.addUser(new User({ id: 'p5', name: 'p5' }));
   lobby!.addUser(new User({ id: 'p6', name: 'p6' }));
-  const [startGameError, game] = lobby!.startGame('p1', crisesDeck, lawsDeck);
+  const [startGameError, game] = lobby!.startGame('p1', sabotageCardsDeck, lawsDeck);
   expect(startGameError).toBeUndefined();
   expect(game).toBeDefined();
 });
@@ -77,7 +77,7 @@ it.each([6, 7, 8, 9])(
     for (let i = 1; i < n; i++) {
       lobby!.addUser(new User({ id: `p${i}`, name: `p${i}`, isHost: i === 1 }));
     }
-    const [startGameError] = lobby!.startGame('p1', crisesDeck, lawsDeck);
+    const [startGameError] = lobby!.startGame('p1', sabotageCardsDeck, lawsDeck);
     expect(startGameError).toBe(`Mínimo de ${n} jogadores para iniciar o jogo`);
   },
 );

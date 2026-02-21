@@ -1,13 +1,13 @@
 import { createContext, PropsWithChildren, useContext } from "react";
 import useSocket from "../../../hooks/useSocket";
 import {
-  CrisisStageAction,
-  DossierAction,
+  SabotageCardStageAction,
+  CPIAction,
   LegislativeAction,
-  SabotageAction,
+  InterceptionAction,
   StageType,
   RadicalizationAction,
-  CRISIS_NAMES,
+  SABOTAGE_CARD_NAMES,
   MensalaoAction,
   ImpeachmentAction,
 } from "../../../lib/api.types";
@@ -22,15 +22,15 @@ type LobbySocketContextType = {
   legislativeStageChooseLawForVoting: (lawId: string) => void;
   legislativeStageVoting: (vote: boolean) => void;
   legislativeStageAdvanceStage: () => void;
-  dossierStageSelectRapporteur: (playerId: string) => void;
-  dossierStagePassDossier: () => void;
-  dossierStageAdvanceStage: () => void;
-  sabotageStageSabotageOrSkip: (sabotage: boolean) => void;
-  sabotageStageDrawCrises: () => void;
-  sabotageStageChooseCrisis: (index: number) => void;
-  sabotageStageAdvanceStage: () => void;
-  crisisStageStartCrisis: () => void;
-  crisisStageMensalaoChoosePlayers: (playerIds: string[]) => void;
+  cpiStageSelectRapporteur: (playerId: string) => void;
+  cpiStageDeliverCPI: () => void;
+  cpiStageAdvanceStage: () => void;
+  interceptionStageInterceptOrSkip: (intercept: boolean) => void;
+  interceptionStageDrawSabotageCards: () => void;
+  interceptionStageChooseSabotageCard: (index: number) => void;
+  interceptionStageAdvanceStage: () => void;
+  sabotageCardStageApply: () => void;
+  sabotageCardStageMensalaoChoosePlayers: (playerIds: string[]) => void;
   updateSession: (userId: string) => void;
   radicalizationStageChooseTarget: (targetId: string) => void;
   radicalizationStageAdvanceStage: () => void;
@@ -97,61 +97,61 @@ export const LobbySocketProvider = ({
             { lobbyId }
           );
         },
-        dossierStageSelectRapporteur: (rapporteurId: string) => {
+        cpiStageSelectRapporteur: (rapporteurId: string) => {
           socket?.emit(
-            `${StageType.REPORT_DOSSIER}:${DossierAction.SELECT_RAPPORTEUR}`,
+            `${StageType.CPI}:${CPIAction.SELECT_RAPPORTEUR}`,
             {
               lobbyId,
               rapporteurId,
             }
           );
         },
-        dossierStagePassDossier: () => {
+        cpiStageDeliverCPI: () => {
           socket?.emit(
-            `${StageType.REPORT_DOSSIER}:${DossierAction.PASS_DOSSIER}`,
+            `${StageType.CPI}:${CPIAction.DELIVER_CPI}`,
             { lobbyId }
           );
         },
-        dossierStageAdvanceStage: () => {
+        cpiStageAdvanceStage: () => {
           socket?.emit(
-            `${StageType.REPORT_DOSSIER}:${DossierAction.ADVANCE_STAGE}`,
+            `${StageType.CPI}:${CPIAction.ADVANCE_STAGE}`,
             { lobbyId }
           );
         },
-        sabotageStageSabotageOrSkip: (sabotage: boolean) => {
+        interceptionStageInterceptOrSkip: (intercept: boolean) => {
           socket?.emit(
-            `${StageType.SABOTAGE}:${SabotageAction.SABOTAGE_OR_SKIP}`,
-            { lobbyId, sabotage }
+            `${StageType.INTERCEPTION}:${InterceptionAction.INTERCEPT_OR_SKIP}`,
+            { lobbyId, intercept }
           );
         },
-        sabotageStageDrawCrises: () => {
-          socket?.emit(`${StageType.SABOTAGE}:${SabotageAction.DRAW_CRISIS}`, {
+        interceptionStageDrawSabotageCards: () => {
+          socket?.emit(`${StageType.INTERCEPTION}:${InterceptionAction.DRAW_SABOTAGE_CARDS}`, {
             lobbyId,
           });
         },
-        sabotageStageChooseCrisis: (index: number) => {
+        interceptionStageChooseSabotageCard: (index: number) => {
           socket?.emit(
-            `${StageType.SABOTAGE}:${SabotageAction.CHOOSE_CRISIS}`,
-            { lobbyId, crisisIndex: index }
+            `${StageType.INTERCEPTION}:${InterceptionAction.CHOOSE_SABOTAGE_CARD}`,
+            { lobbyId, sabotageCardIndex: index }
           );
         },
-        sabotageStageAdvanceStage: () => {
+        interceptionStageAdvanceStage: () => {
           socket?.emit(
-            `${StageType.SABOTAGE}:${SabotageAction.ADVANCE_STAGE}`,
+            `${StageType.INTERCEPTION}:${InterceptionAction.ADVANCE_STAGE}`,
             { lobbyId }
           );
         },
-        crisisStageStartCrisis: () => {
+        sabotageCardStageApply: () => {
           socket?.emit(
-            `${StageType.CRISIS}:${CrisisStageAction.START_CRISIS}`,
+            `${StageType.SABOTAGE_CARD}:${SabotageCardStageAction.APPLY_SABOTAGE_CARD}`,
             {
               lobbyId,
             }
           );
         },
-        crisisStageMensalaoChoosePlayers: (players: string[]) => {
+        sabotageCardStageMensalaoChoosePlayers: (players: string[]) => {
           socket?.emit(
-            `${StageType.CRISIS}:${CRISIS_NAMES.MENSALAO}:${MensalaoAction.CHOOSE_PLAYER}`,
+            `${StageType.SABOTAGE_CARD}:${SABOTAGE_CARD_NAMES.MENSALAO}:${MensalaoAction.CHOOSE_PLAYER}`,
             {
               lobbyId,
               players,

@@ -11,12 +11,12 @@ import { Lobby } from './domain/lobby';
 import { LegislativeStage } from './domain/stage/legislative-stage';
 import { User } from './domain/user';
 import { LobbyRepository } from './lobby.repository';
-import { DossierStage } from 'src/domain/stage/dossier-stage';
-import { SabotageStage } from 'src/domain/stage/sabotage-stage';
-import { CrisisStage } from 'src/domain/stage/crisis-stage';
+import { CPIStage } from 'src/domain/stage/cpi-stage';
+import { InterceptionStage } from 'src/domain/stage/interception-stage';
+import { SabotageCardStage } from 'src/domain/stage/sabotage-card-stage';
 import { RadicalizationStage } from './domain/stage/radicalization-stage';
-import { CRISIS_NAMES } from 'src/domain/crisis/crisis-names';
-import { Mensalao } from 'src/domain/crisis/mensalao';
+import { SABOTAGE_CARD_NAMES } from 'src/domain/sabotage-card/sabotage-card-names';
+import { Mensalao } from 'src/domain/sabotage-card/mensalao';
 import { ImpeachmentStage } from 'src/domain/stage/impeachment-stage';
 
 @Injectable()
@@ -114,10 +114,10 @@ export class AppService {
       return left(new NotFoundException('Lobby não encontrado'));
     }
 
-    const crisesDeck = this.deckRepository.cloneCrisesDeck();
+    const sabotageCardsDeck = this.deckRepository.cloneSabotageCardsDeck();
     const lawsDeck = this.deckRepository.cloneLawsDeck();
 
-    const [error] = lobby.startGame(input.issuerId, crisesDeck, lawsDeck);
+    const [error] = lobby.startGame(input.issuerId, sabotageCardsDeck, lawsDeck);
     if (error) {
       return left(new InternalServerErrorException(error));
     }
@@ -376,7 +376,7 @@ export class AppService {
     return right(lobby);
   }
 
-  async dossierStageSelectRapporteur(input: {
+  async cpiStageSelectRapporteur(input: {
     lobbyId: string;
     issuerId: string;
     rapporteurId: string;
@@ -386,10 +386,10 @@ export class AppService {
       return left(new NotFoundException('Lobby não encontrado'));
     }
     const stage = lobby.currentGame.currentRound.currentStage;
-    if (stage instanceof DossierStage === false) {
+    if (stage instanceof CPIStage === false) {
       return left(
         new UnprocessableEntityException(
-          'Não é possível selecionar um relator fora do estágio de Dossiê',
+          'Não é possível selecionar um relator fora do estágio de CPI',
         ),
       );
     }
@@ -423,7 +423,7 @@ export class AppService {
     return right(lobby);
   }
 
-  async dossierStagePassDossier(input: {
+  async cpiStageDeliverCPI(input: {
     lobbyId: string;
     issuerId: string;
   }): Promise<Either<Error, Lobby>> {
@@ -432,22 +432,22 @@ export class AppService {
       return left(new NotFoundException('Lobby não encontrado'));
     }
     const stage = lobby.currentGame.currentRound.currentStage;
-    if (stage instanceof DossierStage === false) {
+    if (stage instanceof CPIStage === false) {
       return left(
         new UnprocessableEntityException(
-          'Não é possível receber o Dossiê fora do estágio de Dossiê',
+          'Não é possível receber a CPI fora do estágio de CPI',
         ),
       );
     }
     if (lobby.currentGame.rapporteur?.id !== input.issuerId) {
       return left(
         new UnprocessableEntityException(
-          'Apenas o relator pode receber o dossiê',
+          'Apenas o relator pode receber a CPI',
         ),
       );
     }
 
-    const [error] = stage.passDossier(
+    const [error] = stage.deliverCPI(
       lobby.currentGame.lawsDeck,
       lobby.currentGame.rapporteur,
     );
@@ -458,7 +458,7 @@ export class AppService {
     return right(lobby);
   }
 
-  async dossierStageAdvanceStage(input: {
+  async cpiStageAdvanceStage(input: {
     lobbyId: string;
     issuerId: string;
   }): Promise<Either<Error, Lobby>> {
@@ -467,10 +467,10 @@ export class AppService {
       return left(new NotFoundException('Lobby não encontrado'));
     }
     const stage = lobby.currentGame.currentRound.currentStage;
-    if (stage instanceof DossierStage === false) {
+    if (stage instanceof CPIStage === false) {
       return left(
         new UnprocessableEntityException(
-          'Não é possível avançar a ação fora do estágio de Dossiê',
+          'Não é possível avançar a ação fora do estágio de CPI',
         ),
       );
     }
@@ -482,24 +482,24 @@ export class AppService {
     return right(lobby);
   }
 
-  async sabotageStageSabotageOrSkip(input: {
+  async interceptionStageInterceptOrSkip(input: {
     lobbyId: string;
     issuerId: string;
-    sabotage: boolean;
+    intercept: boolean;
   }): Promise<Either<Error, Lobby>> {
     const lobby = await this.lobbyRepository.get(input.lobbyId);
     if (!lobby) {
       return left(new NotFoundException('Lobby não encontrado'));
     }
     const stage = lobby.currentGame.currentRound.currentStage;
-    if (stage instanceof SabotageStage === false) {
+    if (stage instanceof InterceptionStage === false) {
       return left(
         new UnprocessableEntityException(
-          'Não é possível sabotar ou pular fora do estágio de Sabotagem',
+          'Não é possível interceptar ou pular fora do estágio de Interceptação',
         ),
       );
     }
-    const [error] = stage.sabotageOrSkip(input.sabotage);
+    const [error] = stage.interceptOrSkip(input.intercept);
     if (error) {
       return left(new InternalServerErrorException(error));
     }
@@ -507,7 +507,7 @@ export class AppService {
     return right(lobby);
   }
 
-  async sabotageStageAdvanceStage(input: {
+  async interceptionStageAdvanceStage(input: {
     lobbyId: string;
     issuerId: string;
   }): Promise<Either<Error, Lobby>> {
@@ -516,10 +516,10 @@ export class AppService {
       return left(new NotFoundException('Lobby não encontrado'));
     }
     const stage = lobby.currentGame.currentRound.currentStage;
-    if (stage instanceof SabotageStage === false) {
+    if (stage instanceof InterceptionStage === false) {
       return left(
         new UnprocessableEntityException(
-          'Não é possível avançar a ação fora do estágio de Sabotagem',
+          'Não é possível avançar a ação fora do estágio de Interceptação',
         ),
       );
     }
@@ -531,7 +531,7 @@ export class AppService {
     return right(lobby);
   }
 
-  async sabotageDrawCrises(input: {
+  async interceptionStageDrawCrises(input: {
     lobbyId: string;
     issuerId: string;
   }): Promise<Either<Error, Lobby>> {
@@ -540,14 +540,14 @@ export class AppService {
       return left(new NotFoundException('Lobby não encontrado'));
     }
     const stage = lobby.currentGame.currentRound.currentStage;
-    if (stage instanceof SabotageStage === false) {
+    if (stage instanceof InterceptionStage === false) {
       return left(
         new UnprocessableEntityException(
-          'Não é possível sacar crises fora do estágio de Sabotagem',
+          'Não é possível sacar cartas de sabotagem fora do estágio de Interceptação',
         ),
       );
     }
-    const [error] = stage.drawCrises(lobby.currentGame.crisesDeck);
+    const [error] = stage.drawSabotageCards(lobby.currentGame.sabotageCardsDeck);
     if (error) {
       return left(new InternalServerErrorException(error));
     }
@@ -555,24 +555,24 @@ export class AppService {
     return right(lobby);
   }
 
-  async sabotageChooseCrisis(input: {
+  async interceptionStageChooseSabotageCard(input: {
     lobbyId: string;
     issuerId: string;
-    crisisIndex: number;
+    sabotageCardIndex: number;
   }): Promise<Either<Error, Lobby>> {
     const lobby = await this.lobbyRepository.get(input.lobbyId);
     if (!lobby) {
       return left(new NotFoundException('Lobby não encontrado'));
     }
     const stage = lobby.currentGame.currentRound.currentStage;
-    if (stage instanceof SabotageStage === false) {
+    if (stage instanceof InterceptionStage === false) {
       return left(
         new UnprocessableEntityException(
-          'Não é possível escolher uma crise fora do estágio de Sabotagem',
+          'Não é possível escolher uma carta de sabotagem fora do estágio de Interceptação',
         ),
       );
     }
-    const [error] = stage.chooseSabotageCrisis(input.crisisIndex);
+    const [error] = stage.chooseSabotageCard(input.sabotageCardIndex);
     if (error) {
       return left(new InternalServerErrorException(error));
     }
@@ -580,7 +580,7 @@ export class AppService {
     return right(lobby);
   }
 
-  async crisisStageStartCrisis(input: {
+  async sabotageCardStageApply(input: {
     lobbyId: string;
     issuerId: string;
   }): Promise<Either<Error, Lobby>> {
@@ -589,7 +589,7 @@ export class AppService {
       return left(new NotFoundException('Lobby não encontrado'));
     }
     const stage = lobby.currentGame.currentRound.currentStage;
-    if (stage instanceof CrisisStage === false) {
+    if (stage instanceof SabotageCardStage === false) {
       return left(
         new UnprocessableEntityException(
           'Não é possível iniciar uma crise fora do estágio de Crise',
@@ -597,7 +597,7 @@ export class AppService {
       );
     }
 
-    if (!stage.crisis && stage.isComplete) {
+    if (!stage.sabotageCard && stage.isComplete) {
       const [error] = this.advanceStageOrRound(lobby);
       if (error) {
         return left(new InternalServerErrorException(error));
@@ -607,7 +607,7 @@ export class AppService {
       return right(lobby);
     }
 
-    const [error] = stage.startCrisis(lobby.currentGame.currentRound);
+    const [error] = stage.applySabotageCard(lobby.currentGame.currentRound);
     if (error) {
       return left(new UnprocessableEntityException(error));
     }
@@ -623,7 +623,7 @@ export class AppService {
     return right(lobby);
   }
 
-  async crisisStageMensalaoChoosePlayers(input: {
+  async sabotageCardStageMensalaoChoosePlayers(input: {
     lobbyId: string;
     issuerId: string;
     chosenPlayers: string[];
@@ -633,21 +633,21 @@ export class AppService {
       return left(new NotFoundException('Lobby não encontrado'));
     }
     const stage = lobby.currentGame.currentRound.currentStage;
-    if (stage instanceof CrisisStage === false) {
+    if (stage instanceof SabotageCardStage === false) {
       return left(
         new UnprocessableEntityException(
           'Não é possível escolher jogadores na crise Mensalão fora do estágio de Crise',
         ),
       );
     }
-    if (stage.crisisEffect?.crisis !== CRISIS_NAMES.MENSALAO) {
+    if (stage.sabotageCardEffect?.sabotageCardName !== SABOTAGE_CARD_NAMES.MENSALAO) {
       return left(
         new UnprocessableEntityException(
           'Não é possível realizar a ação da crise Mensalão',
         ),
       );
     }
-    const mensalao = stage.crisisEffect as Mensalao;
+    const mensalao = stage.sabotageCardEffect as Mensalao;
     mensalao.setMirrorId(input.issuerId);
     mensalao.choosePlayers(input.chosenPlayers);
     await this.lobbyRepository.save(lobby);

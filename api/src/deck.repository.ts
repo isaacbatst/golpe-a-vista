@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { CrisisFactory } from 'src/domain/crisis/crisis-factory';
-import CRISES from './data/crises';
+import { SabotageCardFactory } from 'src/domain/sabotage-card/sabotage-card-factory';
+import SABOTAGE_CARDS from './data/sabotage-cards';
 import { Law, LAWS } from './data/laws';
-import { Crisis } from './domain/crisis/crisis';
+import { SabotageCard } from './domain/sabotage-card/sabotage-card';
 import { Deck } from './domain/deck';
 
 @Injectable()
 export class DeckRepository {
   private lawsDeck: Deck<Law>;
-  private crisesDeck: Deck<Crisis>;
+  private sabotageCardsDeck: Deck<SabotageCard>;
 
   constructor() {
     const [lawsDeckError, lawsDeck] = Deck.create(LAWS);
@@ -17,22 +17,22 @@ export class DeckRepository {
     }
     this.lawsDeck = lawsDeck;
 
-    const [crisesDeckError, crisesDeck] = Deck.create(
-      Object.keys(CRISES).map((key: keyof typeof CRISES) =>
-        CrisisFactory.create(key),
+    const [sabotageCardsDeckError, sabotageCardsDeck] = Deck.create(
+      Object.keys(SABOTAGE_CARDS).map((key: keyof typeof SABOTAGE_CARDS) =>
+        SabotageCardFactory.create(key),
       ),
     );
-    if (!crisesDeck) {
-      throw new Error(crisesDeckError);
+    if (!sabotageCardsDeck) {
+      throw new Error(sabotageCardsDeckError);
     }
-    this.crisesDeck = crisesDeck;
+    this.sabotageCardsDeck = sabotageCardsDeck;
   }
 
   cloneLawsDeck() {
     return this.lawsDeck.clone();
   }
 
-  cloneCrisesDeck() {
-    return this.crisesDeck.clone();
+  cloneSabotageCardsDeck() {
+    return this.sabotageCardsDeck.clone();
   }
 }

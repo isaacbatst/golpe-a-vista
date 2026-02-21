@@ -1,5 +1,5 @@
 import { Law } from '../data/laws';
-import { Crisis } from './crisis/crisis';
+import { SabotageCard } from './sabotage-card/sabotage-card';
 import { Deck } from './deck';
 import { Either, left, right } from './either';
 import { Game } from './game';
@@ -74,7 +74,7 @@ export class Lobby {
 
   startGame(
     userId: string,
-    crisesDeck: Deck<Crisis>,
+    sabotageCardsDeck: Deck<SabotageCard>,
     lawsDeck: Deck<Law>,
   ): Either<string, Game> {
     if (userId !== this.host?.id) {
@@ -89,7 +89,7 @@ export class Lobby {
     );
     const [error, game] = Game.create({
       players: Game.createPlayers(players),
-      crisesDeck,
+      sabotageCardsDeck,
       lawsDeck,
     });
 
