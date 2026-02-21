@@ -50,10 +50,10 @@ it('deve criar um lobby sem jogo', () => {
 it('deve retornar o mínimo de jogadores para iniciar o jogo', () => {
   const [error, lobby] = Lobby.create();
   expect(error).toBeUndefined();
-  expect(lobby!.minPlayers).toBe(7);
+  expect(lobby!.minPlayers).toBe(6);
 });
 
-it('deve iniciar um jogo com 7 jogadores', () => {
+it('deve iniciar um jogo com 6 jogadores', () => {
   const [error, lobby] = Lobby.create({});
   expect(error).toBeUndefined();
   lobby!.addUser(new User({ id: 'p1', name: 'p1', isHost: true }));
@@ -62,7 +62,6 @@ it('deve iniciar um jogo com 7 jogadores', () => {
   lobby!.addUser(new User({ id: 'p4', name: 'p4' }));
   lobby!.addUser(new User({ id: 'p5', name: 'p5' }));
   lobby!.addUser(new User({ id: 'p6', name: 'p6' }));
-  lobby!.addUser(new User({ id: 'p7', name: 'p7' }));
   const [startGameError, game] = lobby!.startGame('p1', sabotageCardsDeck, lawsDeck);
   expect(startGameError).toBeUndefined();
   expect(game).toBeDefined();

@@ -21,11 +21,11 @@ const InterceptionStageSaboteur = ({ stage }: Props) => {
     return (
       <div className="flex flex-col items-center space-y-4">
         <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
-          Você é o Golpista!
+          Sabotagem
         </h2>
         <p className="text-sm max-w-lg text-muted-foreground">
-          Quando uma lei progressista é aprovada, o Golpista pode sabotar o
-          governo iniciando uma sabotagem na próxima rodada.
+          Quando uma lei progressista é aprovada, os conservadores podem sabotar
+          o governo iniciando uma sabotagem na próxima rodada.
         </p>
         <div className="flex gap-2">
           <Button
@@ -52,7 +52,7 @@ const InterceptionStageSaboteur = ({ stage }: Props) => {
     return (
       <div className="flex flex-col items-center gap-4 text-center">
         <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
-          Você é o Golpista!
+          Sabotagem
         </h2>
         <p className="text-sm max-w-lg text-muted-foreground">
           Você irá sortear 3 sabotagens para o governo e escolher uma para ser
@@ -79,7 +79,7 @@ const InterceptionStageSaboteur = ({ stage }: Props) => {
     return (
       <div className="flex flex-col items-center gap-4 text-center">
         <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
-          Você é o Golpista!
+          Sabotagem
         </h2>
         <p className="text-sm max-w-lg text-muted-foreground">
           Você irá sortear 3 sabotagens para o governo e escolher uma para ser
@@ -108,11 +108,11 @@ const InterceptionStageSaboteur = ({ stage }: Props) => {
   return (
     <div className="space-y-4 flex flex-col items-center">
       <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight">
-        Você é o Golpista!
+        Sabotagem
       </h2>
       <p className="text-sm max-w-lg text-muted-foreground">
         {stage.selectedSabotageCard
-           ? "O restante dos Conservadores está recebendo informações sobre a sabotagem que você escolheu."
+           ? "A sabotagem escolhida será iniciada na próxima rodada."
            :"Você escolheu não sabotar o governo."}
       </p>
       {stage.selectedSabotageCard && (

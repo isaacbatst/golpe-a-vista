@@ -23,7 +23,7 @@ export class Lobby {
   ) {}
 
   static create(params: LobbyParams = {}): Either<string, Lobby> {
-    const { id = '00000', minPlayers = 7 } = params;
+    const { id = '00000', minPlayers = 6 } = params;
     return right(new Lobby(id, minPlayers));
   }
 
